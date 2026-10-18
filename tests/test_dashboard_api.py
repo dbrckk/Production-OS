@@ -343,6 +343,33 @@ def test_dashboard_autopilot_summary_reports_capacity_and_eta(
     assert summary["eta_coverage_jobs"] == 2
     assert summary["eta_total_jobs"] == 2
 
+    # A completed one-shot Actions runner may retain an online heartbeat.
+    # It must never advertise an immediate claim slot for queued work.
+    control.workers.register("github-actions-worker", ["node"], 3)
+    ephemeral = control.queue.enqueue({
+        "idempotency_key":"autopilot-ephemeral-only",
+        "handoff":{
+            "repository":"dbrckk/example",
+            "task":"Needs fresh Actions dispatch",
+            "priority":30,
+        },
+        "required_capabilities":["node"],
+    })
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["summary"]["ready_now"] == 1
+    assert payload["summary"]["blocked"] == 2
+    assert payload["summary"]["free_slots"] == 1
+    assert payload["workers_available"] == 1
+    rows = {item["job_key"]:item for item in payload["jobs"]}
+    assert rows[ephemeral["key"]]["preferred_worker"] is None
+    assert rows[ephemeral["key"]]["eligible_workers"] == []
+    assert rows[ephemeral["key"]]["wait_reason"] == "worker_wake_required"
+
 
 def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane):
     base, _ = running_control_plane
