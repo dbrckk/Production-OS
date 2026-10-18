@@ -4,6 +4,23 @@ Portfolio control plane for autonomous software production.
 
 Production-OS manages portfolio state, prioritization, reuse, compatibility, validation, and execution feedback before handing work to `ai-dev-server`.
 
+## Local development checks
+
+Use Python 3.11 or 3.12. The development extra includes the PostgreSQL driver
+needed to collect the full test suite, even when the database-backed tests are
+skipped locally:
+
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install -e ".[dev]"
+.venv/bin/python -m pytest -q -m "not e2e"
+.venv/bin/python -W error::SyntaxWarning -m compileall -q src scripts
+.venv/bin/python -m build
+```
+
+The PostgreSQL end-to-end tests also need a running PostgreSQL instance and
+`PRODUCTION_OS_TEST_POSTGRES`; CI starts one and runs `pytest -q -m e2e`.
+
 ## Current capabilities
 
 - GitHub portfolio discovery

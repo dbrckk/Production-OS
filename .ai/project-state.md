@@ -18,6 +18,13 @@
 
 Status: active
 
+## 2026-10-18 — local development and packaging reliability
+
+- Reproduced a full-suite collection failure after installing only `.[dev]`: `tests/test_production_stack_e2e.py` imports `psycopg` unconditionally, but the development extra lacked that dependency. Added the PostgreSQL driver to `dev` and made CI use that same install path, so local and CI dependency contracts agree.
+- Updated packaging to the current SPDX license form and setuptools minimum; the isolated sdist/wheel build succeeds without the prior license deprecation warnings. Documented the local install and verification commands in README.
+- Verified locally: 1,307 tests passed and 17 skipped (no PostgreSQL test service configured), compileall passed, Compose overlays validated, build passed, and a fresh `.[dev]` environment imported `psycopg` and ran the CLI help. PostgreSQL E2E and hosted worker-to-target delivery were not exercised in this local workspace.
+- Next priority remains exact-SHA hosted worker delivery and real PostgreSQL/device qualification; this packaging change does not establish those outcomes.
+
 ## Working
 - 2026-10-14: Preserve native inference usage quality in managed-project aggregation and dashboard. Estimated calls display an explicit estimation qualifier; unavailable failure counters display a partial-accounting qualifier. Existing assertions extended; validation pending. Worker accounting PR300 under qualification; no Android or complete hosted-objective claim.
 - 2026-10-13: **Case-variant default branch fail-closed (PR #264; exact-HEAD CI pending):** source audit on `6c7855d2ec4c7da6154835d4773e0e09b24650f8` ([CI 38432206647](https://github.com/dbrckk/Production-OS/actions/runs/38432206647) SUCCESS 4/4; AI Dev Server `8f028051227b3100f292e98f05d3632d9da4049e` 7/7) found five direct/shared repository delivery checks compared `target_ref` to `main`/`master` with case sensitivity. GitHub branch names can be case variants, so a repository default branch named `Main`/`MASTER` could bypass the policy. Centralize the fail-closed comparison using `.casefold()` for `main`, `master` and `refs/heads/` prefixes, including direct, batch, remote and internal paths. Extend **existing owned-PNG Asset Forge → Production-OS → real Godot integration smoke** for mixed-case refs in single local/remote, batch and internal transactional delivery; no new unit tests or paid provider calls. New exact SHA CI required; PR stays DRAFT, no merge, Render or canaries.
