@@ -502,7 +502,7 @@ jobs:
           cache: pip
 
       - name: Install
-        run: python -m pip install -e ".[dev,postgres]"
+        run: python -m pip install -e ".[dev]"
 
       - name: Compile
         run: python -W error::SyntaxWarning -m compileall -q src scripts
@@ -541,7 +541,7 @@ jobs:
           cache: pip
 
       - name: Install
-        run: python -m pip install -e ".[dev,postgres]"
+        run: python -m pip install -e ".[dev]"
 
       - name: Compile
         run: python -W error::SyntaxWarning -m compileall -q src scripts
@@ -22174,7 +22174,7 @@ services:
 ## File: pyproject.toml
 ````toml
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -22183,20 +22183,19 @@ version = "1.0.0"
 description = "Portfolio control plane for autonomous software production"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "dbrckk" }]
 dependencies = ["cryptography>=43.0"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.2"]
+dev = ["pytest>=8.0", "build>=1.2", "psycopg[binary]>=3.2"]
 postgres = ["psycopg[binary]>=3.2"]
 
 [project.scripts]
@@ -22223,6 +22222,23 @@ markers = [
 Portfolio control plane for autonomous software production.
 
 Production-OS manages portfolio state, prioritization, reuse, compatibility, validation, and execution feedback before handing work to `ai-dev-server`.
+
+## Local development checks
+
+Use Python 3.11 or 3.12. The development extra includes the PostgreSQL driver
+needed to collect the full test suite, even when the database-backed tests are
+skipped locally:
+
+```bash
+python -m venv .venv
+.venv/bin/python -m pip install -e ".[dev]"
+.venv/bin/python -m pytest -q -m "not e2e"
+.venv/bin/python -W error::SyntaxWarning -m compileall -q src scripts
+.venv/bin/python -m build
+```
+
+The PostgreSQL end-to-end tests also need a running PostgreSQL instance and
+`PRODUCTION_OS_TEST_POSTGRES`; CI starts one and runs `pytest -q -m e2e`.
 
 ## Current capabilities
 

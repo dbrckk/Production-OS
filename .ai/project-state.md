@@ -119,16 +119,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-18T10:14:28Z
+Generated: 2026-10-20T08:22:50Z
 
 ### Git
 - Branch: `main`
-- Head: `019db671edb0`
-- Commit date: 2026-10-18T06:14:20-04:00
-- Commit: fix(autopilot): exclude stale Actions worker capacity (#277)
+- Head: `4e3ae700f6cc`
+- Commit date: 2026-10-20T04:22:40-04:00
+- Commit: fix(packaging): make dev install collect full test suite (#278)
 - Tracked files: 572
 
 ### Recently changed files
+- `.github/workflows/ci.yml`
+- `README.md`
+- `pyproject.toml`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_api.py`

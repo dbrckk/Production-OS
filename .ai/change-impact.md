@@ -1,16 +1,16 @@
 # Change impact
 
-Base: 1fa26455f067733480220eb572d3d6cfe38772f3
-Head: 019db671edb0b5484b79fa0db0c9b1d23008b54d
+Base: 690a332b33ba6535eeb6c4ff3b2bac754647374f
+Head: 4e3ae700f6cc7eaf038dae7c84742f409db5a81c
 
 ## Changed files
-- M src/production_os/dashboard_service.py
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_api.py
+- M .github/workflows/ci.yml
+- M README.md
+- M pyproject.toml
 
 ## Affected areas
-- src
-- tests
+- .github
+- (root)
 
 ## Related test candidates
 - No direct filename-based test match detected.
