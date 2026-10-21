@@ -1,3 +1,10 @@
+## 2026-10-21 — bound canary HTTP reads and reject stale source objectives
+
+- Worker candidate PR374 (`5eef5148faeb2922e47d6f6c081efa8511b43c79`) addresses a real HTTP deadline violation: a 2-second readiness budget accepted a ready response after 3.02 seconds because GET used a fixed 30-second timeout. Warmup and workflow monitoring now cap each read to the remaining budget and do not start a call below the transport minimum. Delayed-server checks now time out at 2.01/2.02 seconds.
+- Monitoring retries only transient gateway/connection GET failures within its existing budget; authorization errors and malformed payloads stop it. Launch POST, provider configuration and project/inference budgets are unchanged. Existing test function extended without new unit tests; 1,784 unittest cases, 1,845 pytest cases with199 subtests and six actual authenticated server/worker integrations passed. Final exact-head/merge evidence is tracked in worker PR374 and this continuation PR.
+- A fresh read-only preflight found the previous star-list task no longer applicable on source blob a7712c0410df84467f6792469729c455edd8d041. Sequence42 was only previewed, not activated; no queue mutation or inference. Select a new reviewed applicable objective before live generation. Jumpy37/star-list154 remain drafts.
+- Worker373 is fully qualified at84ace29 (seven branch workflows, three CircleCI checks, eight postmerge workflows). Production-OS286 at06d0fc81 passed four branch/postmerge jobs; Render dep-dbcilnbncjis73asspo0 is live. The first HTTP read after idle timed out, then read-only warmup returned health/readiness200 with database reachable. No paid/provider setting change, budget increase or target merge.
+
 ## 2026-10-21 — retain publication evidence when source delivery is blocked
 
 - Worker candidate PR373 (`891145dd4779fd233ab1a567ec1c28c8c2ea001b`) corrects a reproduced reporting gap: a blocked task could omit its already-published source commit/file when delivery threw before returning a report or a saved blocked goal skipped execution.
