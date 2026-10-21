@@ -1,19 +1,20 @@
 # Change impact
 
-Base: 690a332b33ba6535eeb6c4ff3b2bac754647374f
-Head: 4e3ae700f6cc7eaf038dae7c84742f409db5a81c
+Base: f5171c6a58e98210e44cdd66608b1ea290c1bc15
+Head: 73cc7b1368ca829252bb038446c7499fb89218d7
 
 ## Changed files
-- M .github/workflows/ci.yml
-- M README.md
-- M pyproject.toml
+- M docs/remote-worker-executor-protocol.md
+- M src/production_os/remote_worker.py
+- M tests/test_remote_worker.py
 
 ## Affected areas
-- .github
-- (root)
+- docs
+- src
+- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_remote_worker.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

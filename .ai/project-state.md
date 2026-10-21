@@ -119,26 +119,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-20T08:22:50Z
+Generated: 2026-10-21T12:24:14Z
 
 ### Git
 - Branch: `main`
-- Head: `4e3ae700f6cc`
-- Commit date: 2026-10-20T04:22:40-04:00
-- Commit: fix(packaging): make dev install collect full test suite (#278)
+- Head: `73cc7b1368ca`
+- Commit date: 2026-10-21T08:24:01-04:00
+- Commit: fix(worker): block credential-forwarding redirects and preserve HTTP errors (#281)
 - Tracked files: 572
 
 ### Recently changed files
+- `docs/remote-worker-executor-protocol.md`
+- `src/production_os/remote_worker.py`
+- `tests/test_remote_worker.py`
 - `.github/workflows/ci.yml`
 - `README.md`
 - `pyproject.toml`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_api.py`
-- `src/production_os/control_plane.py`
-- `src/production_os/managed_projects.py`
-- `tests/test_managed_projects_http_v4.py`
-- `src/production_os/workflow_engine.py`
+- `.github/dependabot.yml`
+- `.github/workflows/ai-repo-map.yml`
+- `.github/workflows/semantic-refresh.yml`
+- `.gitignore`
+- `.python-version`
+- `.repo-standards.yml`
+- `.serena/.gitignore`
+- `.serena/project.yml`
+- `AGENTS.md`
+- `CHANGELOG.md`
+- `Dockerfile`
 
 ### Project signals
 - `pyproject.toml`

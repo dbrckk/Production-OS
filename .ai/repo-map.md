@@ -11042,6 +11042,13 @@ future = pool.submit(self._execute, job)
 ````python
 WORKER_CONTROL_STATES = {"active", "paused", "draining"}
 ⋮----
+class _NoRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+⋮----
+# Worker credentials and mutation requests belong only to the
+# configured control plane. A redirect is not an acknowledgement.
+⋮----
 @dataclass(frozen=True, slots=True)
 class RemoteJob
 ⋮----
@@ -11059,8 +11066,16 @@ request = urllib.request.Request(
 ⋮----
 raw = response.read()
 ⋮----
-raw = exc.read()
-payload = json.loads(raw or b"{}")
+# Proxies can return HTML, empty bodies or non-object JSON.
+# Preserve the HTTP failure even when no API error is available.
+⋮----
+raw = exc.read(8192)
+⋮----
+error_payload = json.loads(raw or b"{}")
+⋮----
+error_payload = {}
+detail = error_payload.get("error") if isinstance(error_payload, dict) else None
+message = f"control-plane HTTP {exc.code}"
 ⋮----
 payload = {"worker_id":self.worker_id}
 ⋮----
@@ -20186,6 +20201,29 @@ thread=threading.Thread(target=server.serve_forever,daemon=True)
 ⋮----
 client=RemoteWorkerClient(
 job=client.claim()
+⋮----
+# Exercise the actual HTTP transport: a redirect must neither forward
+# the worker credential nor turn a mutation into a successful GET.
+redirected_requests = []
+⋮----
+class Destination(BaseHTTPRequestHandler)
+⋮----
+def do_GET(self)
+⋮----
+do_POST = do_GET
+⋮----
+def log_message(self, *_args)
+⋮----
+destination = ThreadingHTTPServer(("127.0.0.1", 0), Destination)
+⋮----
+class Gateway(BaseHTTPRequestHandler)
+⋮----
+bodies = {
+⋮----
+gateway = ThreadingHTTPServer(("127.0.0.1", 0), Gateway)
+threads = [threading.Thread(target=item.serve_forever, daemon=True)
+⋮----
+client = RemoteWorkerClient(f"http://127.0.0.1:{gateway.server_port}", "worker", "w1", [])
 ⋮----
 def test_remote_worker_detects_superseded_generation(tmp_path)
 ⋮----

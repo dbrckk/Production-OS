@@ -7338,6 +7338,29 @@ thread=threading.Thread(target=server.serve_forever,daemon=True)
 client=RemoteWorkerClient(
 job=client.claim()
 ⋮----
+# Exercise the actual HTTP transport: a redirect must neither forward
+# the worker credential nor turn a mutation into a successful GET.
+redirected_requests = []
+⋮----
+class Destination(BaseHTTPRequestHandler)
+⋮----
+def do_GET(self)
+⋮----
+do_POST = do_GET
+⋮----
+def log_message(self, *_args)
+⋮----
+destination = ThreadingHTTPServer(("127.0.0.1", 0), Destination)
+⋮----
+class Gateway(BaseHTTPRequestHandler)
+⋮----
+bodies = {
+⋮----
+gateway = ThreadingHTTPServer(("127.0.0.1", 0), Gateway)
+threads = [threading.Thread(target=item.serve_forever, daemon=True)
+⋮----
+client = RemoteWorkerClient(f"http://127.0.0.1:{gateway.server_port}", "worker", "w1", [])
+⋮----
 def test_remote_worker_detects_superseded_generation(tmp_path)
 ⋮----
 original=control.workflows.create(

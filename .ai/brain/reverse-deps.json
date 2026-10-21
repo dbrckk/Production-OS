@@ -22,11 +22,12 @@
         "src/production_os/github_client.py",
         "src/production_os/workers.py",
         "tests/test_asset_forge.py",
-        "tests/test_github_automerge.py"
+        "tests/test_github_automerge.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 8
+      "out_degree": 9
     },
     "scripts/render-start.py": {
       "dependencies": [
@@ -422,7 +423,8 @@
         "src/production_os/components.py",
         "src/production_os/github_client.py",
         "tests/test_asset_forge.py",
-        "tests/test_github_automerge.py"
+        "tests/test_github_automerge.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "integration/godot4_relocated_import_smoke.py",
@@ -432,7 +434,7 @@
         "tests/test_asset_forge_dispatch_probe.py"
       ],
       "in_degree": 5,
-      "out_degree": 4
+      "out_degree": 5
     },
     "src/production_os/asymmetric_attestations.py": {
       "dependencies": [
@@ -456,7 +458,9 @@
       "out_degree": 5
     },
     "src/production_os/atomic_io.py": {
-      "dependencies": [],
+      "dependencies": [
+        "tests/test_remote_worker.py"
+      ],
       "dependents": [
         "src/production_os/approvals.py",
         "src/production_os/audit_checkpoint.py",
@@ -474,7 +478,7 @@
         "tests/test_p6_hardening.py"
       ],
       "in_degree": 14,
-      "out_degree": 0
+      "out_degree": 1
     },
     "src/production_os/attestations.py": {
       "dependencies": [
@@ -552,13 +556,14 @@
     },
     "src/production_os/backup.py": {
       "dependencies": [
-        "src/production_os/atomic_io.py"
+        "src/production_os/atomic_io.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "src/production_os/cli.py"
       ],
       "in_degree": 1,
-      "out_degree": 1
+      "out_degree": 2
     },
     "src/production_os/browser_computer.py": {
       "dependencies": [
@@ -770,7 +775,8 @@
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
         "tests/test_fairness.py",
-        "tests/test_github_automerge.py"
+        "tests/test_github_automerge.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "tests/test_agent_benchmark.py",
@@ -788,7 +794,7 @@
         "tests/test_remote_worker_runner.py"
       ],
       "in_degree": 13,
-      "out_degree": 71
+      "out_degree": 72
     },
     "src/production_os/compatibility.py": {
       "dependencies": [
@@ -917,13 +923,15 @@
       "out_degree": 25
     },
     "src/production_os/control_surface.py": {
-      "dependencies": [],
+      "dependencies": [
+        "tests/test_remote_worker.py"
+      ],
       "dependents": [
         "src/production_os/cli.py",
         "tests/test_learning_control_surface.py"
       ],
       "in_degree": 2,
-      "out_degree": 0
+      "out_degree": 1
     },
     "src/production_os/controller.py": {
       "dependencies": [
@@ -1004,7 +1012,8 @@
       "dependencies": [
         "src/production_os/database_maintenance_lock.py",
         "tests/test_asset_forge.py",
-        "tests/test_dashboard_backups.py"
+        "tests/test_dashboard_backups.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -1015,7 +1024,7 @@
         "tests/test_release21_offline_restore_e2e.py"
       ],
       "in_degree": 6,
-      "out_degree": 3
+      "out_degree": 4
     },
     "src/production_os/dashboard_control.py": {
       "dependencies": [
@@ -1260,7 +1269,8 @@
         "src/production_os/receipts.py",
         "src/production_os/runtime_state.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workers.py"
+        "src/production_os/workers.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -1268,7 +1278,7 @@
         "tests/test_reconciliation_dispatch.py"
       ],
       "in_degree": 3,
-      "out_degree": 11
+      "out_degree": 12
     },
     "src/production_os/dual_sign.py": {
       "dependencies": [
@@ -1394,7 +1404,8 @@
     "src/production_os/github_client.py": {
       "dependencies": [
         "src/production_os/models.py",
-        "src/production_os/source_tree.py"
+        "src/production_os/source_tree.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "integration/real_producer_bundle_smoke.py",
@@ -1417,7 +1428,7 @@
         "tests/test_github_client_put_file.py"
       ],
       "in_degree": 18,
-      "out_degree": 2
+      "out_degree": 3
     },
     "src/production_os/github_webhook.py": {
       "dependencies": [
@@ -1478,14 +1489,15 @@
     "src/production_os/health.py": {
       "dependencies": [
         "src/production_os/runtime_state.py",
-        "tests/test_asset_forge.py"
+        "tests/test_asset_forge.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "src/production_os/controller.py",
         "tests/test_health_metrics.py"
       ],
       "in_degree": 2,
-      "out_degree": 2
+      "out_degree": 3
     },
     "src/production_os/health_server.py": {
       "dependencies": [
@@ -1510,7 +1522,8 @@
     },
     "src/production_os/history.py": {
       "dependencies": [
-        "src/production_os/models.py"
+        "src/production_os/models.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -1534,7 +1547,7 @@
         "tests/test_skill_memory.py"
       ],
       "in_degree": 19,
-      "out_degree": 1
+      "out_degree": 2
     },
     "src/production_os/journal.py": {
       "dependencies": [
@@ -1731,13 +1744,15 @@
       "out_degree": 2
     },
     "src/production_os/observability.py": {
-      "dependencies": [],
+      "dependencies": [
+        "tests/test_remote_worker.py"
+      ],
       "dependents": [
         "src/production_os/controller.py",
         "tests/test_observability.py"
       ],
       "in_degree": 2,
-      "out_degree": 0
+      "out_degree": 1
     },
     "src/production_os/policy.py": {
       "dependencies": [],
@@ -2368,14 +2383,15 @@
     "src/production_os/starlist.py": {
       "dependencies": [
         "src/production_os/capabilities.py",
-        "src/production_os/workers.py"
+        "src/production_os/workers.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
         "tests/test_deep_fingerprint_starlist.py"
       ],
       "in_degree": 2,
-      "out_degree": 2
+      "out_degree": 3
     },
     "src/production_os/storage.py": {
       "dependencies": [
@@ -3166,11 +3182,12 @@
         "src/production_os/journal.py",
         "src/production_os/metrics.py",
         "src/production_os/runtime_state.py",
-        "tests/test_asset_forge.py"
+        "tests/test_asset_forge.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 7
     },
     "tests/test_controller_leader.py": {
       "dependencies": [
@@ -3768,11 +3785,12 @@
         "src/production_os/capabilities.py",
         "src/production_os/deep_fingerprint.py",
         "src/production_os/models.py",
-        "src/production_os/starlist.py"
+        "src/production_os/starlist.py",
+        "tests/test_remote_worker.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 6
     },
     "tests/test_device_pairing.py": {
       "dependencies": [
@@ -4721,8 +4739,24 @@
         "src/production_os/workflow_engine.py",
         "tests/test_github_automerge.py"
       ],
-      "dependents": [],
-      "in_degree": 0,
+      "dependents": [
+        "integration/real_producer_bundle_smoke.py",
+        "src/production_os/asset_forge.py",
+        "src/production_os/atomic_io.py",
+        "src/production_os/backup.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_surface.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/github_client.py",
+        "src/production_os/health.py",
+        "src/production_os/history.py",
+        "src/production_os/observability.py",
+        "src/production_os/starlist.py",
+        "tests/test_controller_error_recovery.py",
+        "tests/test_deep_fingerprint_starlist.py"
+      ],
+      "in_degree": 15,
       "out_degree": 6
     },
     "tests/test_remote_worker_runner.py": {
