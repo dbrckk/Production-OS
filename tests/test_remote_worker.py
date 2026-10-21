@@ -1,6 +1,8 @@
 import json
 import threading
-from http.server import ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+import pytest
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 import production_os.control_plane as control_plane
@@ -37,6 +39,72 @@ def test_remote_worker_claim_ack_complete(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+    # Exercise the actual HTTP transport: a redirect must neither forward
+    # the worker credential nor turn a mutation into a successful GET.
+    redirected_requests = []
+
+    class Destination(BaseHTTPRequestHandler):
+        def do_GET(self):
+            redirected_requests.append(self.command)
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"{}")
+
+        do_POST = do_GET
+
+        def log_message(self, *_args):
+            pass
+
+    destination = ThreadingHTTPServer(("127.0.0.1", 0), Destination)
+
+    class Gateway(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path.startswith("/redirect/"):
+                self.send_response(int(self.path.rsplit("/", 1)[1]))
+                self.send_header("Location", f"http://127.0.0.1:{destination.server_port}/received")
+                self.end_headers()
+                return
+            bodies = {
+                "/html": b"<html>Bad Gateway</html>",
+                "/empty": b"",
+                "/list": b"[]",
+                "/null": b"null",
+                "/invalid-encoding": b"\xff",
+                "/api": b'{"error":"temporarily unavailable"}',
+            }
+            self.send_response(502)
+            self.end_headers()
+            self.wfile.write(bodies[self.path])
+
+        do_POST = do_GET
+
+        def log_message(self, *_args):
+            pass
+
+    gateway = ThreadingHTTPServer(("127.0.0.1", 0), Gateway)
+    threads = [threading.Thread(target=item.serve_forever, daemon=True)
+               for item in (destination, gateway)]
+    for thread in threads:
+        thread.start()
+    try:
+        client = RemoteWorkerClient(f"http://127.0.0.1:{gateway.server_port}", "worker", "w1", [])
+        for payload in (None, {"worker_id": "w1"}):
+            for status in (301, 302, 303, 307, 308):
+                with pytest.raises(RuntimeError, match=f"^control-plane HTTP {status}$"):
+                    client._request(f"/redirect/{status}", payload)
+        assert redirected_requests == []
+        for path in ("/html", "/empty", "/list", "/null", "/invalid-encoding"):
+            with pytest.raises(RuntimeError, match="^control-plane HTTP 502$"):
+                client._request(path)
+        with pytest.raises(RuntimeError, match="^control-plane HTTP 502: temporarily unavailable$"):
+            client._request("/api")
+    finally:
+        for item in (gateway, destination):
+            item.shutdown()
+            item.server_close()
+        for thread in threads:
+            thread.join(timeout=2)
 
 
 def test_remote_worker_detects_superseded_generation(tmp_path):
