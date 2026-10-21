@@ -1,3 +1,10 @@
+## 2026-10-21 — stop repeated source-review attempts and require truthful CI evidence
+
+- Worker fixes #369 (`188868d1`) and #371 (`0b394c36`) merged after seven successful Actions workflows and three CircleCI checks each. A source edit remains pending until a verified PR and independent CI for its exact commit pass; the saved checkpoint is updated for pending and failed observations too.
+- Replaying the actual archived source report through the complete goal loop: old code executes four times and stays active; the corrected code stops after one attempt and retains the exact original commit. Fresh combined-main diagnostics: 15 autonomous-project tests, 11 orchestrator tests and six authenticated server/worker integrations passed. Eight source-lane/PR/CI fixture combinations exercised actual checkpoint writes with no inference. Postmerge CI is still being observed.
+- Inspected actual worker #39621730373 artifact `12357916218`: goal reached attempt15; its source checkpoint was `published` with verification `passed` despite `review_pr_not_confirmed`. The final recorded HTTP403 came from a core/GitHub API cycle after obsolete-source failures. The denied endpoint and response body are unavailable, so permissions and rate-limit causes remain unconfirmed.
+- Keep Jumpy #37 and recovered star-list #154 in draft. The second canary failed; recovered AI-authored code has passing CI but was published to review with operator assistance. No new inference, canary retry, target merge or provider setting change in this continuation.
+
 ## 2026-10-15 — star-list production eligibility hardening
 
 - Confirmed main commit `9e0af242`, GitHub CI `38740895652` 4/4 passed and Render service `production-os1` deployed `b5752c7d` live (commit `9e0af242` is context-only and ignored by Render).
