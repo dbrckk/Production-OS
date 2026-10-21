@@ -399,6 +399,20 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             if candidate in {"verified_branch_review_blocked", "verified_project_complete"}:
                 release_status = candidate
 
+    source_delivery_error = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = item_evidence.get("source_delivery_error")
+        if not isinstance(candidate, dict):
+            continue
+        stage = candidate.get("stage")
+        status = candidate.get("http_status")
+        if (isinstance(stage, str)
+                and stage in {"restore", "publish", "review", "target_ci"}
+                and type(status) is int and 100 <= status <= 599):
+            source_delivery_error = {"stage": stage, "http_status": status}
+            break
+
     raw_ci = None
     for item in reversed(results):
         item_evidence = _result_evidence(item)
@@ -623,6 +637,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         browser_validation,
         mobile_validation,
         dynamic_plan,
+        source_delivery_error,
     ))
     return {
         "available":bool(available),
@@ -638,6 +653,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         **({"delivery_status":delivery_status} if delivery_status is not None else {}),
         **({"release_status":release_status} if release_status is not None else {}),
         "ci":ci,
+        **({"source_delivery_error":source_delivery_error} if source_delivery_error is not None else {}),
         "browser_validation":browser_validation,
         "mobile_validation":mobile_validation,
         "dynamic_plan":dynamic_plan,

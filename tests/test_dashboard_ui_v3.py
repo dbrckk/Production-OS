@@ -764,6 +764,34 @@ def test_managed_and_attention_cards_render_normalized_production_outcome():
     assert "renderProductionOutcome(item.outcome||{},false)" in DASHBOARD_HTML
     assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
 
+
+    helper = "function renderProductionOutcome(" + DASHBOARD_HTML.split(
+        "function renderProductionOutcome(", 1
+    )[1].split("\nfunction attentionKindLabel(", 1)[0]
+    escape = "function esc(" + DASHBOARD_HTML.split("function esc(", 1)[1].split("\n", 1)[0]
+    script = r"""
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const context = {formatNumber:String};
+vm.runInNewContext(require('node:fs').readFileSync(0,'utf8'), context);
+for (const [stage,label] of Object.entries({restore:'lecture du code publié',publish:'publication du code',review:'création ou vérification de la revue',target_ci:'validation CI du commit'})) {
+ for (const status of [401,403]) {
+  const rendered = context.renderProductionOutcome({available:true,workflow_status:'failed',source_delivery_error:{stage,http_status:status,body:'private-response'}},true);
+  assert.ok(rendered.includes(label));
+  assert.ok(rendered.includes('HTTP '+status));
+  assert.ok(!rendered.includes('private-response'));
+ }
+}
+for (const invalid of [null,{},[],{stage:'<img src=x onerror=alert(1)>',http_status:403},{stage:'toString',http_status:403},{stage:'restore',http_status:true},{stage:'restore',http_status:'403'},{stage:'restore',http_status:999}]) {
+ assert.ok(!context.renderProductionOutcome({available:true,source_delivery_error:invalid},true).includes('Erreur de livraison'));
+}
+assert.equal(context.renderProductionOutcome({available:false,source_delivery_error:{stage:'restore',http_status:403}},true),'');
+"""
+    result = subprocess.run([shutil.which("node"), "-e", script], input=escape + "\n" + helper,
+                            text=True, capture_output=True, check=False)
+    assert result.returncode == 0, result.stderr
+
+
 def test_launch_preflight_is_server_backed_and_mobile_visible():
     assert 'id="launch-readiness"' in DASHBOARD_HTML
     assert "async function loadLaunchReadiness" in DASHBOARD_HTML

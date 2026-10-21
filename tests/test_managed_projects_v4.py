@@ -126,9 +126,13 @@ def test_failed_generation_maps_to_needs_attention_and_allows_followup(tmp_path)
             created["workflow_id"],
             "implementation",
             succeeded=False,
+            result={"evidence": {"source_delivery_error": {"stage": "target_ci", "http_status": 403}}},
         )
     attention = projects.get(created["project_id"])
     assert attention["status"] == "NEEDS_ATTENTION"
+    assert attention["outcome"]["source_delivery_error"] == {"stage": "target_ci", "http_status": 403}
+    restored, _ = service(tmp_path)
+    assert restored.get(created["project_id"])["outcome"]["source_delivery_error"] == attention["outcome"]["source_delivery_error"]
 
     resumed = projects.add_instruction(
         created["project_id"],
@@ -136,6 +140,7 @@ def test_failed_generation_maps_to_needs_attention_and_allows_followup(tmp_path)
     )
     assert resumed["generation"] == 2
     assert resumed["status"] == "ACTIVE"
+    assert "source_delivery_error" not in resumed["outcome"]
 
 
 def test_active_generation_rejects_followup(tmp_path):

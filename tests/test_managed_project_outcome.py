@@ -89,6 +89,25 @@ def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable():
         "completed_at":None,
     }
 
+    # Native source-delivery failures must survive the dashboard projection.
+    for stage in ("restore", "publish", "review", "target_ci"):
+        for status in (401, 403):
+            workflow = {"status": "failed", "tasks": [{"result": {"evidence": {
+                "source_delivery_error": {"stage": stage, "http_status": status,
+                                          "body": "private-response"},
+            }}}]}
+            failed = _outcome_from_workflow(workflow)
+            assert failed["source_delivery_error"] == {"stage": stage, "http_status": status}
+            assert "private-response" not in str(failed)
+    for invalid in (None, [], {}, {"stage": [], "http_status": 403},
+                    {"stage": "private-url", "http_status": 403},
+                    {"stage": "restore", "http_status": True},
+                    {"stage": "restore", "http_status": "403"},
+                    {"stage": "restore", "http_status": 999}):
+        workflow["tasks"][0]["result"]["evidence"]["source_delivery_error"] = invalid
+        assert "source_delivery_error" not in _outcome_from_workflow(workflow)
+
+
 def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths():
     outcome = _outcome_from_workflow({
         "status":"succeeded",

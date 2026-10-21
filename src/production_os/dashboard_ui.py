@@ -2164,6 +2164,19 @@ function renderProductionOutcome(outcome,includeSummary){
  if(value.delivery_status==="review_blocked"){
   parts.push("<strong>Livraison :</strong> code vérifié sur une branche, PR à créer avant toute fusion.");
  }
+ const sourceError=value.source_delivery_error;
+ const sourceStages={
+  restore:"lecture du code publié",
+  publish:"publication du code",
+  review:"création ou vérification de la revue",
+  target_ci:"validation CI du commit"
+ };
+ if(sourceError&&typeof sourceError.stage==="string"&&
+    Object.prototype.hasOwnProperty.call(sourceStages,sourceError.stage)&&
+    Number.isInteger(sourceError.http_status)&&sourceError.http_status>=100&&sourceError.http_status<=599){
+  parts.push("<strong>Erreur de livraison :</strong> "+
+   sourceStages[sourceError.stage]+" (HTTP "+String(sourceError.http_status)+")");
+ }
  const ci=value.ci||null;
  if(ci){
   const ciBits=[];
