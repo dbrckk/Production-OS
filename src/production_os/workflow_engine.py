@@ -1870,10 +1870,27 @@ class WorkflowEngine:
                 and evidence.get("pipeline_status") == "blocked"
                 and evidence.get("next_stage") == "godot_preview_cycle_budget_exhausted"
             )
+            # Access denial and changed source identity require operator
+            # recovery; another worker sees the same durable blocked goal.
+            # Pending source review/CI remains resumable on later attempts.
+            source_block_reason = (
+                evidence.get("next_stage") if isinstance(evidence, dict) else None
+            )
+            source_delivery_blocked = (
+                not succeeded
+                and isinstance(evidence, dict)
+                and str(result.get("ai_dev_server_status") or "").strip().lower() == "blocked"
+                and evidence.get("pipeline_status") == "blocked"
+                and isinstance(source_block_reason, str)
+                and source_block_reason in {
+                    "source_delivery_access_denied", "source_delivery_checkpoint_changed",
+                }
+            )
             retry_suppressed = (
                 "capacity_exhausted" if capacity_exhausted else
                 "godot_preview_cycle_budget_exhausted"
-                if godot_preview_exhausted else None
+                if godot_preview_exhausted else
+                source_block_reason if source_delivery_blocked else None
             )
             if succeeded:
                 status = "succeeded"

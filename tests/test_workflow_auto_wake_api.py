@@ -137,6 +137,28 @@ def test_worker_quota_exhaustion_marks_terminal_and_does_not_wake_retry(running_
 
 
 
+
+    # Permanent source delivery blockers must not schedule another worker.
+    for reason in ("source_delivery_access_denied", "source_delivery_checkpoint_changed"):
+        workflow_id, job = _create_and_claim(base, task_attempts=3, downstream=True)
+        result = _post(base, "/v1/jobs/fail", "worker", {
+            "worker_id": "github-actions-worker", "key": job["key"], "reason": reason,
+            "result": {"ai_dev_server_status": "blocked", "evidence": {
+                "pipeline_status": "blocked", "next_stage": reason,
+                "source_delivery_error": {"stage": "restore", "http_status": 403},
+            }},
+        })
+        assert result["worker_wake"]["status"] == "not_needed"
+        assert dispatches == []
+        workflow = control.workflows.get(workflow_id)
+        assert workflow["status"] == "failed"
+        build = next(task for task in workflow["tasks"] if task["task_id"] == "build")
+        assert build["attempts"] == 1
+        assert build["status"] == "failed"
+        assert build["claimed_job_key"] is None
+        assert control.queue.get(job["key"])["status"] == "failed"
+
+
 def test_downstream_task_wakes_after_success(running_control):
     control, base, dispatches = running_control
     workflow_id, job = _create_and_claim(base, task_attempts=1, downstream=True)

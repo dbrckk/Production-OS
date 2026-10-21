@@ -150,7 +150,7 @@ def test_structured_capacity_exhaustion_stops_unproductive_auto_retries(tmp_path
 
 
 @pytest.mark.parametrize("status", [
-    "continuation_limit", "runtime_limit", "runner_error",
+    "continuation_limit", "runtime_limit", "runner_error", "blocked",
 ])
 def test_bounded_session_or_transient_runner_error_still_auto_retries(tmp_path,status):
     wf=engine(tmp_path)
@@ -163,7 +163,11 @@ def test_bounded_session_or_transient_runner_error_still_auto_retries(tmp_path,s
     assert len(old)==1
     wf.record_result(
         created["id"], "build", succeeded=False,
-        result={"ai_dev_server_status":status,"reason":status},
+        result={"ai_dev_server_status":status,"reason":status,"evidence": {
+            "pipeline_status": "blocked",
+            "next_stage": ("source_review_or_exact_sha_ci_unverified" if status == "blocked"
+                           else "source_delivery_access_denied"),
+        }},
     )
     task=wf.get(created["id"])["tasks"][0]
     assert task["status"]=="queued"

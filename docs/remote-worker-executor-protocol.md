@@ -122,6 +122,20 @@ The executor must write a single JSON object to stdout:
 
 The runner records the failure through the existing job/workflow failure path.
 
+A worker may report a durable source-delivery blocker with
+`result.ai_dev_server_status = "blocked"`, `result.evidence.pipeline_status = "blocked"`
+and `result.evidence.next_stage` equal to `source_delivery_access_denied` or
+`source_delivery_checkpoint_changed`. These results fail the workflow task after
+one attempt without scheduling or waking another worker. Source review or exact-commit
+CI still pending remains eligible for the normal bounded retry policy.
+
+Optional `result.evidence.source_delivery_error` contains only `stage` (one of
+`restore`, `publish`, `review`, `target_ci`) and an integer `http_status` from 100 to 599.
+Managed-project outcomes copy these two validated fields and the dashboard shows
+the affected delivery step. Extra fields, unknown stages and malformed statuses
+are omitted from that diagnostic; response bodies and credentials are not part of
+this contract. A new managed-project generation starts with its own outcome.
+
 ## Process failures
 
 Production-OS generates deterministic reasons:

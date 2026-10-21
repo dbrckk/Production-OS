@@ -1,3 +1,10 @@
+## 2026-10-21 — preserve source failure diagnostics and stop terminal delivery retries
+
+- Reproduced source HTTP403 evidence disappearing from `_outcome_from_workflow`, leaving managed-project cards and the production inbox without the delivery stage. Outcomes now retain only validated restore/publish/review/target_ci and integer HTTP status; the actual dashboard renderer shows the fixed French step label. Malformed values and extra fields are omitted.
+- A real authenticated failure callback also reproduced an unnecessary worker wake/requeue for a durable `source_delivery_access_denied` goal. Structured blocked access-denial and checkpoint-change results now terminate after one workflow attempt. Pending review/CI and transient runner statuses retain their existing bounded retries; no attempt or inference budget increase.
+- Existing checks extended without adding test functions: 169 focused cases passed, including JavaScript execution in Node, authenticated callback/no-wake checks and persistence across restart. An additional actual HTTP worker→managed project→production inbox→dashboard-render→restart scenario passed with one attempt and no queued retry. Full PostgreSQL suite and exact-head CI qualification recorded in the associated PR.
+- Prior worker #372 is fully qualified: all eight postmerge workflows passed at8c8301b; Production-OS #284 four postmerge jobs passed, Render06b2af5c live with health/readiness HTTP200 and database reachable. No fresh hosted inference, provider change, canary retry or target merge; Jumpy37 and star-list154 remain drafts.
+
 ## 2026-10-21 — resume published source delivery and preserve safe failure diagnostics
 
 - Worker PR #372 merged as8c8301bae7445b377bd16cce28a02379e7b5963c after seven successful Actions workflows and three CircleCI checks at exact candidate e39f78a526f34f4078a47b1c4f89192b51f0f28b: restores the published source commit and rechecks its review/CI without another model request or source commit. Persistent source-review goals reopen only for the matching approved checkpoint and retain their original attempt limit. Changed or legacy unbound checkpoints require reviewed recovery.
