@@ -1,3 +1,12 @@
+## 2026-10-21 — worker integration and HTTP transport correction
+
+- Reviewed and merged worker PR #359 (`6942e449`) and #357 (`bc73c67f`) after every exact-head check passed. PR #358 was already merged and all eight postmerge workflows passed. The combined worker revision had seven of nine postmerge workflows green, with Android and multi-engine still running at the last authenticated read; subsequent GitHub calls return HTTP 401.
+- Exact-head public free-code run `39496479784` produced verified restricted Python with one request, 148 completion tokens and gateway-reported zero cost. Postmerge smoke `39563679079` passed too. The earlier 512-token run failed source verification; a fixed single-call ceiling of 1,024 avoids that demonstrated tiny-budget limitation. These are bounded observations, not sustained capacity or hosted autonomous source delivery.
+- Production-OS baseline `526a74fd`: **1,324 tests passed, none skipped**, using an isolated local PostgreSQL 16 container. Hosted `/healthz` and `/readyz` returned HTTP 200, healthy/ready.
+- Reproduced a real client defect with two loopback HTTP servers: a redirected authenticated POST reached another server as a GET carrying authorization; an HTML 502 raised `JSONDecodeError`. The local correction refuses all redirects and retains the HTTP status for malformed/empty/non-object error bodies while preserving valid API error messages.
+- Corrected transport validation: **36 client/runner tests**, **20 PostgreSQL E2E tests**, and **six authenticated server/worker integrations** passed. Extended an existing HTTP test; no new unit-test functions. Compilation and whitespace checks passed.
+- Branch `fix/worker-http-transport-20261021` requires publication and exact-head CI when GitHub authentication is restored. This transport correction is not deployed. Remaining product gate: a real hosted task producing a useful model-authored source change, reviewed at its exact SHA with independent target CI.
+
 ## 2026-10-15 — star-list production eligibility hardening
 
 - Confirmed main commit `9e0af242`, GitHub CI `38740895652` 4/4 passed and Render service `production-os1` deployed `b5752c7d` live (commit `9e0af242` is context-only and ignored by Render).

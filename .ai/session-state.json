@@ -1,15 +1,51 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-20",
+  "updated_at": "2026-10-21",
   "objective": "Achieve verifiable end-to-end Production-OS autonomy: authenticated service readiness, worker job execution, bounded free inference, real source-code change on a nonfinancial public target, exact SHA draft PR and passing target CI.",
-  "branch": "main",
-  "base_commit": "f549d913918fdb8795ea2f4b3eb5e3bec5be36d2",
-  "status": "2026-10-20: ai-dev-server PR #356 merged at 3bc4b6222203d57d6f7c33e99ec40a76e2cb1ad6 after 7/7 GitHub Actions and 3/3 CircleCI exact-head checks; 8/8 postmerge Actions succeeded. Explicit anonymous HTTPS provider remains opt-in; no private repo data submitted. New draft PR #357 head 2ba8ce73a27295935c05f61405e79e84d45af0d2 qualifies public free coding on the GitHub-hosted runner. Run 39493844133 succeeded with catalog_free_confirmed=true, code_verified=true (restricted Python AST), requests_sent=1, completion_tokens=324, no secret/project data. Its general CI 6/8 green with two long Android/multi-engine still running and CircleCI smoke pending at prior check; do not merge until all green. Production-OS Render service production-os1 currently live at deploy dep-dbbi9kt9fdbs73e6k4eg from functional commit 4e3ae700f6cc7eaf038dae7c84742f409db5a81c. Latest hosted worker queue_empty, not a coding success. End-to-end task-to-draft-PR on source code remains unproved, and sustainable no-cost capacity unverified.",
+  "branch": "fix/worker-http-transport-20261021",
+  "base_commit": "526a74fd",
+  "status": "2026-10-21: worker PR358 already merged with 8/8 postmerge workflows passing. Reviewed and merged PR359 (6942e449a7d4dd84cb7f10ca2396f7f60ea2c6d9) and PR357 (bc73c67f8e760239dd19e730eb524e5911162cb0) after all exact-head checks passed. Latest combined worker main had 7/9 postmerge workflows successful, Android and multi-engine still running at last authenticated read. GitHub API now returns HTTP401, preventing subsequent publication/checks. Production-OS baseline passed all 1324 tests with local PostgreSQL16, none skipped. New local fix prevents RemoteWorkerClient from forwarding credentials on redirects and preserves HTTP error status for malformed gateway bodies; 36 client/runner tests, 20 PostgreSQL E2E tests and six real server/worker integrations passed. Hosted healthz/readyz returned200 healthy/ready. Full hosted model-authored source delivery remains unproved.",
   "remaining": [
-    "Finish PR #357 exact head 8/8 GitHub Actions plus 3/3 CircleCI, inspect clean mergeability, merge then verify postmerge runs; do not treat synthetic code validation as a target PR.",
-    "Develop an opt-in, narrowly scoped path from verified free provider capacity to a NONCONFIDENTIAL public repository source canary; check actual public visibility, data/privacy terms, server worker permissions and token budgets before enabling, never globally route private tasks to anonymous gateways.",
-    "Prove one legitimate model-authored source edit published at exact SHA in a trusted draft PR with passing independent target CI and no automatic merge, then measure sustainable free-model reliability.",
-    "Keep historical Ai-trading capacity-exhausted task and deterministic marker canary unmerged; do not retry without separate explicit bounded recovery.",
-    "Maintain live Render readiness + autonomous worker execution evidence; do not declare all functional until end-to-end source proof and review gates pass."
-  ]
+    "Publish fix/worker-http-transport-20261021 once GitHub authentication works; create review PR and require exact-head CI before merging/deploying.",
+    "Read final Android and multi-engine postmerge workflows for worker main bc73c67f8e760239dd19e730eb524e5911162cb0; last read7/9 successful. Do not rerun merely to manufacture green evidence.",
+    "Qualify one legitimate hosted model-authored source edit at exact SHA with independent target CI on a nonconfidential public repository, using task-scoped free capacity and bounded consumption.",
+    "Keep historical Ai-trading tasks and Jumpy marker canary unmerged; source canaries for settings/landing are obsolete and now blocked before enqueue.",
+    "Measure sustained free-model reliability; tiny public generation and point-in-time service readiness do not establish full autonomy."
+  ],
+  "worker_integration_20261021": {
+    "source_canary_pr": 358,
+    "source_canary_merge": "dc523dca3472ba31061acd2c64201748f71c9d27",
+    "source_canary_postmerge": "8/8 workflows passed",
+    "model_authored_fix_pr": 359,
+    "model_authored_fix_merge": "6942e449a7d4dd84cb7f10ca2396f7f60ea2c6d9",
+    "public_free_smoke_pr": 357,
+    "public_free_smoke_merge": "bc73c67f8e760239dd19e730eb524e5911162cb0",
+    "public_free_smoke_exact_head": "491cf0d48c9a091ec6a87ed22df94a9981818f2c",
+    "public_free_smoke_exact_head_run": 39496479784,
+    "public_free_smoke_evidence": {
+      "completion_tokens": 148,
+      "requests_sent": 1,
+      "code_verified": true,
+      "cost_reported": true,
+      "reported_zero_cost": true
+    },
+    "public_free_smoke_postmerge_run": 39563679079,
+    "public_free_smoke_postmerge_status": "success",
+    "combined_postmerge": "7/9 workflows passed at last authenticated read; mobile and multi-engine pending; PR359-only runs superseded/cancelled by PR357 merge",
+    "limitations": "Synthetic code smoke and separately reviewed public model-authored patch; not hosted Production-OS queue-to-model-source-to-target-PR proof, not sustained free capacity."
+  },
+  "worker_http_followup": {
+    "branch": "fix/worker-http-transport-20261021",
+    "reproduction": "Two loopback HTTP servers: redirected POST followed as GET to a different port with authorization forwarded; HTML502 raised JSONDecodeError instead of preserving HTTP status.",
+    "fix": "Dedicated redirect-refusing opener; bounded error-body read and safe optional API error extraction, preserving HTTP status for non-JSON/non-object bodies.",
+    "validation": {
+      "baseline_full_postgres": "1324 passed, none skipped, PostgreSQL16",
+      "changed_client_and_runner": "36 passed including real GET/POST redirects301/302/303/307/308 and six gateway error bodies",
+      "postgres_e2e_after_fix": "20 passed",
+      "actual_server_worker_after_fix": "6 passed on ai-dev-server bc73c67",
+      "compileall": "passed",
+      "diff_check": "passed"
+    },
+    "publication": "Local correction; GitHub authentication returns HTTP401. Remote exact-head CI and deployment not yet qualified."
+  }
 }
