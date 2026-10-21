@@ -10,6 +10,13 @@ from dataclasses import dataclass
 WORKER_CONTROL_STATES = {"active", "paused", "draining"}
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # Worker credentials and mutation requests belong only to the
+        # configured control plane. A redirect is not an acknowledgement.
+        return None
+
+
 @dataclass(frozen=True, slots=True)
 class RemoteJob:
     key: str
@@ -35,6 +42,7 @@ class RemoteWorkerClient:
         self.capabilities = sorted(set(capabilities))
         self.timeout = timeout
         self.control_state = "active"
+        self._opener = urllib.request.build_opener(_NoRedirect())
 
     def _request(self, path: str, payload: dict | None = None) -> tuple[int, dict]:
         body = None if payload is None else json.dumps(payload).encode("utf-8")
@@ -49,15 +57,23 @@ class RemoteWorkerClient:
             method="POST" if payload is not None else "GET",
         )
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+            with self._opener.open(request, timeout=self.timeout) as response:
                 raw = response.read()
                 return response.status, json.loads(raw or b"{}")
         except urllib.error.HTTPError as exc:
-            raw = exc.read()
-            payload = json.loads(raw or b"{}")
-            raise RuntimeError(
-                f"control-plane HTTP {exc.code}: {payload.get('error', payload)}"
-            ) from exc
+            # Proxies can return HTML, empty bodies or non-object JSON.
+            # Preserve the HTTP failure even when no API error is available.
+            with exc:
+                raw = exc.read(8192)
+            try:
+                error_payload = json.loads(raw or b"{}")
+            except (ValueError, UnicodeError):
+                error_payload = {}
+            detail = error_payload.get("error") if isinstance(error_payload, dict) else None
+            message = f"control-plane HTTP {exc.code}"
+            if isinstance(detail, str) and detail:
+                message += ": " + detail[:1024]
+            raise RuntimeError(message) from exc
         except urllib.error.URLError as exc:
             raise RuntimeError(f"control-plane unavailable: {exc}") from exc
 
