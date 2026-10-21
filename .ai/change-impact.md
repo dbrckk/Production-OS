@@ -1,26 +1,16 @@
 # Change impact
 
-Base: 06b2af5c548715c8788a72df5d6ac86ce1b08924
-Head: 7b922fed8171ed93f8184b91db45a730e0881478
+Base: cd85b78ff9a4050366c061bde509d1b20e282d67
+Head: f4813e706e7303395763f6b188cb5a64961e0460
 
 ## Changed files
-- M docs/remote-worker-executor-protocol.md
-- M src/production_os/dashboard_ui.py
-- M src/production_os/managed_projects.py
-- M src/production_os/workflow_engine.py
-- M tests/test_dashboard_ui_v3.py
-- M tests/test_managed_project_outcome.py
-- M tests/test_managed_projects_v4.py
-- M tests/test_workflow_auto_wake_api.py
-- M tests/test_workflow_engine.py
+- A docs/VALIDATION_2026-10-21.md
 
 ## Affected areas
 - docs
-- src
-- tests
 
 ## Related test candidates
-- tests/test_workflow_engine.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

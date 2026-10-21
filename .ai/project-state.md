@@ -162,16 +162,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-21T19:06:41Z
+Generated: 2026-10-21T23:54:18Z
 
 ### Git
 - Branch: `main`
-- Head: `7b922fed8171`
-- Commit date: 2026-10-21T15:06:30-04:00
-- Commit: fix(delivery): show source diagnostics and stop terminal worker retries (#285)
-- Tracked files: 572
+- Head: `f4813e706e73`
+- Commit date: 2026-10-21T19:54:07-04:00
+- Commit: docs(validation): record verified stack and current target status [skip render]
+- Tracked files: 573
 
 ### Recently changed files
+- `docs/VALIDATION_2026-10-21.md`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
@@ -191,7 +192,6 @@ Generated: 2026-10-21T19:06:41Z
 - `.github/workflows/semantic-refresh.yml`
 - `.gitignore`
 - `.python-version`
-- `.repo-standards.yml`
 
 ### Project signals
 - `pyproject.toml`
