@@ -1,3 +1,10 @@
+## 2026-10-21 — retain publication evidence when source delivery is blocked
+
+- Worker candidate PR373 (`891145dd4779fd233ab1a567ec1c28c8c2ea001b`) corrects a reproduced reporting gap: a blocked task could omit its already-published source commit/file when delivery threw before returning a report or a saved blocked goal skipped execution.
+- The reporter accepts only a sealed publication checkpoint matching the exact approved source request, including project, repository, branch, operator instruction, workflow task and file scope. It copies the retained commit and approved file; corrupt, unreadable or mismatched checkpoints contribute no proof. It neither reopens a goal nor rewrites a checkpoint, infers, republishes or copies old passing CI/validation. Retained publication proof does not establish current remote-head identity or passing target CI.
+- Verified locally: 1,784 unittest cases; 1,845 pytest cases and199 subtests; six authenticated worker/server integrations. The actual worker/native receipt through current Production-OS retains a sealed fixture commit/file after restart while preserving one failed task attempt and no CI success. No GitHub or model request in that scenario. Existing test function extended, no new unit-test functions.
+- Final exact-head CI and merge evidence is tracked in worker PR373 and this continuation PR. Production-OS285 (`7b922fed`) passed all four branch and postmerge jobs and is live on Render (`dep-dbcgqe7avr4c738t3u6g`), with health/readiness/dashboard HTTP200 and database reachable. No hosted canary retry, provider change, budget increase or target merge; Jumpy37 and star-list154 remain drafts.
+
 ## 2026-10-21 — preserve source failure diagnostics and stop terminal delivery retries
 
 - Reproduced source HTTP403 evidence disappearing from `_outcome_from_workflow`, leaving managed-project cards and the production inbox without the delivery stage. Outcomes now retain only validated restore/publish/review/target_ci and integer HTTP status; the actual dashboard renderer shows the fixed French step label. Malformed values and extra fields are omitted.
