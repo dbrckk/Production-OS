@@ -1,3 +1,10 @@
+## 2026-10-21 — fresh owner-requested stack validation
+
+- Fresh full PostgreSQL16 suite:1,325 passed, no skips; worker1,845+199 subtests;6 actual authenticated integrations. Actual HTTP deadline/transient/403 checks, fresh distribution build and isolated wheel CLI passed. Runtime code unchanged. Full reproducible evidence: [validation report](../docs/VALIDATION_2026-10-21.md).
+- Exact server postmerge four CI jobs and worker eight workflows passed; Render dep-dbcjdlss728c73al7810 live atcd85b78f. Public health/readiness/dashboard200, database reachable; unauthenticated protected API401.
+- Correct stale target status: Jumpy37 was merged by owner dbrckk at18:37:29UTC as7ba62fce; three exact-merge workflows passed (including Godot and Android APK). Star-list154 remains draft. No target merge in this validation.
+- Fresh hosted diagnosis is pending worker PR376/control18. Full autonomous source delivery on a new applicable task, durable free inference and physical-device validation remain unqualified. Final hosted and documentation CI observations in associated PRs.
+
 ## 2026-10-21 — bound canary HTTP reads and reject stale source objectives
 
 - Worker candidate PR374 (`5eef5148faeb2922e47d6f6c081efa8511b43c79`) addresses a real HTTP deadline violation: a 2-second readiness budget accepted a ready response after 3.02 seconds because GET used a fixed 30-second timeout. Warmup and workflow monitoring now cap each read to the remaining budget and do not start a call below the transport minimum. Delayed-server checks now time out at 2.01/2.02 seconds.
