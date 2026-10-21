@@ -141,36 +141,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-21T12:24:14Z
+Generated: 2026-10-21T19:06:41Z
 
 ### Git
 - Branch: `main`
-- Head: `73cc7b1368ca`
-- Commit date: 2026-10-21T08:24:01-04:00
-- Commit: fix(worker): block credential-forwarding redirects and preserve HTTP errors (#281)
+- Head: `7b922fed8171`
+- Commit date: 2026-10-21T15:06:30-04:00
+- Commit: fix(delivery): show source diagnostics and stop terminal worker retries (#285)
 - Tracked files: 572
 
 ### Recently changed files
 - `docs/remote-worker-executor-protocol.md`
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/managed_projects.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_managed_project_outcome.py`
+- `tests/test_managed_projects_v4.py`
+- `tests/test_workflow_auto_wake_api.py`
+- `tests/test_workflow_engine.py`
 - `src/production_os/remote_worker.py`
 - `tests/test_remote_worker.py`
 - `.github/workflows/ci.yml`
 - `README.md`
 - `pyproject.toml`
-- `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_api.py`
 - `.github/dependabot.yml`
 - `.github/workflows/ai-repo-map.yml`
 - `.github/workflows/semantic-refresh.yml`
 - `.gitignore`
 - `.python-version`
 - `.repo-standards.yml`
-- `.serena/.gitignore`
-- `.serena/project.yml`
-- `AGENTS.md`
-- `CHANGELOG.md`
-- `Dockerfile`
 
 ### Project signals
 - `pyproject.toml`

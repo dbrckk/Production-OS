@@ -7073,6 +7073,15 @@ candidate = item_evidence.get("release_status") or item.get("release_status")
 ⋮----
 release_status = candidate
 ⋮----
+source_delivery_error = None
+⋮----
+candidate = item_evidence.get("source_delivery_error")
+⋮----
+stage = candidate.get("stage")
+status = candidate.get("http_status")
+⋮----
+source_delivery_error = {"stage": stage, "http_status": status}
+⋮----
 raw_ci = None
 ⋮----
 candidate = item.get("ci") or item_evidence.get("ci")
@@ -11149,6 +11158,11 @@ capacity_exhausted = (
 # inference and no chance of producing a new edit.
 evidence = result.get("evidence") if isinstance(result, dict) else None
 godot_preview_exhausted = (
+# Access denial and changed source identity require operator
+# recovery; another worker sees the same durable blocked goal.
+# Pending source review/CI remains resumable on later attempts.
+source_block_reason = (
+source_delivery_blocked = (
 retry_suppressed = (
 ⋮----
 status = "succeeded"

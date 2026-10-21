@@ -2,37 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(controller): route autonomous work through managed projects",
-      "terms": [
-        "autonomous",
-        "controller",
-        "feat",
-        "managed",
-        "projects",
-        "route",
-        "through",
-        "work"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/autonomous_admission.py",
-        "src/production_os/autonomous_projects.py",
-        "src/production_os/budgets.py",
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/dispatch.py",
-        "src/production_os/rate_limit.py",
-        "src/production_os/workers.py",
-        "tests/test_autonomous_admission.py",
-        "tests/test_autonomous_projects.py",
-        "tests/test_controller_daemon_deployment.py",
-        "tests/test_controller_managed_projects.py",
-        "tests/test_policy_budgets.py",
-        "tests/test_workers.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(dashboard): support secure one-link device pairing",
       "terms": [
         "dashboard",
@@ -1233,6 +1202,32 @@
         "src/production_os/remote_worker.py",
         "tests/test_remote_worker.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(delivery): show source diagnostics and stop terminal worker retries (#285)",
+      "terms": [
+        "285",
+        "delivery",
+        "diagnostics",
+        "retries",
+        "show",
+        "source",
+        "stop",
+        "terminal",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_managed_project_outcome.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_workflow_auto_wake_api.py",
+        "tests/test_workflow_engine.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1579,6 +1574,16 @@
     "281": {
       "src/production_os/remote_worker.py": 4,
       "tests/test_remote_worker.py": 4
+    },
+    "285": {
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4,
+      "tests/test_workflow_engine.py": 4
     },
     "29": {
       "src/production_os/control_plane.py": 4,
@@ -2990,11 +2995,17 @@
       "integration/real_producer_bundle_smoke.py": 4,
       "src/production_os/asset_forge.py": 8,
       "src/production_os/cli.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/github_client.py": 8,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_asset_forge.py": 12,
-      "tests/test_github_client_put_file.py": 4
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_github_client_put_file.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4,
+      "tests/test_workflow_engine.py": 4
     },
     "dependency": {
       "src/production_os/asset_forge.py": 8,
@@ -3065,22 +3076,24 @@
     "diagnostics": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 4,
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_ui.py": 12,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 4,
-      "src/production_os/managed_projects.py": 12,
+      "src/production_os/managed_projects.py": 16,
       "src/production_os/rollback_plan.py": 4,
-      "src/production_os/workflow_engine.py": 4,
+      "src/production_os/workflow_engine.py": 8,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_launch.py": 4,
-      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_dashboard_ui_v3.py": 12,
       "tests/test_github_work_state.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
-      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_project_outcome.py": 8,
       "tests/test_managed_projects_http_v4.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_rollback_plan.py": 4,
-      "tests/test_workflow_engine.py": 4
+      "tests/test_workflow_auto_wake_api.py": 4,
+      "tests/test_workflow_engine.py": 8
     },
     "diff": {
       "src/production_os/github_change_review.py": 4,
@@ -5238,9 +5251,14 @@
     },
     "retries": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/workflow_engine.py": 8,
-      "tests/test_workflow_auto_wake_api.py": 8,
-      "tests/test_workflow_engine.py": 4
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 12,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 12,
+      "tests/test_workflow_engine.py": 8
     },
     "retrieve": {
       "src/production_os/github_client.py": 4
@@ -5562,10 +5580,15 @@
     },
     "show": {
       "src/production_os/control_plane.py": 8,
-      "src/production_os/dashboard_ui.py": 8,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_asset_forge.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4,
+      "tests/test_workflow_engine.py": 4
     },
     "shutdown": {
       "src/production_os/cli.py": 4,
@@ -5609,7 +5632,15 @@
     "source": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/cli.py": 4,
-      "tests/test_asset_forge.py": 4
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4,
+      "tests/test_workflow_engine.py": 4
     },
     "specialist": {
       "src/production_os/control_plane.py": 12,
@@ -5688,13 +5719,16 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "stop": {
-      "src/production_os/dashboard_ui.py": 4,
-      "src/production_os/workflow_engine.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 8,
       "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_workflow_auto_wake_api.py": 4,
-      "tests/test_workflow_engine.py": 4
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 8,
+      "tests/test_workflow_engine.py": 8
     },
     "storage": {
       "src/production_os/control_plane.py": 4,
@@ -5813,7 +5847,14 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "terminal": {
-      "src/production_os/workflow_engine.py": 4
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 8,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4,
+      "tests/test_workflow_engine.py": 4
     },
     "test": {
       "src/production_os/asset_forge.py": 36,
@@ -6183,15 +6224,15 @@
       "src/production_os/controller.py": 12,
       "src/production_os/dashboard_control.py": 12,
       "src/production_os/dashboard_service.py": 20,
-      "src/production_os/dashboard_ui.py": 16,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/dashboard_ui.py": 20,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/model_router.py": 4,
       "src/production_os/remote_worker.py": 16,
       "src/production_os/remote_worker_runner.py": 12,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 8,
       "src/production_os/worker_wake.py": 12,
-      "src/production_os/workflow_engine.py": 16,
+      "src/production_os/workflow_engine.py": 20,
       "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cli.py": 4,
@@ -6206,8 +6247,10 @@
       "tests/test_dashboard_launch.py": 12,
       "tests/test_dashboard_launch_readiness.py": 8,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_dashboard_worker_detail_freshness.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
       "tests/test_model_router.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_release36_worker_session_reconciliation_e2e.py": 4,
@@ -6220,8 +6263,8 @@
       "tests/test_worker_availability_api.py": 8,
       "tests/test_worker_compose_deployment.py": 12,
       "tests/test_worker_wake.py": 12,
-      "tests/test_workflow_auto_wake_api.py": 8,
-      "tests/test_workflow_engine.py": 8
+      "tests/test_workflow_auto_wake_api.py": 12,
+      "tests/test_workflow_engine.py": 12
     },
     "workers": {
       "src/production_os/cli.py": 4,

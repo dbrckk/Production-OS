@@ -3903,6 +3903,11 @@ def test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_d
 ⋮----
 def test_managed_and_attention_cards_render_normalized_production_outcome()
 ⋮----
+helper = "function renderProductionOutcome(" + DASHBOARD_HTML.split(
+escape = "function esc(" + DASHBOARD_HTML.split("function esc(", 1)[1].split("\n", 1)[0]
+script = r"""
+result = subprocess.run([shutil.which("node"), "-e", script], input=escape + "\n" + helper,
+⋮----
 def test_launch_preflight_is_server_backed_and_mobile_visible()
 ⋮----
 def test_last_launched_project_survives_dashboard_reload_on_same_device()
@@ -3990,7 +3995,6 @@ polling = DASHBOARD_HTML.split(
 def test_focused_card_scrolls_once_and_ignores_stale_refresh()
 ⋮----
 helper = "function scrollToFocusedItemOnce(" + DASHBOARD_HTML.split(
-script = r"""
 ⋮----
 def test_polling_does_not_restore_scroll_after_user_input()
 ⋮----
@@ -5012,6 +5016,11 @@ outcome = _outcome_from_workflow({
 def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable()
 ⋮----
 empty = _outcome_from_workflow(None)
+⋮----
+# Native source-delivery failures must survive the dashboard projection.
+⋮----
+workflow = {"status": "failed", "tasks": [{"result": {"evidence": {
+failed = _outcome_from_workflow(workflow)
 ⋮----
 def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
 ⋮----
@@ -8466,6 +8475,10 @@ workflow=control.workflows.get(workflow_id)
 ⋮----
 build=next(t for t in workflow["tasks"] if t["task_id"]=="build")
 review=next(t for t in workflow["tasks"] if t["task_id"]=="review")
+⋮----
+# Permanent source delivery blockers must not schedule another worker.
+⋮----
+build = next(task for task in workflow["tasks"] if task["task_id"] == "build")
 ⋮----
 def test_downstream_task_wakes_after_success(running_control)
 ⋮----
