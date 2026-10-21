@@ -1,5 +1,13 @@
 # Remote worker executor protocol
 
+## Control-plane connection
+
+Configure the worker with the control plane's final API base URL, including
+HTTPS when required. The worker rejects HTTP redirects without contacting the
+destination or forwarding its bearer token. Redirects and HTTP errors report
+their status code even when a proxy returns HTML, an empty body, or non-object
+JSON; valid API error messages remain available for diagnosis.
+
 ## Executor modes
 
 `remote-worker-run` supports three execution modes:
