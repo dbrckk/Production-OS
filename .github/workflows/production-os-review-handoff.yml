@@ -155,6 +155,7 @@ jobs:
           # exact reviewed branch; the model cannot modify workflow files.
           request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
               "ref": branch,
+              "inputs": {"expected_sha": sha},
           })
-          print("Requested independent source CI for " + sha)
+          print("Requested immutable source CI for " + sha)
           PY
