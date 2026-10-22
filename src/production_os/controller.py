@@ -125,7 +125,10 @@ def _recover_managed_project_accounting(
     # Validate before the first persistent mutation: an invalid receipt must
     # not consume a rate-limit reservation during crash recovery.
     resource_request = validated_budget_amounts(
-        handoff.get("resource_request") or {},
+        (
+            {} if handoff.get("resource_request") is None
+            else handoff["resource_request"]
+        ),
         label="managed project resource request",
     )
     if rate_limit_store is not None and repository:
