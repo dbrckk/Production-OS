@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,6 +24,29 @@ class BudgetDecision:
             "usage": self.usage,
             "limits": self.limits,
         }
+
+
+def validated_budget_amounts(values: dict, *, label: str) -> dict[str, float]:
+    """Reject invalid/negative budget values before checks or persistence.
+
+    A NaN projection compares false to every finite ceiling; negative amounts
+    would silently refund consumed quota. Neither is a valid resource request.
+    Numeric strings remain accepted for backwards-compatible ledger reads.
+    """
+    if not isinstance(values, dict):
+        raise ValueError(f"{label} must be a mapping")
+    normalized: dict[str, float] = {}
+    for key, raw in values.items():
+        if not isinstance(key, str) or not key.strip() or isinstance(raw, bool):
+            raise ValueError(f"{label} must use nonempty names and numeric amounts")
+        try:
+            value = float(raw)
+        except (TypeError, ValueError, OverflowError):
+            raise ValueError(f"{label} {key!r} must be finite and nonnegative") from None
+        if not math.isfinite(value) or value < 0:
+            raise ValueError(f"{label} {key!r} must be finite and nonnegative")
+        normalized[key] = value
+    return normalized
 
 
 class BudgetLedger:
@@ -58,18 +82,24 @@ class BudgetLedger:
         request: dict[str, float] | None = None,
     ) -> BudgetDecision:
         self.load()
-        usage = dict(self.payload.get("usage", {}).get(repository, {}))
-        request = request or {}
-        reasons=[]
+        usage = validated_budget_amounts(
+            self.payload.get("usage", {}).get(repository, {}),
+            label="recorded budget usage",
+        )
+        request = validated_budget_amounts(
+            {} if request is None else request, label="budget request"
+        )
+        limits = validated_budget_amounts(limits, label="budget limits")
+        reasons: list[str] = []
         for key, limit in limits.items():
-            projected = float(usage.get(key, 0.0)) + float(request.get(key, 0.0))
-            if projected > float(limit):
+            projected = usage.get(key, 0.0) + request.get(key, 0.0)
+            if not math.isfinite(projected) or projected > limit:
                 reasons.append(f"{key} budget exceeded: {projected}>{limit}")
         return BudgetDecision(
             allowed=not reasons,
             reasons=tuple(reasons),
-            usage={k:float(v) for k,v in usage.items()},
-            limits={k:float(v) for k,v in limits.items()},
+            usage=usage,
+            limits=limits,
         )
 
     def record_once(
@@ -82,6 +112,7 @@ class BudgetLedger:
         idempotency_key = str(idempotency_key or "").strip()
         if not idempotency_key:
             raise ValueError("idempotency_key is required")
+        normalized_delta = validated_budget_amounts(delta, label="budget delta")
         with sidecar_lock(self.path):
             self._load_unlocked()
             recorded = self.payload.setdefault(
@@ -92,21 +123,37 @@ class BudgetLedger:
                 repository,
                 {},
             )
+            normalized_usage = validated_budget_amounts(
+                usage, label="recorded budget usage"
+            )
             if idempotency_key in recorded:
-                return {k:float(v) for k, v in usage.items()}
-            for key, value in delta.items():
-                usage[key] = float(usage.get(key, 0.0)) + float(value)
+                return normalized_usage
+            updated = dict(normalized_usage)
+            for key, value in normalized_delta.items():
+                projected = updated.get(key, 0.0) + value
+                if not math.isfinite(projected):
+                    raise ValueError(f"budget delta {key!r} exceeds numeric range")
+                updated[key] = projected
+            usage.update(updated)
             recorded.append(idempotency_key)
             self.payload["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_unlocked()
-            return {k:float(v) for k, v in usage.items()}
+            return updated
 
     def record(self, repository: str, delta: dict[str, float]) -> dict[str, float]:
+        normalized_delta = validated_budget_amounts(delta, label="budget delta")
         with sidecar_lock(self.path):
             self._load_unlocked()
             usage = self.payload.setdefault("usage", {}).setdefault(repository, {})
-            for key, value in delta.items():
-                usage[key] = float(usage.get(key, 0.0)) + float(value)
+            updated = validated_budget_amounts(
+                usage, label="recorded budget usage"
+            )
+            for key, value in normalized_delta.items():
+                projected = updated.get(key, 0.0) + value
+                if not math.isfinite(projected):
+                    raise ValueError(f"budget delta {key!r} exceeds numeric range")
+                updated[key] = projected
+            usage.update(updated)
             self.payload["updated_at"] = datetime.now(timezone.utc).isoformat()
             self._save_unlocked()
-            return {k:float(v) for k,v in usage.items()}
+            return updated

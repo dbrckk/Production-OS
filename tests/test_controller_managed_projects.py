@@ -463,6 +463,21 @@ def test_successful_project_accounting_is_idempotent_across_cycles(
     rate = RateLimitStore(rate_path)
     assert len(rate.events["repo:owner/repo"]) == 1
 
+    # A malformed old receipt must not be charged or consume a rate slot.
+    for amount in (float("nan"), float("inf"), -1, []):
+        with pytest.raises(ValueError, match="managed project resource request"):
+            controller._recover_managed_project_accounting(
+                project_id=f"invalid-{str(amount)}",
+                handoff={
+                    "repository": "owner/repo",
+                    "resource_request": {"tokens": amount},
+                },
+                rate_limit_store=RateLimitStore(rate_path),
+                budget_ledger=BudgetLedger(budget_path),
+            )
+    assert len(RateLimitStore(rate_path).events["repo:owner/repo"]) == 1
+    assert BudgetLedger(budget_path).payload["usage"]["owner/repo"]["tokens"] == 25
+
 
 def test_accounting_recovers_after_post_creation_commit_failure(
     tmp_path,

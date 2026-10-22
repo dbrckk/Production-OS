@@ -21,7 +21,7 @@ from .autonomous_projects import (
     autonomous_project_status,
     launch_autonomous_project,
 )
-from .budgets import BudgetLedger
+from .budgets import BudgetLedger, validated_budget_amounts
 from .claims import ClaimStore
 from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
@@ -122,20 +122,21 @@ def _recover_managed_project_accounting(
     rate_window_seconds: int = 3600,
 ) -> None:
     repository = str(handoff.get("repository") or "")
+    # Validate before the first persistent mutation: an invalid receipt must
+    # not consume a rate-limit reservation during crash recovery.
+    resource_request = validated_budget_amounts(
+        (
+            {} if handoff.get("resource_request") is None
+            else handoff["resource_request"]
+        ),
+        label="managed project resource request",
+    )
     if rate_limit_store is not None and repository:
         rate_limit_store.record_once(
             f"repo:{repository}",
             project_id,
             window_seconds=int(rate_window_seconds),
         )
-
-    raw_request = handoff.get("resource_request", {}) or {}
-    resource_request = {
-        str(key):float(value)
-        for key, value in raw_request.items()
-        if isinstance(value, (int, float))
-        and not isinstance(value, bool)
-    }
     if budget_ledger is not None and resource_request:
         budget_ledger.record_once(
             repository,

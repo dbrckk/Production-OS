@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from production_os.budgets import BudgetLedger
 from production_os.policy import PolicySet, evaluate_policy
 from production_os.rate_limit import RateLimitStore
@@ -28,6 +30,25 @@ def test_budget_blocks_projected_usage(tmp_path):
     decision=ledger.check("o/a",{"tokens":100},{"tokens":20})
     assert decision.allowed is False
 
+    # JSON accepts NaN/Infinity in some Python decoders; neither may make a
+    # finite budget comparison evaluate falsely and approve a dispatch.
+    for invalid in (float("nan"), float("inf"), float("-inf"), -1, True, "oops"):
+        with pytest.raises(ValueError):
+            ledger.check("o/a", {"tokens":100}, {"tokens":invalid})
+        with pytest.raises(ValueError):
+            ledger.check("o/a", {"tokens":invalid}, {"tokens":1})
+    assert ledger.check("o/a", {"tokens":100}, {"tokens":10}).allowed
+    for malformed in ([], False, 0, ""):
+        with pytest.raises(ValueError, match="budget request"):
+            ledger.check("o/a", {"tokens":100}, malformed)
+        with pytest.raises(ValueError, match="budget limits"):
+            ledger.check("o/a", malformed, {"tokens":1})
+
+    # Even a mathematically finite pair can overflow during projection.
+    ledger.record("o/overflow", {"tokens":1e308})
+    assert not ledger.check(
+        "o/overflow", {"tokens":1e308}, {"tokens":1e308}
+    ).allowed
 
 
 def test_rate_limit_check_does_not_mutate_store(tmp_path):
@@ -82,6 +103,27 @@ def test_budget_record_once_is_idempotent(tmp_path):
     assert first["tokens"] == 25
     assert second["tokens"] == 25
     assert BudgetLedger(path).payload["usage"]["o/a"]["tokens"] == 25
+
+    for invalid in (float("nan"), float("inf"), float("-inf"), -25, True):
+        with pytest.raises(ValueError):
+            ledger.record_once(
+                "o/a", {"tokens":invalid}, idempotency_key="invalid-attempt"
+            )
+        with pytest.raises(ValueError):
+            ledger.record("o/a", {"tokens":invalid})
+    # Reject the entire multi-resource update, including a valid earlier item.
+    with pytest.raises(ValueError):
+        ledger.record("o/a", {"requests":3, "tokens":float("nan")})
+    with pytest.raises(ValueError):
+        ledger.record_once(
+            "o/a", {"requests":3, "tokens":-1},
+            idempotency_key="invalid-attempt",
+        )
+    final = BudgetLedger(path)
+    assert final.payload["usage"]["o/a"] == {"tokens":25.0}
+    assert final.payload["recorded_idempotency_keys"] == [
+        "controller-project-1"
+    ]
 
 
 def test_different_project_ids_charge_independently(tmp_path):
