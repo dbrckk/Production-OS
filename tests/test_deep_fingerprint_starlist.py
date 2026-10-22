@@ -1,5 +1,5 @@
 from production_os.deep_fingerprint import analyze_source_evidence
-from production_os.models import RepoEvidence
+from production_os.models import ActionCandidate, RepoEvidence
 from production_os.starlist import rank_website_catalog, suggest_external_references
 
 
@@ -192,3 +192,32 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
     assert rank_website_catalog("mobile QA release", websites) == []
     assert rank_website_catalog("", websites) == []
     assert rank_website_catalog("agent coding", websites, limit=0) == []
+
+    from production_os.cli import _handoff, _parse_args
+
+    scan_args = _parse_args([
+        "scan", "--owner", "dbrckk", "--star-list-websites-path",
+        "websites.json",
+    ])
+    assert scan_args.star_list_websites_path == "websites.json"
+    action = ActionCandidate(
+        repository="dbrckk/Jumpy",
+        task="Improve agent coding automation",
+        rationale="Support coding agent workflows",
+        acceptance_criteria=[],
+        evidence=[],
+        impact=5,
+        urgency=5,
+        risk_reduction=5,
+        release_proximity=5,
+        effort=3,
+    )
+    handoff = _handoff(action, [], catalog, websites)
+    assert handoff["external_catalog_coverage"] == {
+        "github_entries": 6,
+        "website_entries": 4,
+    }
+    assert [item["url"] for item in handoff["external_website_candidates"]] == [
+        "https://skill-issue.in/"
+    ]
+    assert handoff["external_website_candidates"][0]["integrationEligible"] is False
