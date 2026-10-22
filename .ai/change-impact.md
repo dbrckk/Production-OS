@@ -1,20 +1,19 @@
 # Change impact
 
-Base: 15703a633ade7e054f0c39b1cceaa0414850e2c8
-Head: 4e76d405f5283c15c126ee00eb7d1cd96b6f3172
+Base: 2ee3b5773837f0cbcf5a916c09071141231db040
+Head: 415c6cdcfa9eb001df7d2c4c5cd344b90a9a6c30
 
 ## Changed files
-- M README.md
-- M src/production_os/remote_worker_runner.py
-- M tests/test_remote_worker_runner.py
+- A .github/workflows/production-os-review-handoff.yml
+- A .github/workflows/production-os-source-qualification.yml
+- A docs/BOUNDED_SOURCE_QUALIFICATION.md
 
 ## Affected areas
-- (root)
-- src
-- tests
+- .github
+- docs
 
 ## Related test candidates
-- tests/test_remote_worker_runner.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

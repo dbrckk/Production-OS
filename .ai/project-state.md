@@ -237,16 +237,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T15:10:33Z
+Generated: 2026-10-22T19:32:02Z
 
 ### Git
 - Branch: `main`
-- Head: `4e76d405f528`
-- Commit date: 2026-10-22T11:10:17-04:00
-- Commit: fix(worker): honor initial cancellation before starting executor (#292)
-- Tracked files: 574
+- Head: `415c6cdcfa9e`
+- Commit date: 2026-10-22T15:31:50-04:00
+- Commit: feat: qualify bounded autonomous worktree source repairs (#293)
+- Tracked files: 577
 
 ### Recently changed files
+- `.github/workflows/production-os-review-handoff.yml`
+- `.github/workflows/production-os-source-qualification.yml`
+- `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `README.md`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_remote_worker_runner.py`

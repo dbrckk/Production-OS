@@ -42,6 +42,8 @@ The content is organized as follows:
   workflows/
     ai-repo-map.yml
     ci.yml
+    production-os-review-handoff.yml
+    production-os-source-qualification.yml
     semantic-refresh.yml
   dependabot.yml
 .serena/
@@ -893,6 +895,255 @@ jobs:
         run: |
           python integration/godot4_relocated_import_smoke.py
           python integration/real_producer_bundle_smoke.py
+````
+
+## File: .github/workflows/production-os-review-handoff.yml
+````yaml
+name: Trusted Production-OS PR Handoff
+
+# Runs from the default branch only. Never checks out or executes Studio code.
+on:
+  repository_dispatch:
+    types: [production_os_review_handoff]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: production-os-review-handoff
+  cancel-in-progress: false
+
+jobs:
+  create-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      REVIEW_TOKEN: ${{ github.token }}
+    steps:
+      - name: Verify published checkpoint and open a review PR
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          if repo != "dbrckk/Production-OS":
+              raise SystemExit("Review handoff must run in the trusted repository")
+          with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as source:
+              event = json.load(source)
+          payload = event.get("client_payload")
+          if not isinstance(payload, dict) or set(payload) != {"branch", "commit_sha"}:
+              raise SystemExit("Invalid Production-OS review handoff payload")
+          branch = payload.get("branch")
+          sha = payload.get("commit_sha")
+          if not isinstance(branch, str) or not re.fullmatch(r"studio/mp-[a-f0-9]{24}", branch):
+              raise SystemExit("Handoff branch does not match managed Studio namespace")
+          if not isinstance(sha, str) or not re.fullmatch(r"[a-f0-9]{40}", sha):
+              raise SystemExit("Handoff commit SHA is invalid")
+
+          token = os.environ["REVIEW_TOKEN"]
+          base = "https://api.github.com/repos/" + repo
+          headers = {
+              "Authorization": "Bearer " + token,
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "production-os-review-handoff",
+          }
+
+          def request(method, path, data=None):
+              body = json.dumps(data).encode("utf-8") if data is not None else None
+              action = urllib.request.Request(
+                  base + path, data=body, method=method, headers={
+                      **headers, **({"Content-Type": "application/json"} if body else {}),
+                  }
+              )
+              try:
+                  with urllib.request.urlopen(action, timeout=20) as response:
+                      raw = response.read(1000000)
+                      return json.loads(raw) if raw else {}
+              except urllib.error.HTTPError as exc:
+                  if exc.code in {401, 403}:
+                      raise SystemExit(
+                          "Target GitHub Actions must allow pull-request creation "
+                          "(Pull requests:write and repository setting)"
+                      ) from None
+                  raise SystemExit("Review handoff GitHub API returned HTTP " + str(exc.code)) from None
+
+          ref = request("GET", "/git/ref/heads/" + branch)
+          verified = (ref.get("object") or {}).get("sha")
+          if verified != sha:
+              raise SystemExit("Review handoff rejected a stale or unverified branch tip")
+          delta = request("GET", "/compare/main..." + sha)
+          files = delta.get("files")
+          if (delta.get("status") not in {"ahead", "diverged"}
+                  or not isinstance(files, list) or not 0 < len(files) < 300):
+              raise SystemExit("Review handoff requires a bounded nonempty compare")
+          if len(files) != 1 or files[0].get("filename") != "src/production_os/worktree_contract.py" or files[0].get("status") != "modified":
+              raise SystemExit("Review handoff only accepts the vetted one-file worktree source fix")
+
+          # A single named file is not sufficient: another generic engine
+          # previously overwrote the same reserved branch with an EMPTY
+          # validator (98 lines deleted). Require the exact operator-reviewed
+          # one-line repair, and reject omissions, chmod-only changes, extra
+          # edits, unverified patch evidence and unexpected AI output.
+          changed = files[0]
+          patch = changed.get("patch")
+          if (type(changed.get("additions")) is not int
+                  or type(changed.get("deletions")) is not int
+                  or changed["additions"] != 1 or changed["deletions"] != 1
+                  or type(changed.get("changes")) is not int
+                  or changed["changes"] != 2
+                  or not isinstance(patch, str) or len(patch) > 4000):
+              raise SystemExit("Review handoff rejected an unbounded source diff")
+          source_edits = [
+              line for line in patch.splitlines()
+              if line.startswith(("+", "-"))
+              and not line.startswith(("+++", "---"))
+          ]
+          if [line.replace("\'", '"') for line in source_edits] != [
+              '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
+              '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
+          ]:
+              raise SystemExit("Review handoff rejected a source edit outside the approved assignment")
+
+          # Require the same exact branch head immediately before opening the
+          # review. Never trust a previously compared SHA after a concurrent
+          # worker updates the managed branch.
+          latest_ref = request("GET", "/git/ref/heads/" + branch)
+          if (latest_ref.get("object") or {}).get("sha") != sha:
+              raise SystemExit("Review handoff rejected a branch movement after comparison")
+
+          owner = repo.split("/", 1)[0]
+          query = urllib.parse.urlencode({
+              "state": "open", "head": owner + ":" + branch, "base": "main",
+              "per_page": "20",
+          })
+          existing = request("GET", "/pulls?" + query)
+          if not isinstance(existing, list):
+              raise SystemExit("Pull request list returned an invalid response")
+          for item in existing:
+              if ((item.get("head") or {}).get("ref") == branch
+                      and (item.get("base") or {}).get("ref") == "main"):
+                  print("Reused existing review: " + str(item.get("html_url") or ""))
+                  break
+          else:
+              created = request("POST", "/pulls", {
+                  "title": "Review Production-OS verified checkpoint: " + branch,
+                  "head": branch,
+                  "base": "main",
+                  "draft": True,
+                  "body": (
+                      "Production-OS published this checkpoint to a review branch. "
+                      "This PR was opened by the trusted target-repository handoff "
+                      "after independently validating the exact branch tip and diff. "
+                      "Review all changed files and run required CI before any merge. "
+                      "No changes are merged automatically.\n\n"
+                      "Checkpoint: `" + sha + "`"
+                  ),
+              })
+              if not isinstance(created, dict) or not created.get("number"):
+                  raise SystemExit("Review handoff did not receive a real PR number")
+              print("Opened draft review: " + str(created.get("html_url") or ""))
+          # Trigger the pre-existing trusted qualification workflow against the
+          # exact reviewed branch; the model cannot modify workflow files.
+          request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
+              "ref": branch,
+          })
+          print("Requested independent source CI for " + sha)
+          PY
+````
+
+## File: .github/workflows/production-os-source-qualification.yml
+````yaml
+name: Bounded source qualification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-qualification-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout reviewed source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Compile
+        run: python -W error::SyntaxWarning -m compileall -q src scripts
+      - name: Existing worktree and runner checks
+        run: pytest -q tests/test_worktree_contract.py tests/test_executor_worktree.py tests/test_remote_worker_runner.py
+      - name: Create real worktrees for adversarial identifiers
+        run: |
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+          from production_os.worktree_contract import build_worktree_contract
+
+          def git(root, *args):
+              return subprocess.run(["git", "-C", str(root), *args],
+                                    check=True, capture_output=True, text=True)
+
+          with TemporaryDirectory() as directory:
+              root = Path(directory) / "repository"
+              root.mkdir()
+              git(root, "init")
+              git(root, "-c", "user.name=Qualification", "-c",
+                  "user.email=qualification@example.invalid", "commit",
+                  "--allow-empty", "-m", "Initial")
+              cases = [
+                  ("workflow", "task"),
+                  ("workflow..retry", "task"),
+                  ("workflow", "task..retry"),
+                  ("workflow...retry", "task...retry"),
+                  ("workflow.lock", "task"),
+                  ("a" * 15 + ".lock.extra", "a" * 27 + "..retry"),
+                  (".", "..."),
+                  ("é / branch", "refs/@{bad}"),
+              ]
+              seen = set()
+              for index, (workflow, task) in enumerate(cases):
+                  contract = build_worktree_contract(
+                      repository="owner/repo", workflow_id=workflow,
+                      task_id=task, attempt=1,
+                  )
+                  assert contract == build_worktree_contract(
+                      repository="owner/repo", workflow_id=workflow,
+                      task_id=task, attempt=1,
+                  )
+                  assert contract["branch"] not in seen
+                  seen.add(contract["branch"])
+                  git(root, "check-ref-format", "--branch", contract["branch"])
+                  destination = Path(directory) / ("worktree-" + str(index))
+                  git(root, "worktree", "add", "-b", contract["branch"], str(destination))
+                  assert (destination / ".git").is_file()
+                  git(root, "worktree", "remove", str(destination))
+          print("PASS: eight real Git worktrees, valid refs and deterministic isolation")
+          PY
+      - name: Build distribution
+        run: python -m build
 ````
 
 ## File: .github/workflows/semantic-refresh.yml
