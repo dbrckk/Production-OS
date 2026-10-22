@@ -98,7 +98,10 @@ def evaluate_autonomous_admission(
             )
 
     portfolio_budgets = validated_budget_amounts(
-        policies.payload.get("portfolio_budgets") or {},
+        (
+            {} if policies.payload.get("portfolio_budgets") is None
+            else policies.payload["portfolio_budgets"]
+        ),
         label="portfolio budget limits",
     )
     if budget_ledger is not None and portfolio_budgets:
