@@ -1,3 +1,6 @@
+import json
+from unittest.mock import patch
+
 from production_os.deep_fingerprint import analyze_source_evidence
 from production_os.models import ActionCandidate, RepoEvidence
 from production_os.starlist import rank_website_catalog, suggest_external_references
@@ -19,7 +22,7 @@ def test_deep_fingerprint_detects_real_dependencies():
     assert ("python-library", "pytest") in values
 
 
-def test_starlist_catalog_is_ranked_by_score_and_match():
+def test_starlist_catalog_is_ranked_by_score_and_match(capsys):
     catalog = {
         "repositories": [
             {
@@ -221,3 +224,36 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
         "https://skill-issue.in/"
     ]
     assert handoff["external_website_candidates"][0]["integrationEligible"] is False
+
+
+    # Exercise the real scan/report wiring with the external GitHub boundary
+    # stubbed: both independent feeds must load, and each action is evaluated.
+    from production_os.cli import run_scan
+
+    with (
+        patch("production_os.cli.GitHubClient") as github,
+        patch("production_os.cli._rank_actions", return_value=[action]),
+    ):
+        github.return_value.list_repositories.return_value = []
+        github.return_value.read_json_file.side_effect = [catalog, websites]
+        assert run_scan(scan_args) == 0
+        assert github.return_value.read_json_file.call_count == 2
+    scan_output = json.loads(capsys.readouterr().out)
+    assert scan_output["star_list"]["website_count"] == 4
+    assert scan_output["star_list"]["websites_loaded"] is True
+    assert scan_output["website_reference_matches"][0]["repository"] == "dbrckk/Jumpy"
+    assert scan_output["website_reference_matches"][0]["references"][0]["url"] == (
+        "https://skill-issue.in/"
+    )
+
+    no_feeds = _parse_args(["scan", "--owner", "dbrckk", "--no-star-list", "--json"])
+    with (
+        patch("production_os.cli.GitHubClient") as github,
+        patch("production_os.cli._rank_actions", return_value=[action]),
+    ):
+        github.return_value.list_repositories.return_value = []
+        assert run_scan(no_feeds) == 0
+        github.return_value.read_json_file.assert_not_called()
+    no_feed_output = json.loads(capsys.readouterr().out)
+    assert no_feed_output["star_list"]["website_count"] == 0
+    assert no_feed_output["website_reference_matches"] == []
