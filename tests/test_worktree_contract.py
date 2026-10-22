@@ -1,3 +1,9 @@
+import os
+import subprocess
+import sys
+import textwrap
+from pathlib import Path
+
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from production_os.workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from production_os.worktree_contract import build_worktree_contract
@@ -34,6 +40,40 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert first["workspace_key"] != retry["workspace_key"]
     assert first["requirements"]["exclusive_workspace"] is True
     assert first["requirements"]["commit_changes_before_success"] is True
+
+    # Execute the actual embedded GitHub Actions pre-check, without network
+    # requests or a model task. The handoff and execution SHA must coincide.
+    root = Path(__file__).resolve().parents[1]
+    workflow = (root / ".github/workflows/production-os-source-qualification.yml").read_text()
+    handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_text()
+    assert "ref: ${{ inputs.expected_sha }}" in workflow
+    assert '"inputs": {"expected_sha": sha}' in handoff
+    script = textwrap.dedent(
+        workflow.split("          python - <<'PY'\\n", 1)[1]
+        .split("          PY\\n", 1)[0]
+    )
+    valid_sha = "a" * 40
+    valid_env = {
+        "EXPECTED_SHA": valid_sha,
+        "DISPATCH_SHA": valid_sha,
+        "DISPATCH_REF": "refs/heads/studio/mp-" + ("b" * 24),
+        "REPOSITORY": "dbrckk/Production-OS",
+    }
+    for override, succeeds in (
+        ({}, True),
+        ({"EXPECTED_SHA": "invalid"}, False),
+        ({"DISPATCH_SHA": "c" * 40}, False),
+        ({"DISPATCH_REF": "refs/heads/main"}, False),
+        ({"REPOSITORY": "attacker/repo"}, False),
+    ):
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            env={**os.environ, **valid_env, **override},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert (result.returncode == 0) is succeeds, result.stderr
 
 
 def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path):
