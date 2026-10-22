@@ -34,6 +34,14 @@ Le premier GET healthz a pris22,52 s ; les lectures suivantes ont pris moins d'u
 
 ## Qualification encore ouverte
 
-Le diagnostic hébergé existant est demandé par [worker PR376](https://github.com/dbrckk/ai-dev-server/pull/376), contrôle18 : appels synthétiques bornés aux fournisseurs configurés, lecture opérateur et configuration du réveil. Résultats et CI exacts seront consignés dans cette PR. Aucun travail source ne sera mis en file ; les anciens objectifs sont obsolètes et le canary42 n'est pas activé.
+Le diagnostic hébergé existant, [run39697046716](https://github.com/dbrckk/ai-dev-server/actions/runs/39697046716), a échoué le2026-10-22 : génération de codeHTTP503 ; autres sondes404/JSON invalide, avec une disponibilité JSON valide. Accès opérateur GET réussi ; réveil immédiat déclaré prêt par le serveur, sans tâche/dispatch réel. Secours Cloudflare gratuit non configuré. Les sept workflows logiciels et trois contrôles CircleCI après fusion du worker sont tous réussis. Résultats exacts : [worker PR376](https://github.com/dbrckk/ai-dev-server/pull/376). Aucune tâche source ni nouvelle sonde modèle ; les anciens objectifs sont obsolètes et le canary42 n'est pas activé.
 
 Un diagnostic synthétique réussi peut établir une disponibilité ponctuelle. Il ne prouve ni une livraison autonome complète sur une nouvelle tâche source, ni une capacité d'inférence gratuite durable. Aucun changement de fournisseur, de plafond de projet ou de licence n'est demandé.
+
+## Correction de l'inférence — 2026-10-22
+
+[Worker377](https://github.com/dbrckk/ai-dev-server/pull/377) corrige un défaut du chemin réel après503 : l'enveloppe de6000 conservait la charge4242 du premier appel, mais le repli conservait une réservation de sortie4096 devenue trop grande. Le nouveau calcul utilise le registre courant : deuxième appel plafonné à1612, succès, charge totale conservatrice4292/6000. Avec4500, la capacité restante est insuffisante et aucun second appel n'est envoyé.
+
+Le diagnostic corrige aussi ses petites sondes Nemotron et exerce le repli dans un budget de sortie total384 tokens/40 secondes, avec les échecs visibles. Suite locale finale1845+199 sous-tests et six intégrations authentifiées réussies. Deux tests existants étendus ; aucune nouvelle fonction de test unitaire.
+
+Un appel Kilo distinct, limité à un exercice public synthétique, a produit du code vérifié avec75 tokens de sortie et un coût déclaré nul. Aucun fournisseur n'a été activé pour des données de projet. La qualification NVIDIA réelle sera consignée dans PR377 après ses CI et sa fusion ; la dernière observation hébergée reste l'échec503 documenté ci-dessus jusqu'à ce résultat. Aucun plafond augmenté, travail source mis en file ou dépôt cible fusionné.

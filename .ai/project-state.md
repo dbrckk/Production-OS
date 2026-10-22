@@ -1,3 +1,16 @@
+## 2026-10-22 — real worker inference fallback budget recovery
+
+- Worker PR377 candidate88622ff fixes a real generic-model fallback defect: a503 conservatively consumed4242 of6000 tokens, then a stale reservation denied the next provider although1758 remained. Recompute candidate output from the live ledger: actual second provider succeeds with1612 output cap, total charged4292/6000. A4500-token project correctly stops after one POST/4242 charged when useful output cannot fit. No charge refunded or envelope increased.
+- Diagnostic also stops tiny supported Nemotron probes spending their answer allowance on reasoning, and exercises code fallback within384 output tokens/40 seconds total. Each attempt is retained and each candidate receives one POST. Production provider configuration/reasoning settings unchanged.
+- Final local worker suite1,845+199 subtests passed in31.03s;6 authenticated current-server integrations passed in4.019s; actual HTTP baseline/red and corrected/green scenarios and unchanged test-function inventory passed. Existing two tests extended, no new unit-test functions.
+- One separate public Kilo toy call produced verified code with75 completion tokens and declared zero cost; no project data or fallback activation. Public-only project-fallback consent remains pending. Control19 requests one NVIDIA hosted requalification after exact-head CI and trusted-main merge; final result in https://github.com/dbrckk/ai-dev-server/pull/377. No source queue, obsolete canary retry, target merge or provider budget change.
+
+## 2026-10-22 — final validation verdict: software passed, inference failed qualification
+
+- Final exact workerf01c620: seven software workflows and three CircleCI checks passed; reportf4813e70: four postmerge jobs passed. Fresh local server1,325/no skips PostgreSQL16, worker1,845+199 subtests, authenticated integration6 and build/wheel/actual HTTP checks passed.
+- Hosted diagnostic39697046716 failed its single code-generation probe with HTTP503. Other provider readiness probes returned404 and invalid JSON; one valid readiness JSON was observed. Operator GET authorization succeeded; server declares immediate wake ready, without a new task/dispatch test. Cloudflare free fallback is not configured; cause of remote statuses remains unproven.
+- Fresh public health/readiness200/base reachable, corrected client ready in1.26s. Runtime/deployment unchanged. Final evidence and limits: https://github.com/dbrckk/Production-OS/pull/288 and https://github.com/dbrckk/ai-dev-server/pull/376. Stabilize configured inference before any new reviewed applicable source task; no automatic old-canary retry or provider/budget change.
+
 ## 2026-10-21 — fresh owner-requested stack validation
 
 - Fresh full PostgreSQL16 suite:1,325 passed, no skips; worker1,845+199 subtests;6 actual authenticated integrations. Actual HTTP deadline/transient/403 checks, fresh distribution build and isolated wheel CLI passed. Runtime code unchanged. Full reproducible evidence: [validation report](../docs/VALIDATION_2026-10-21.md).
