@@ -115,6 +115,30 @@ def test_autonomous_admission_blocks_repository_budget(tmp_path):
     with pytest.raises(RuntimeError, match="budget blocked"):
         _evaluate(tmp_path, policies=policies, budgets=ledger)
 
+    # Admission must fail before any project or worker dispatch even when no
+    # ledger is configured. Invalid requests must never be silently dropped.
+    for amount in (float("nan"), float("inf"), float("-inf"), -1, True):
+        request = _request(handoff={
+            "repository": "owner/repo",
+            "task": "Improve login tests",
+            "resource_request": {"tokens": amount},
+        })
+        with pytest.raises(ValueError, match="resource request"):
+            _evaluate(tmp_path, request=request)
+    malformed = _request(handoff={
+        "repository": "owner/repo",
+        "task": "Improve login tests",
+        "resource_request": ["tokens", 10],
+    })
+    with pytest.raises(ValueError, match="resource request"):
+        _evaluate(tmp_path, request=malformed)
+    for invalid in (float("nan"), float("inf"), -1, True):
+        with pytest.raises(ValueError, match="policy budget"):
+            _evaluate(
+                tmp_path,
+                policies=PolicySet({"defaults": {"budgets": {"tokens": invalid}}}),
+            )
+
 
 def test_autonomous_admission_blocks_portfolio_budget(tmp_path):
     ledger = BudgetLedger(tmp_path / "budget.json")
@@ -125,6 +149,13 @@ def test_autonomous_admission_blocks_portfolio_budget(tmp_path):
 
     with pytest.raises(RuntimeError, match="portfolio budget blocked"):
         _evaluate(tmp_path, policies=policies, budgets=ledger)
+
+    for invalid in (float("nan"), float("inf"), -10, True):
+        with pytest.raises(ValueError, match="portfolio budget"):
+            _evaluate(
+                tmp_path,
+                policies=PolicySet({"portfolio_budgets": {"tokens": invalid}}),
+            )
 
 
 def test_autonomous_admission_requires_human_approval(tmp_path):
