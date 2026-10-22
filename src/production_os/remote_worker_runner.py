@@ -471,6 +471,12 @@ class RemoteWorkerRunner:
                     "status":"stale",
                 }
 
+            controls = heartbeat.get("control", {}).get("jobs", {})
+            if (controls.get(key) or {}).get("desired_state") == "cancel_requested":
+                self._deactivate(key, job_control_state="cancel_requested")
+                active_registered = False
+                return {"job_key": key, "status": "cancelled"}
+
             execution_path = self._select_execution_path(job)
             if execution_path == "unavailable":
                 reason = (

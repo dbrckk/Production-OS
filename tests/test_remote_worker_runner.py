@@ -1540,9 +1540,10 @@ def test_native_execution_cancel_request_sets_event_and_does_not_complete(
         worker_thread.start()
         deadline = time.time() + 2
         while time.time() < deadline:
-            if control.queue.get(queued["key"])["status"] == "acked":
+            if "event" in seen:
                 break
             time.sleep(0.01)
+        assert "event" in seen
         control.dashboard_control.request_job_cancel(
             queued["key"],
             requested_by="operator:test",
@@ -1555,6 +1556,32 @@ def test_native_execution_cancel_request_sets_event_and_does_not_complete(
         }]
         assert seen["event"].is_set()
         assert control.queue.get(queued["key"])["status"] == "cancelled"
+        # Cancellation already present at startup must prevent any executor.
+        for mode in ("native", "external"):
+            pending = control.queue.enqueue({
+                "handoff": _native_browser_handoff_for_runner(),
+                "required_capabilities": [],
+                "idempotency_key": "startup-cancel-" + mode,
+            })
+            original_ack = client.ack
+            def cancel_after_ack(key):
+                result = original_ack(key)
+                control.dashboard_control.request_job_cancel(key, requested_by="operator:test")
+                return result
+            monkeypatch.setattr(client, "ack", cancel_after_ack)
+            marker = tmp_path / (mode + "-must-not-run")
+            def unexpected_native(context):
+                marker.write_text("started")
+                return {"status": "succeeded", "result": {"summary": "unexpected"}}
+            monkeypatch.setattr("production_os.remote_worker_runner.execute_native", unexpected_native)
+            startup_runner = RemoteWorkerRunner(client,
+                [sys.executable, "-c", "from pathlib import Path; Path(" + repr(str(marker)) + ").write_text('started')"],
+                executor_mode=mode, heartbeat_interval_seconds=0.02, executor_timeout_seconds=2)
+            assert startup_runner.run(cycles=1, idle_sleep_seconds=0) == [{"job_key": pending["key"], "status": "cancelled"}]
+            assert not marker.exists()
+            assert control.queue.get(pending["key"])["status"] == "cancelled"
+            assert control.dashboard_control.job_state(pending["key"])["acknowledged_at"]
+            monkeypatch.setattr(client, "ack", original_ack)
     finally:
         _stop(server, server_thread)
 
