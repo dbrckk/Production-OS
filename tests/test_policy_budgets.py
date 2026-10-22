@@ -38,6 +38,11 @@ def test_budget_blocks_projected_usage(tmp_path):
         with pytest.raises(ValueError):
             ledger.check("o/a", {"tokens":invalid}, {"tokens":1})
     assert ledger.check("o/a", {"tokens":100}, {"tokens":10}).allowed
+    for malformed in ([], False, 0, ""):
+        with pytest.raises(ValueError, match="budget request"):
+            ledger.check("o/a", {"tokens":100}, malformed)
+        with pytest.raises(ValueError, match="budget limits"):
+            ledger.check("o/a", malformed, {"tokens":1})
 
     # Even a mathematically finite pair can overflow during projection.
     ledger.record("o/overflow", {"tokens":1e308})
