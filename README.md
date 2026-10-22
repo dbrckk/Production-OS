@@ -2758,6 +2758,12 @@ heartbeat failure threshold and waits for cooperative cancellation before
 returning an abandoned outcome; a proxy error cannot bypass that supervision.
 HTTP error status remains available even when its response body cannot be read.
 
+The first active heartbeat is covered by the same cleanup as executor work. If
+its response is lost after the server accepted it, the connection error remains
+visible, the unused active slot is released locally, and an inactive heartbeat
+is attempted. The acknowledged job is left for normal session reconciliation;
+no executor is started and no failure or completion is invented.
+
 ### Docker
 
 Prepare `artifacts/auth.json`, then:
