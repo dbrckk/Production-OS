@@ -3,7 +3,7 @@
 - Index mode: incremental
 - Files indexed: 351
 - Files reparsed this run: 2
-- Symbols: 3244
+- Symbols: 3246
 - Internal import edges: 1019
 - Impacted files: 8
 - Selected tests: 7
@@ -16,10 +16,10 @@
 - src/production_os/cli.py: 92 symbols
 - src/production_os/dashboard_store.py: 61 symbols
 - tests/test_asset_forge.py: 59 symbols
+- tests/test_remote_worker_runner.py: 57 symbols
 - src/production_os/postgres_backend.py: 56 symbols
 - src/production_os/sqlite_backend.py: 56 symbols
 - tests/test_browser_computer.py: 55 symbols
-- tests/test_remote_worker_runner.py: 55 symbols
 - src/production_os/dashboard_service.py: 54 symbols
 - tests/test_dashboard_backups.py: 49 symbols
 - src/production_os/github_client.py: 46 symbols

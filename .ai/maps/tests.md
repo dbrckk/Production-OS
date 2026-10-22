@@ -7308,6 +7308,19 @@ deadline = time.time() + 0.5
 ⋮----
 deadline = time.time() + 2
 ⋮----
+# Cancellation already present at startup must prevent any executor.
+⋮----
+pending = control.queue.enqueue({
+original_ack = client.ack
+def cancel_after_ack(key)
+⋮----
+result = original_ack(key)
+⋮----
+marker = tmp_path / (mode + "-must-not-run")
+def unexpected_native(context)
+⋮----
+startup_runner = RemoteWorkerRunner(client,
+⋮----
 control = ControlPlane(str(tmp_path / "native-stale.sqlite"), authorizer=_auth())
 ⋮----
 deadline = time.time() + 0.3

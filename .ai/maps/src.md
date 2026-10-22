@@ -9109,6 +9109,10 @@ process: subprocess.Popen[str] | None = None
 ⋮----
 heartbeat = self._activate(key)
 ⋮----
+controls = heartbeat.get("control", {}).get("jobs", {})
+⋮----
+active_registered = False
+⋮----
 execution_path = self._select_execution_path(job)
 ⋮----
 reason = (
@@ -9128,8 +9132,6 @@ started = time.monotonic()
 ⋮----
 cancellation_event = threading.Event()
 native_context = NativeExecutionContext(
-⋮----
-active_registered = False
 ⋮----
 request = json.dumps(
 process = subprocess.Popen(

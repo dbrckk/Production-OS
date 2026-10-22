@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "chore(runtime): pin and enforce supported Python versions",
-      "terms": [
-        "chore",
-        "enforce",
-        "pin",
-        "python",
-        "runtime",
-        "supported",
-        "versions"
-      ],
-      "tests": [],
-      "useful": [
-        "tests/test_runtime_contract.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(dashboard): expose worker wake readiness before launch",
       "terms": [
         "before",
@@ -1227,6 +1210,24 @@
         "src/production_os/remote_worker_runner.py",
         "tests/test_remote_worker_runner.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "Respect initial cancellation before native executor selection",
+      "terms": [
+        "before",
+        "cancellation",
+        "executor",
+        "initial",
+        "native",
+        "respect",
+        "selection"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_remote_worker_runner.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2304,12 +2305,12 @@
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/executor_worktree.py": 8,
-      "src/production_os/remote_worker_runner.py": 8,
+      "src/production_os/remote_worker_runner.py": 12,
       "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_launch_readiness.py": 4,
       "tests/test_executor_worktree.py": 8,
-      "tests/test_remote_worker_runner.py": 8
+      "tests/test_remote_worker_runner.py": 12
     },
     "benchmark": {
       "src/production_os/agent_benchmark.py": 8,
@@ -2437,12 +2438,14 @@
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/postgres_backend.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_production_status.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_postgres_backend.py": 4,
       "tests/test_release43_safe_production_cancel_e2e.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
       "tests/test_sqlite_backend.py": 4
     },
     "candidates": {
@@ -3313,11 +3316,11 @@
       "src/production_os/browser_loop.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/native_executor.py": 4,
-      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/remote_worker_runner.py": 8,
       "tests/test_browser_loop.py": 4,
       "tests/test_native_browser_worker_e2e.py": 4,
       "tests/test_native_executor.py": 4,
-      "tests/test_remote_worker_runner.py": 4,
+      "tests/test_remote_worker_runner.py": 8,
       "tests/test_worker_compose_deployment.py": 4
     },
     "executors": {
@@ -3802,8 +3805,8 @@
       "tests/test_browser_computer.py": 4
     },
     "initial": {
-      "src/production_os/remote_worker_runner.py": 4,
-      "tests/test_remote_worker_runner.py": 4
+      "src/production_os/remote_worker_runner.py": 8,
+      "tests/test_remote_worker_runner.py": 8
     },
     "inject": {
       "src/production_os/workflow_engine.py": 4,
@@ -4220,7 +4223,7 @@
       "src/production_os/managed_projects.py": 16,
       "src/production_os/native_executor.py": 4,
       "src/production_os/remote_worker.py": 4,
-      "src/production_os/remote_worker_runner.py": 8,
+      "src/production_os/remote_worker_runner.py": 12,
       "tests/test_browser_loop.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_dashboard_ui_v3.py": 8,
@@ -4231,7 +4234,7 @@
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_remote_worker.py": 4,
-      "tests/test_remote_worker_runner.py": 8,
+      "tests/test_remote_worker_runner.py": 12,
       "tests/test_worker_compose_deployment.py": 4
     },
     "navigable": {
@@ -5213,6 +5216,10 @@
       "tests/test_storage_routing.py": 4,
       "tests/test_trust_status_summary.py": 4
     },
+    "respect": {
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_remote_worker_runner.py": 4
+    },
     "responses": {
       "src/production_os/dashboard_ui.py": 24,
       "src/production_os/remote_worker.py": 4,
@@ -5573,7 +5580,9 @@
     },
     "selection": {
       "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "selectors": {
       "src/production_os/browser_computer.py": 4,

@@ -237,13 +237,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T11:13:23Z
+Generated: 2026-10-22T15:10:33Z
 
 ### Git
 - Branch: `main`
-- Head: `25ad61d00a23`
-- Commit date: 2026-10-22T07:13:13-04:00
-- Commit: fix: clean native worker activity after startup heartbeat failure (#291)
+- Head: `4e76d405f528`
+- Commit date: 2026-10-22T11:10:17-04:00
+- Commit: fix(worker): honor initial cancellation before starting executor (#292)
 - Tracked files: 574
 
 ### Recently changed files
@@ -254,15 +254,6 @@ Generated: 2026-10-22T11:13:23Z
 - `tests/test_release51_one_tap_runner_e2e.py`
 - `tests/test_remote_worker.py`
 - `docs/VALIDATION_2026-10-21.md`
-- `docs/remote-worker-executor-protocol.md`
-- `src/production_os/dashboard_ui.py`
-- `src/production_os/managed_projects.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_managed_project_outcome.py`
-- `tests/test_managed_projects_v4.py`
-- `tests/test_workflow_auto_wake_api.py`
-- `tests/test_workflow_engine.py`
 
 ### Project signals
 - `pyproject.toml`

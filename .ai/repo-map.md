@@ -10979,6 +10979,10 @@ process: subprocess.Popen[str] | None = None
 ⋮----
 heartbeat = self._activate(key)
 ⋮----
+controls = heartbeat.get("control", {}).get("jobs", {})
+⋮----
+active_registered = False
+⋮----
 execution_path = self._select_execution_path(job)
 ⋮----
 reason = (
@@ -10998,8 +11002,6 @@ started = time.monotonic()
 ⋮----
 cancellation_event = threading.Event()
 native_context = NativeExecutionContext(
-⋮----
-active_registered = False
 ⋮----
 request = json.dumps(
 process = subprocess.Popen(
@@ -20195,6 +20197,19 @@ deadline = time.time() + 0.5
 ⋮----
 deadline = time.time() + 2
 ⋮----
+# Cancellation already present at startup must prevent any executor.
+⋮----
+pending = control.queue.enqueue({
+original_ack = client.ack
+def cancel_after_ack(key)
+⋮----
+result = original_ack(key)
+⋮----
+marker = tmp_path / (mode + "-must-not-run")
+def unexpected_native(context)
+⋮----
+startup_runner = RemoteWorkerRunner(client,
+⋮----
 control = ControlPlane(str(tmp_path / "native-stale.sqlite"), authorizer=_auth())
 ⋮----
 deadline = time.time() + 0.3
@@ -25090,6 +25105,11 @@ its response is lost after the server accepted it, the connection error remains
 visible, the unused active slot is released locally, and an inactive heartbeat
 is attempted. The acknowledged job is left for normal session reconciliation;
 no executor is started and no failure or completion is invented.
+
+If that first heartbeat already requests job cancellation, the runner acknowledges
+it and releases the active slot before selecting or starting an executor. This
+applies to both native execution and subprocesses; a fast executor cannot finish
+the job before the pending cancellation is observed.
 
 ### Docker
 
