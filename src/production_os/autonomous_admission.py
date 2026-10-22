@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .approvals import ApprovalStore
-from .budgets import BudgetLedger
+from .budgets import BudgetLedger, validated_budget_amounts
 from .emergency import emergency_stop_active
 from .policy import PolicySet, evaluate_policy
 from .quarantine import QuarantineStore
@@ -81,13 +81,11 @@ def evaluate_autonomous_admission(
         "constraints":constraints,
     }
 
-    raw_request = normalized_handoff.get("resource_request", {}) or {}
-    normalized_request = {
-        str(key):float(value)
-        for key, value in raw_request.items()
-        if isinstance(value, (int, float))
-        and not isinstance(value, bool)
-    }
+    raw_request = normalized_handoff.get("resource_request", {})
+    normalized_request = validated_budget_amounts(
+        {} if raw_request is None else raw_request,
+        label="autonomous resource request",
+    )
     if budget_ledger is not None and policy_decision.budgets:
         decision = budget_ledger.check(
             repository,
@@ -99,14 +97,10 @@ def evaluate_autonomous_admission(
                 "budget blocked dispatch: " + "; ".join(decision.reasons)
             )
 
-    portfolio_budgets = {
-        str(key):float(value)
-        for key, value in (
-            policies.payload.get("portfolio_budgets", {}) or {}
-        ).items()
-        if isinstance(value, (int, float))
-        and not isinstance(value, bool)
-    }
+    portfolio_budgets = validated_budget_amounts(
+        policies.payload.get("portfolio_budgets") or {},
+        label="portfolio budget limits",
+    )
     if budget_ledger is not None and portfolio_budgets:
         decision = budget_ledger.check(
             "__portfolio__",
