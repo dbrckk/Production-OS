@@ -2764,6 +2764,11 @@ visible, the unused active slot is released locally, and an inactive heartbeat
 is attempted. The acknowledged job is left for normal session reconciliation;
 no executor is started and no failure or completion is invented.
 
+If that first heartbeat already requests job cancellation, the runner acknowledges
+it and releases the active slot before selecting or starting an executor. This
+applies to both native execution and subprocesses; a fast executor cannot finish
+the job before the pending cancellation is observed.
+
 ### Docker
 
 Prepare `artifacts/auth.json`, then:
