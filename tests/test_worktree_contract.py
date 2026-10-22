@@ -49,8 +49,8 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert "ref: ${{ inputs.expected_sha }}" in workflow
     assert '"inputs": {"expected_sha": sha}' in handoff
     script = textwrap.dedent(
-        workflow.split("          python - <<'PY'\\n", 1)[1]
-        .split("          PY\\n", 1)[0]
+        workflow.split("          python - <<'PY'\n", 1)[1]
+        .split("          PY\n", 1)[0]
     )
     valid_sha = "a" * 40
     valid_env = {
