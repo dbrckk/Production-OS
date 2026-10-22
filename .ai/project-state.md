@@ -175,14 +175,14 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-21T23:54:18Z
+Generated: 2026-10-22T01:03:57Z
 
 ### Git
 - Branch: `main`
-- Head: `f4813e706e73`
-- Commit date: 2026-10-21T19:54:07-04:00
-- Commit: docs(validation): record verified stack and current target status [skip render]
-- Tracked files: 573
+- Head: `ea111d6f8d17`
+- Commit date: 2026-10-21T21:03:42-04:00
+- Commit: docs(inference): record bounded worker fallback recovery [skip render]
+- Tracked files: 574
 
 ### Recently changed files
 - `docs/VALIDATION_2026-10-21.md`
@@ -200,11 +200,6 @@ Generated: 2026-10-21T23:54:18Z
 - `.github/workflows/ci.yml`
 - `README.md`
 - `pyproject.toml`
-- `.github/dependabot.yml`
-- `.github/workflows/ai-repo-map.yml`
-- `.github/workflows/semantic-refresh.yml`
-- `.gitignore`
-- `.python-version`
 
 ### Project signals
 - `pyproject.toml`
