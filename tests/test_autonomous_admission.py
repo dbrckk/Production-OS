@@ -132,7 +132,7 @@ def test_autonomous_admission_blocks_repository_budget(tmp_path):
     })
     with pytest.raises(ValueError, match="resource request"):
         _evaluate(tmp_path, request=malformed)
-    for invalid in (float("nan"), float("inf"), -1, True):
+    for invalid in (float("nan"), float("inf"), -1, True, []):
         with pytest.raises(ValueError, match="policy budget"):
             _evaluate(
                 tmp_path,
