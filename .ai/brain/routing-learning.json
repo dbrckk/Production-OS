@@ -2,29 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(dashboard): expose worker wake readiness before launch",
-      "terms": [
-        "before",
-        "dashboard",
-        "expose",
-        "feat",
-        "launch",
-        "readiness",
-        "wake",
-        "worker"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_control.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_control.py",
-        "tests/test_dashboard_launch.py",
-        "tests/test_dashboard_launch_readiness.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(control-plane): add backend readiness endpoint",
       "terms": [
         "add",
@@ -1228,6 +1205,25 @@
         "src/production_os/remote_worker_runner.py",
         "tests/test_remote_worker_runner.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "Qualify bounded autonomous Production-OS worktree Git-ref repair",
+      "terms": [
+        "autonomous",
+        "bounded",
+        "git-ref",
+        "production-os",
+        "qualify",
+        "repair",
+        "worktree"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/cli.py",
+        "src/production_os/starlist.py",
+        "tests/test_deep_fingerprint_starlist.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2225,7 +2221,7 @@
       "src/production_os/autonomous_admission.py": 4,
       "src/production_os/autonomous_projects.py": 4,
       "src/production_os/budgets.py": 4,
-      "src/production_os/cli.py": 12,
+      "src/production_os/cli.py": 16,
       "src/production_os/controller.py": 12,
       "src/production_os/controller_leader.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -2236,6 +2232,7 @@
       "src/production_os/managed_projects.py": 4,
       "src/production_os/rate_limit.py": 4,
       "src/production_os/rollback_plan.py": 4,
+      "src/production_os/starlist.py": 4,
       "src/production_os/workers.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_benchmark.py": 4,
@@ -2246,6 +2243,7 @@
       "tests/test_controller_leader.py": 4,
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4,
       "tests/test_github_change_review.py": 4,
       "tests/test_github_work_state.py": 8,
       "tests/test_managed_project_outcome.py": 4,
@@ -2367,13 +2365,15 @@
       "src/production_os/agent_plan.py": 4,
       "src/production_os/browser_computer.py": 16,
       "src/production_os/browser_loop.py": 4,
-      "src/production_os/cli.py": 20,
+      "src/production_os/cli.py": 24,
       "src/production_os/control_plane.py": 4,
       "src/production_os/regression_bisect.py": 4,
+      "src/production_os/starlist.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_computer.py": 16,
       "tests/test_browser_loop.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4,
       "tests/test_regression_bisect.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },
@@ -3599,6 +3599,11 @@
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_repository_cache.py": 4
     },
+    "git-ref": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/starlist.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4
+    },
     "github": {
       "scripts/render-start.py": 4,
       "src/production_os/control_plane.py": 4,
@@ -4699,11 +4704,14 @@
       "tests/test_sqlite_backend.py": 4
     },
     "production-os": {
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/controller.py": 4,
+      "src/production_os/starlist.py": 4,
       "src/production_os/worker_wake.py": 4,
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4,
       "tests/test_worker_wake.py": 4
     },
     "progress": {
@@ -4849,6 +4857,11 @@
       "tests/test_release16_operations_e2e.py": 4,
       "tests/test_release18_managed_projects_e2e.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4
+    },
+    "qualify": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/starlist.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4
     },
     "quality": {
       "src/production_os/asset_forge.py": 4,
@@ -5133,9 +5146,12 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "repair": {
+      "src/production_os/cli.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/starlist.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4
     },
     "replay": {
       "src/production_os/browser_computer.py": 4,
@@ -6375,11 +6391,13 @@
       "tests/test_persistent_agent_runtime.py": 4
     },
     "worktree": {
-      "src/production_os/cli.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/executor_worktree.py": 12,
       "src/production_os/filesystem_lock.py": 4,
       "src/production_os/remote_worker_runner.py": 8,
       "src/production_os/repository_cache.py": 4,
+      "src/production_os/starlist.py": 4,
+      "tests/test_deep_fingerprint_starlist.py": 4,
       "tests/test_executor_worktree.py": 8,
       "tests/test_filesystem_lock.py": 4,
       "tests/test_remote_worker_runner.py": 8,

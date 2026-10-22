@@ -4112,7 +4112,7 @@ evidence = RepoEvidence(
 signals = analyze_source_evidence(evidence)
 values = {(signal.kind, signal.value) for signal in signals}
 ⋮----
-def test_starlist_catalog_is_ranked_by_score_and_match()
+def test_starlist_catalog_is_ranked_by_score_and_match(capsys)
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
@@ -4128,6 +4128,25 @@ defensive_catalog = {
 # Very short identifiers must not match inside unrelated words:
 # "ci" was previously found within the "specialized" tier itself.
 ci_catalog = {
+⋮----
+# The independent websites.json index is inspected without treating
+# websites (including agent-skill directories) as installable components.
+websites = {
+references = rank_website_catalog("agent coding automation", websites)
+⋮----
+scan_args = _parse_args([
+⋮----
+action = ActionCandidate(
+handoff = _handoff(action, [], catalog, websites)
+⋮----
+# Exercise the real scan/report wiring with the external GitHub boundary
+# stubbed: both independent feeds must load, and each action is evaluated.
+⋮----
+scan_output = json.loads(capsys.readouterr().out)
+⋮----
+no_feeds = _parse_args(["scan", "--owner", "dbrckk", "--no-star-list", "--json"])
+⋮----
+no_feed_output = json.loads(capsys.readouterr().out)
 ```
 
 ## File: test_device_pairing.py

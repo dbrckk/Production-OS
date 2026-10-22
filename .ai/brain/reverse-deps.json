@@ -786,6 +786,7 @@
         "tests/test_cli.py",
         "tests/test_controller_daemon.py",
         "tests/test_controller_managed_projects.py",
+        "tests/test_deep_fingerprint_starlist.py",
         "tests/test_executor_worktree.py",
         "tests/test_persistent_agent_runtime.py",
         "tests/test_regression_bisect.py",
@@ -793,7 +794,7 @@
         "tests/test_release_postgres.py",
         "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 13,
+      "in_degree": 14,
       "out_degree": 72
     },
     "src/production_os/compatibility.py": {
@@ -1423,11 +1424,12 @@
         "tests/test_controller_managed_projects.py",
         "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_repositories.py",
+        "tests/test_deep_fingerprint_starlist.py",
         "tests/test_github_automerge.py",
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py"
       ],
-      "in_degree": 18,
+      "in_degree": 19,
       "out_degree": 3
     },
     "src/production_os/github_webhook.py": {
@@ -3785,14 +3787,17 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/capabilities.py",
+        "src/production_os/cli.py",
         "src/production_os/deep_fingerprint.py",
+        "src/production_os/github_client.py",
         "src/production_os/models.py",
         "src/production_os/starlist.py",
+        "tests/test_fairness.py",
         "tests/test_remote_worker.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 9
     },
     "tests/test_device_pairing.py": {
       "dependencies": [
@@ -3923,6 +3928,7 @@
         "tests/test_dashboard_remediation_metrics.py",
         "tests/test_dashboard_retention_prune.py",
         "tests/test_dashboard_ui_v3.py",
+        "tests/test_deep_fingerprint_starlist.py",
         "tests/test_github_webhook.py",
         "tests/test_native_browser_worker_e2e.py",
         "tests/test_native_executor.py",
@@ -3936,7 +3942,7 @@
         "tests/test_scoring.py",
         "tests/test_worker_wake.py"
       ],
-      "in_degree": 57,
+      "in_degree": 58,
       "out_degree": 2
     },
     "tests/test_fanout_learning.py": {

@@ -4601,8 +4601,6 @@ def _external_refs_for_action(action: ActionCandidate, catalog: dict | None) -> 
 mapping = {
 capability = mapping.get(action.task)
 ⋮----
-def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
-⋮----
 related_reuse = [
 ⋮----
 reusable_components = []
@@ -4627,8 +4625,11 @@ client = GitHubClient()
 repos = client.list_repositories(args.owner)
 ⋮----
 catalog = None
+websites = None
 ⋮----
 catalog = client.read_json_file(args.star_list_repo, args.star_list_path)
+⋮----
+websites = client.read_json_file(
 ⋮----
 include = set(args.include or [])
 exclude = set(args.exclude or [])
@@ -4656,7 +4657,7 @@ runtime_state = RuntimeState(args.runtime_state) if args.runtime_state else None
 schedule = build_schedule(
 payload = {
 ⋮----
-payload = _handoff(actions[0], reuse, catalog) if actions else {
+payload = _handoff(actions[0], reuse, catalog, websites) if actions else {
 ⋮----
 def run_validation_results(args: argparse.Namespace) -> int
 ⋮----
@@ -12331,6 +12332,42 @@ semantic = min(matches / max(len(terms), 1), 1.0)
 quality = min(score / 10.0, 1.0)
 confidence = round(0.55 * quality + 0.45 * semantic, 2)
 ref = ExternalReference(
+⋮----
+_WEBSITE_STOPWORDS = frozenset({
+⋮----
+"""Rank *references* from star-list's independent websites.json catalog.
+
+    These entries are not Git repositories, dependencies or executable agent
+    instructions. No website is fetched, installed, or authorized for use by
+    returning it. Unrelated references are not proposed.
+    """
+⋮----
+query_terms = set(re.findall(r"[a-z0-9]+", str(query).casefold()))
+⋮----
+ranked: list[tuple[float, dict[str, Any]]] = []
+seen: set[str] = set()
+⋮----
+url = str(item.get("url") or "").strip()
+⋮----
+parsed = urlsplit(url)
+⋮----
+normalized_url = url.rstrip("/").casefold()
+⋮----
+def words(fields: tuple[str, ...]) -> set[str]
+⋮----
+values: list[str] = []
+⋮----
+value = item.get(field)
+⋮----
+tag_hits = query_terms & words(("tags",))
+purpose_hits = query_terms & words(("bestFor", "name", "type"))
+domain_hits = query_terms & words(("domains",))
+hits = tag_hits | purpose_hits | domain_hits
+# One generic keyword (e.g. "mobile") cannot justify recommending
+# a graphics gallery for an Android release/QA task.
+⋮----
+relevance = round(min(
+reference = {
 ````
 
 ## File: src/production_os/storage.py
@@ -17252,7 +17289,7 @@ evidence = RepoEvidence(
 signals = analyze_source_evidence(evidence)
 values = {(signal.kind, signal.value) for signal in signals}
 ⋮----
-def test_starlist_catalog_is_ranked_by_score_and_match()
+def test_starlist_catalog_is_ranked_by_score_and_match(capsys)
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
@@ -17268,6 +17305,25 @@ defensive_catalog = {
 # Very short identifiers must not match inside unrelated words:
 # "ci" was previously found within the "specialized" tier itself.
 ci_catalog = {
+⋮----
+# The independent websites.json index is inspected without treating
+# websites (including agent-skill directories) as installable components.
+websites = {
+references = rank_website_catalog("agent coding automation", websites)
+⋮----
+scan_args = _parse_args([
+⋮----
+action = ActionCandidate(
+handoff = _handoff(action, [], catalog, websites)
+⋮----
+# Exercise the real scan/report wiring with the external GitHub boundary
+# stubbed: both independent feeds must load, and each action is evaluated.
+⋮----
+scan_output = json.loads(capsys.readouterr().out)
+⋮----
+no_feeds = _parse_args(["scan", "--owner", "dbrckk", "--no-star-list", "--json"])
+⋮----
+no_feed_output = json.loads(capsys.readouterr().out)
 ````
 
 ## File: tests/test_device_pairing.py
@@ -22638,8 +22694,34 @@ The PostgreSQL end-to-end tests also need a running PostgreSQL instance and
 - **autonomous portfolio scheduling**
 - **execution-slot resource allocation**
 - live `dbrckk/star-list` ranking
+- review-only website discovery from `star-list/websites.json` (no auto-installation)
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
+
+## Curated website references during portfolio scans
+
+A portfolio scan reads two **independent** `dbrckk/star-list` catalogs:
+GitHub repositories from `catalog.json` and curated sites from
+`websites.json`. Every website entry is evaluated against the selected
+action's title and rationale. Suggestions are emitted only when multiple
+relevant signals match; the reported catalog coverage is the number of
+entries inspected, **not** the number validated as compatible.
+
+`production-os scan --owner dbrckk --handoff` returns
+`external_website_candidates` alongside existing
+`external_reference_candidates`. The website records retain their source URL,
+access expectations, reuse/copyright caution, relevance terms and explicit
+`integrationEligible: false`/`reviewRequired: true`. They are **metadata-only
+references**, never Git repositories, downloadable dependencies, trusted agent
+instructions, or proof of permission to copy assets or code. No live website
+crawling, script execution, spending, or automatic integration occurs here.
+
+Use `--star-list-websites-path websites.json` to select the catalog path, or
+`--no-star-list` to disable **both** external catalogs. JSON portfolio output
+reports `star_list.websites_loaded` and `star_list.website_count`, so missing
+or invalid website feeds are distinguishable from empty relevant results.
+The JSON portfolio report also includes `website_reference_matches`, containing
+relevant review-only websites for each action across the assessed repositories.
 
 ## Knowledge graph V3
 

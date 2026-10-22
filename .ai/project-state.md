@@ -237,26 +237,28 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T19:32:02Z
+Generated: 2026-10-22T20:52:05Z
 
 ### Git
 - Branch: `main`
-- Head: `415c6cdcfa9e`
-- Commit date: 2026-10-22T15:31:50-04:00
-- Commit: feat: qualify bounded autonomous worktree source repairs (#293)
+- Head: `2da544308c52`
+- Commit date: 2026-10-22T16:51:52-04:00
+- Commit: feat: discover star-list website references in Production-OS scans (#294)
 - Tracked files: 577
 
 ### Recently changed files
+- `README.md`
+- `src/production_os/cli.py`
+- `src/production_os/starlist.py`
+- `tests/test_deep_fingerprint_starlist.py`
 - `.github/workflows/production-os-review-handoff.yml`
 - `.github/workflows/production-os-source-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
-- `README.md`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_remote_worker_runner.py`
 - `src/production_os/remote_worker.py`
 - `tests/test_release51_one_tap_runner_e2e.py`
 - `tests/test_remote_worker.py`
-- `docs/VALIDATION_2026-10-21.md`
 
 ### Project signals
 - `pyproject.toml`

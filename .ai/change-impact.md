@@ -1,19 +1,21 @@
 # Change impact
 
-Base: 2ee3b5773837f0cbcf5a916c09071141231db040
-Head: 415c6cdcfa9eb001df7d2c4c5cd344b90a9a6c30
+Base: b3bbf2e50b87f7fd76c056c11db2d97fde770048
+Head: 2da544308c529cf53bbc7fefdbfb179e7c7802d5
 
 ## Changed files
-- A .github/workflows/production-os-review-handoff.yml
-- A .github/workflows/production-os-source-qualification.yml
-- A docs/BOUNDED_SOURCE_QUALIFICATION.md
+- M README.md
+- M src/production_os/cli.py
+- M src/production_os/starlist.py
+- M tests/test_deep_fingerprint_starlist.py
 
 ## Affected areas
-- .github
-- docs
+- (root)
+- src
+- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_cli.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

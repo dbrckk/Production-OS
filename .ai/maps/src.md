@@ -2480,8 +2480,6 @@ def _external_refs_for_action(action: ActionCandidate, catalog: dict | None) -> 
 mapping = {
 capability = mapping.get(action.task)
 ⋮----
-def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
-⋮----
 related_reuse = [
 ⋮----
 reusable_components = []
@@ -2506,8 +2504,11 @@ client = GitHubClient()
 repos = client.list_repositories(args.owner)
 ⋮----
 catalog = None
+websites = None
 ⋮----
 catalog = client.read_json_file(args.star_list_repo, args.star_list_path)
+⋮----
+websites = client.read_json_file(
 ⋮----
 include = set(args.include or [])
 exclude = set(args.exclude or [])
@@ -2535,7 +2536,7 @@ runtime_state = RuntimeState(args.runtime_state) if args.runtime_state else None
 schedule = build_schedule(
 payload = {
 ⋮----
-payload = _handoff(actions[0], reuse, catalog) if actions else {
+payload = _handoff(actions[0], reuse, catalog, websites) if actions else {
 ⋮----
 def run_validation_results(args: argparse.Namespace) -> int
 ⋮----
@@ -10210,6 +10211,42 @@ semantic = min(matches / max(len(terms), 1), 1.0)
 quality = min(score / 10.0, 1.0)
 confidence = round(0.55 * quality + 0.45 * semantic, 2)
 ref = ExternalReference(
+⋮----
+_WEBSITE_STOPWORDS = frozenset({
+⋮----
+"""Rank *references* from star-list's independent websites.json catalog.
+
+    These entries are not Git repositories, dependencies or executable agent
+    instructions. No website is fetched, installed, or authorized for use by
+    returning it. Unrelated references are not proposed.
+    """
+⋮----
+query_terms = set(re.findall(r"[a-z0-9]+", str(query).casefold()))
+⋮----
+ranked: list[tuple[float, dict[str, Any]]] = []
+seen: set[str] = set()
+⋮----
+url = str(item.get("url") or "").strip()
+⋮----
+parsed = urlsplit(url)
+⋮----
+normalized_url = url.rstrip("/").casefold()
+⋮----
+def words(fields: tuple[str, ...]) -> set[str]
+⋮----
+values: list[str] = []
+⋮----
+value = item.get(field)
+⋮----
+tag_hits = query_terms & words(("tags",))
+purpose_hits = query_terms & words(("bestFor", "name", "type"))
+domain_hits = query_terms & words(("domains",))
+hits = tag_hits | purpose_hits | domain_hits
+# One generic keyword (e.g. "mobile") cannot justify recommending
+# a graphics gallery for an Android release/QA task.
+⋮----
+relevance = round(min(
+reference = {
 ```
 
 ## File: production_os/storage.py
