@@ -7,6 +7,8 @@ import threading
 import time
 from http.server import ThreadingHTTPServer
 
+import pytest
+
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
 from production_os.executor_worktree import PreparedWorktree
@@ -89,6 +91,33 @@ def test_worker_session_self_registers_and_reconciles_previous_claim(tmp_path):
             "status":"queued",
         }]
         assert control.queue.get(job.key)["status"] == "queued"
+
+        # A response can be lost after the server recorded the first active
+        # heartbeat. No executor has started, so that slot must still be cleared.
+        heartbeat = restarted.heartbeat
+        faults = []
+        def lost_activation_response(**kwargs):
+            response = heartbeat(**kwargs)
+            if kwargs.get("active_job_keys") and not faults:
+                faults.append(True)
+                raise RuntimeError("initial heartbeat response lost")
+            return response
+        restarted.heartbeat = lost_activation_response
+        runner = RemoteWorkerRunner(restarted, [], executor_mode="native")
+        with pytest.raises(RuntimeError, match="^initial heartbeat response lost$"):
+            runner.run(cycles=1, idle_sleep_seconds=0)
+        assert faults == [True]
+        assert runner._active_job_keys == set()
+        control.workers.load()
+        assert control.workers.workers["runner-1"].active_tasks == 0
+        assert control.queue.get(job.key)["status"] == "acked"
+
+        recovered = restarted.open_session(max_concurrency=1, active_job_keys=[])
+        assert recovered["recovered_jobs"][0]["key"] == job.key
+        claimed = restarted.claim()
+        assert claimed.key == job.key
+        restarted.ack(job.key)
+        assert restarted.complete(job.key)["status"] == "completed"
     finally:
         _stop(server, thread)
 

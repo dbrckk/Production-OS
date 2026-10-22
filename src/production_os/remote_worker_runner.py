@@ -452,9 +452,9 @@ class RemoteWorkerRunner:
         )
         self.client.ack(key)
         active_registered = True
-        heartbeat = self._activate(key)
         process: subprocess.Popen[str] | None = None
         try:
+            heartbeat = self._activate(key)
             if self._stop_event.is_set():
                 return {
                     "job_key":key,

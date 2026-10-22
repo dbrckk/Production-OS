@@ -1,3 +1,18 @@
+# 2026-10-22 — clean active slots when startup heartbeat fails
+
+- Real authenticated HTTP gateway forwards the first active heartbeat to the real control plane,then returns503. Baseline runner propagates RuntimeError but leaks one local active key and server active_tasks=1 despite zero executor starts. Reconnect already recovers the same job;the defect is phantom activity/cleanup,not a claim that old reconnect failed.
+- Move the initial _activate call inside the existing executor try/finally. The original transport error remains visible;existing _deactivate removes the key and sends an inactive heartbeat best-effort. No executor starts or fabricated completion/failure before reconnect;job remains acked for normal session reconciliation. No new catch,retry or budget behavior.
+- Existing session/reconciliation test extended:red baseline on leaked key,green after;real server activity also asserted zero after lost-response simulation. Actual HTTP forward-then503 fixture:fixed local/server active counts0/0,zero executor starts before reconnect,one actual native execution total and same job completed afterwards. Selected32 tests passed in17.57s;fresh full PostgreSQL16 suite1325/no skips passed in127.39s;6 authenticated current-worker integrations passed in4.033s. No new test functions.
+- Exact-head CI,postmerge and Render observations will be recorded in associated PR. Prior290 is fully deployed/qualified below. No provider/budget change,new hosted task,source canary,Kilo project-data activation or target-project merge.
+
+# 2026-10-22 — native worker HTTP recovery deployed and qualified
+
+- Production-OS290 merged1b4866975b64955186411c78cd894b6f4b332982;Renderdep-dbctdjou01pc73bnhga0 LIVE at that exact commit. Actualhealth200/0.56s,ready200/0.55s/base reachable,dashboard200,protectedAPI401;no matching app/error logs09:28-09:30UTC.
+- Actual native runner previously escaped on HTML200 heartbeat without cancellation/stop;strict bounded HTTP/JSON/framing and normalized read errors now preserve existing threshold/cancellation fence. After local gateway recovery,the SAME job reconnects/completes. No POST replay or runtime budget increase.
+- Final isolated PostgreSQL16 full suite1325/no skips in124.95s;6 current-worker/new-server integrations in3.964s. Initial full-suite one-tap timing failure independently reproduced with unmodified client+150ms executor;existing fixture now waits for actual3-attempt exhaustion in one bounded continuous session. Three existing test functions changed,no new unit tests. Test container/volumes removed.
+- All4 candidate CI jobs,4 merge CI jobs+standards,and4 current-main8775b5f0 jobs passed. Main adds only .ai metadata since runtime;worker runtime remains379-qualified. Published evidence https://github.com/dbrckk/Production-OS/pull/290;local report /workspace/validation-production-os-20261022.md.
+- No hosted task/source canary/model request,provider/budget change,Kilo project-data activation or target merge in this correction. Full new-source autonomous delivery/sustained free inference remain unqualified.
+
 # 2026-10-22 — native worker response and cancellation recovery
 
 - Real authenticated HTTP control plane + actual RemoteWorkerRunner: an HTML200 heartbeat escapes as JSONDecodeError;supervision returns without requesting cancellation while native execution remains active and job acked. Correct strict response/transport errors into the existing RuntimeError path. Read at most1MB+1,reject malformed UTF-8/JSON/non-object/truncated frames,normalize read/connection failures;retain HTTP status if its error body cannot be read. No POST replay or failure-threshold change.
