@@ -71,7 +71,7 @@ from .storage import is_postgres, job_queue_for, open_backend, worker_registry_f
 from .api_auth import token_digest
 from .scheduler import build_schedule
 from .scoring import assess_repository
-from .starlist import suggest_external_references
+from .starlist import rank_website_catalog, suggest_external_references
 from .trends import build_trends
 from .workers import WorkerRegistry
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
@@ -123,6 +123,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--compare", help="Compare current portfolio against a previous snapshot")
     scan.add_argument("--star-list-repo", default="dbrckk/star-list")
     scan.add_argument("--star-list-path", default="catalog.json")
+    scan.add_argument("--star-list-websites-path", default="websites.json")
     scan.add_argument("--no-star-list", action="store_true")
     scan.add_argument("--include-forks", action="store_true")
     scan.add_argument("--include-archived", action="store_true")
@@ -950,7 +951,12 @@ def _external_refs_for_action(action: ActionCandidate, catalog: dict | None) -> 
     ]
 
 
-def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict:
+def _handoff(
+    action: ActionCandidate,
+    reuse: list,
+    catalog: dict | None,
+    websites: dict | None = None,
+) -> dict:
     related_reuse = [
         item.to_dict() for item in reuse if item.target == action.repository
     ][:5]
@@ -1018,6 +1024,23 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
         "adaptation_plans": adaptation_plans[:5],
         "executable_adaptation_plans": executable_plans[:3],
         "external_reference_candidates": _external_refs_for_action(action, catalog),
+        "external_website_candidates": rank_website_catalog(
+            f"{action.task} {action.rationale}", websites, limit=5
+        ),
+        "external_catalog_coverage": {
+            "github_entries": (
+                len(catalog["repositories"])
+                if isinstance(catalog, dict)
+                and isinstance(catalog.get("repositories"), list)
+                else 0
+            ),
+            "website_entries": (
+                len(websites["websites"])
+                if isinstance(websites, dict)
+                and isinstance(websites.get("websites"), list)
+                else 0
+            ),
+        },
         "constraints": {
             "preserve_existing_behavior": True,
             "verify_before_completion": True,
@@ -1094,11 +1117,18 @@ def run_scan(args: argparse.Namespace) -> int:
         return 2
 
     catalog = None
+    websites = None
     if not args.no_star_list:
         try:
             catalog = client.read_json_file(args.star_list_repo, args.star_list_path)
         except GitHubAPIError as exc:
             print(f"warning: star-list unavailable: {exc}", file=sys.stderr)
+        try:
+            websites = client.read_json_file(
+                args.star_list_repo, args.star_list_websites_path
+            )
+        except GitHubAPIError as exc:
+            print(f"warning: star-list websites unavailable: {exc}", file=sys.stderr)
 
     include = set(args.include or [])
     exclude = set(args.exclude or [])
@@ -1161,7 +1191,7 @@ def run_scan(args: argparse.Namespace) -> int:
             payload["dashboard"] = args.dashboard
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.handoff:
-        payload = _handoff(actions[0], reuse, catalog) if actions else {
+        payload = _handoff(actions[0], reuse, catalog, websites) if actions else {
             "schema_version": "production-os/task-handoff/v9",
             "status": "no_action",
         }
@@ -1174,11 +1204,38 @@ def run_scan(args: argparse.Namespace) -> int:
                 "repository": args.star_list_repo,
                 "path": args.star_list_path,
                 "loaded": bool(catalog),
-                "repository_count": len(catalog.get("repositories", [])) if catalog else 0,
+                "repository_count": (
+                    len(catalog["repositories"])
+                    if isinstance(catalog, dict)
+                    and isinstance(catalog.get("repositories"), list)
+                    else 0
+                ),
+                "websites_path": args.star_list_websites_path,
+                "websites_loaded": (
+                    isinstance(websites, dict)
+                    and isinstance(websites.get("websites"), list)
+                ),
+                "website_count": (
+                    len(websites["websites"])
+                    if isinstance(websites, dict)
+                    and isinstance(websites.get("websites"), list)
+                    else 0
+                ),
             },
             "repositories": [a.to_dict() for a in assessments],
             "ranked_actions": [a.to_dict() for a in actions],
             "reuse_opportunities": [item.to_dict() for item in reuse],
+            "website_reference_matches": [
+                {
+                    "repository": action.repository,
+                    "task": action.task,
+                    "references": matches,
+                }
+                for action in actions
+                if (matches := rank_website_catalog(
+                    f"{action.task} {action.rationale}", websites, limit=5
+                ))
+            ],
             "knowledge_graph": graph,
             "regressions": [
                 {
