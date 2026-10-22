@@ -1056,8 +1056,9 @@ jobs:
           # exact reviewed branch; the model cannot modify workflow files.
           request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
               "ref": branch,
+              "inputs": {"expected_sha": sha},
           })
-          print("Requested independent source CI for " + sha)
+          print("Requested immutable source CI for " + sha)
           PY
 ````
 
@@ -1067,6 +1068,11 @@ name: Bounded source qualification
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Reviewed immutable candidate commit SHA
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -1080,10 +1086,41 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Checkout reviewed source
+      - name: Verify immutable handoff before checkout
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          DISPATCH_SHA: ${{ github.sha }}
+          DISPATCH_REF: ${{ github.ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+
+          expected = os.environ['EXPECTED_SHA']
+          if not re.fullmatch(r'[0-9a-f]{40}', expected):
+              raise SystemExit('Qualification requires a valid immutable commit SHA')
+          if os.environ['REPOSITORY'] != 'dbrckk/Production-OS':
+              raise SystemExit('Qualification must run in the trusted repository')
+          if not re.fullmatch(r'refs/heads/studio/mp-[a-f0-9]{24}',
+                              os.environ['DISPATCH_REF']):
+              raise SystemExit('Qualification only accepts reviewed Studio source branches')
+          if os.environ['DISPATCH_SHA'] != expected:
+              raise SystemExit('Dispatch SHA differs from the independently reviewed commit')
+          print('Trusted source qualification pinned to ' + expected)
+          PY
+      - name: Checkout reviewed source at immutable SHA
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          ref: ${{ inputs.expected_sha }}
+      - name: Verify checkout matches the reviewed commit
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          git status --porcelain
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
@@ -21980,6 +22017,18 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped()
 first = build_worktree_contract(
 again = build_worktree_contract(
 retry = build_worktree_contract(
+⋮----
+# Execute the actual embedded GitHub Actions pre-check, without network
+# requests or a model task. The handoff and execution SHA must coincide.
+root = Path(__file__).resolve().parents[1]
+workflow = (root / ".github/workflows/production-os-source-qualification.yml").read_text()
+handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_text()
+⋮----
+script = textwrap.dedent(
+valid_sha = "a" * 40
+valid_env = {
+⋮----
+result = subprocess.run(
 ⋮----
 def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
 ⋮----

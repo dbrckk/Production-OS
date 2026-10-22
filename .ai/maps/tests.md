@@ -8782,6 +8782,18 @@ first = build_worktree_contract(
 again = build_worktree_contract(
 retry = build_worktree_contract(
 ⋮----
+# Execute the actual embedded GitHub Actions pre-check, without network
+# requests or a model task. The handoff and execution SHA must coincide.
+root = Path(__file__).resolve().parents[1]
+workflow = (root / ".github/workflows/production-os-source-qualification.yml").read_text()
+handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_text()
+⋮----
+script = textwrap.dedent(
+valid_sha = "a" * 40
+valid_env = {
+⋮----
+result = subprocess.run(
+⋮----
 def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "workflow.sqlite")

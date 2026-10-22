@@ -1,25 +1,21 @@
 # Change impact
 
-Base: 97ac51fb23793ea36c7952491ce828d412db5289
-Head: 2cbb50faa921c988753bfc7b782b20c8360f6461
+Base: 1928b696e945611dbb82f350c4a5291140251d6e
+Head: 48dcaef96e0ba16690202f6d3c3c8c4aa272a208
 
 ## Changed files
-- M README.md
-- M src/production_os/autonomous_admission.py
-- M src/production_os/budgets.py
-- M src/production_os/controller.py
-- M src/production_os/policy.py
-- M tests/test_autonomous_admission.py
-- M tests/test_controller_managed_projects.py
-- M tests/test_policy_budgets.py
+- M .github/workflows/production-os-review-handoff.yml
+- M .github/workflows/production-os-source-qualification.yml
+- M docs/BOUNDED_SOURCE_QUALIFICATION.md
+- M tests/test_worktree_contract.py
 
 ## Affected areas
-- (root)
-- src
+- .github
+- docs
 - tests
 
 ## Related test candidates
-- tests/test_autonomous_admission.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

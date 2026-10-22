@@ -237,16 +237,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T21:36:19Z
+Generated: 2026-10-22T21:49:34Z
 
 ### Git
 - Branch: `main`
-- Head: `2cbb50faa921`
-- Commit date: 2026-10-22T17:35:59-04:00
-- Commit: fix: fail closed on invalid autonomous resource budgets (#295)
+- Head: `48dcaef96e0b`
+- Commit date: 2026-10-22T17:49:22-04:00
+- Commit: fix: bind autonomous source qualification to immutable reviewed SHA (#296)
 - Tracked files: 577
 
 ### Recently changed files
+- `.github/workflows/production-os-review-handoff.yml`
+- `.github/workflows/production-os-source-qualification.yml`
+- `docs/BOUNDED_SOURCE_QUALIFICATION.md`
+- `tests/test_worktree_contract.py`
 - `README.md`
 - `src/production_os/autonomous_admission.py`
 - `src/production_os/budgets.py`
@@ -258,9 +262,6 @@ Generated: 2026-10-22T21:36:19Z
 - `src/production_os/cli.py`
 - `src/production_os/starlist.py`
 - `tests/test_deep_fingerprint_starlist.py`
-- `.github/workflows/production-os-review-handoff.yml`
-- `.github/workflows/production-os-source-qualification.yml`
-- `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_remote_worker_runner.py`
 
