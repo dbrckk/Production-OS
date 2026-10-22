@@ -195,16 +195,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T01:03:57Z
+Generated: 2026-10-22T09:26:47Z
 
 ### Git
 - Branch: `main`
-- Head: `ea111d6f8d17`
-- Commit date: 2026-10-21T21:03:42-04:00
-- Commit: docs(inference): record bounded worker fallback recovery [skip render]
+- Head: `1b4866975b64`
+- Commit date: 2026-10-22T05:26:36-04:00
+- Commit: fix(worker): preserve native supervision on malformed HTTP responses
 - Tracked files: 574
 
 ### Recently changed files
+- `README.md`
+- `src/production_os/remote_worker.py`
+- `tests/test_release51_one_tap_runner_e2e.py`
+- `tests/test_remote_worker.py`
+- `tests/test_remote_worker_runner.py`
 - `docs/VALIDATION_2026-10-21.md`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/dashboard_ui.py`
@@ -215,11 +220,6 @@ Generated: 2026-10-22T01:03:57Z
 - `tests/test_managed_projects_v4.py`
 - `tests/test_workflow_auto_wake_api.py`
 - `tests/test_workflow_engine.py`
-- `src/production_os/remote_worker.py`
-- `tests/test_remote_worker.py`
-- `.github/workflows/ci.yml`
-- `README.md`
-- `pyproject.toml`
 
 ### Project signals
 - `pyproject.toml`

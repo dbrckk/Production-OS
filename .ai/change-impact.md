@@ -1,16 +1,22 @@
 # Change impact
 
-Base: 79cb95d26ac7eb699896934ba114d3afe6f1e832
-Head: ea111d6f8d17768cd90de9822f35ada039c0309b
+Base: 0b18299de17a4f80ab1b8ed0e27ddac462f73149
+Head: 1b4866975b64955186411c78cd894b6f4b332982
 
 ## Changed files
-- M docs/VALIDATION_2026-10-21.md
+- M README.md
+- M src/production_os/remote_worker.py
+- M tests/test_release51_one_tap_runner_e2e.py
+- M tests/test_remote_worker.py
+- M tests/test_remote_worker_runner.py
 
 ## Affected areas
-- docs
+- (root)
+- src
+- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_remote_worker.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

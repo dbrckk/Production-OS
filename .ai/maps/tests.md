@@ -7018,11 +7018,15 @@ database = str(tmp_path / "one-tap-runner-failure.sqlite")
 ⋮----
 executor = tmp_path / "failed_executor.py"
 ⋮----
-# Polling cycles are not equivalent to claimed jobs: after a failed
-# executor result, workflow reconciliation can requeue the retry just
-# after a poll. Allow bounded spare polls while still asserting exactly
-# three real attempts below.
-outcomes = runner.run(cycles=6, idle_sleep_seconds=0)
+# Polling cycles include time spent waiting for an active executor.
+# Observe actual attempt exhaustion in one continuous worker session,
+# instead of assuming a fixed poll count covers three subprocesses.
+⋮----
+future = pool.submit(runner.run, cycles=0, idle_sleep_seconds=0.01)
+⋮----
+deadline = time.monotonic() + 5
+⋮----
+outcomes = future.result(timeout=5)
 ⋮----
 # Managed Project implementation tasks have max_attempts=3. A worker
 # failure is automatically retried with a new job key until that
@@ -7308,7 +7312,19 @@ control = ControlPlane(str(tmp_path / "native-outage.sqlite"), authorizer=_auth(
 ⋮----
 deadline = time.time() + 0.4
 ⋮----
-def unavailable(_key)
+class InvalidHeartbeat(make_handler(control))
+⋮----
+def do_POST(self)
+⋮----
+body = b"<html>private-proxy-page</html>"
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), InvalidHeartbeat)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+heartbeat_active = runner._heartbeat_active
+⋮----
+def unavailable(key)
 ⋮----
 def _prepared_native_worktree(tmp_path)
 ⋮----
@@ -7362,6 +7378,10 @@ def log_message(self, *_args)
 destination = ThreadingHTTPServer(("127.0.0.1", 0), Destination)
 ⋮----
 class Gateway(BaseHTTPRequestHandler)
+⋮----
+success_bodies = {
+⋮----
+body = success_bodies[self.path]
 ⋮----
 bodies = {
 ⋮----

@@ -11073,18 +11073,26 @@ def _request(self, path: str, payload: dict | None = None) -> tuple[int, dict]
 body = None if payload is None else json.dumps(payload).encode("utf-8")
 request = urllib.request.Request(
 ⋮----
-raw = response.read()
+raw = response.read(1_000_001)
+status = response.status
+# A bounded read does not raise IncompleteRead for a short
+# Content-Length response; reject unfinished framing explicitly.
+remaining = getattr(response, "length", None)
 ⋮----
 # Proxies can return HTML, empty bodies or non-object JSON.
 # Preserve the HTTP failure even when no API error is available.
 ⋮----
 raw = exc.read(8192)
 ⋮----
+raw = b""
+⋮----
 error_payload = json.loads(raw or b"{}")
 ⋮----
 error_payload = {}
 detail = error_payload.get("error") if isinstance(error_payload, dict) else None
 message = f"control-plane HTTP {exc.code}"
+⋮----
+value = json.loads(raw.decode("utf-8") or "{}")
 ⋮----
 payload = {"worker_id":self.worker_id}
 ⋮----
@@ -19896,11 +19904,15 @@ database = str(tmp_path / "one-tap-runner-failure.sqlite")
 ⋮----
 executor = tmp_path / "failed_executor.py"
 ⋮----
-# Polling cycles are not equivalent to claimed jobs: after a failed
-# executor result, workflow reconciliation can requeue the retry just
-# after a poll. Allow bounded spare polls while still asserting exactly
-# three real attempts below.
-outcomes = runner.run(cycles=6, idle_sleep_seconds=0)
+# Polling cycles include time spent waiting for an active executor.
+# Observe actual attempt exhaustion in one continuous worker session,
+# instead of assuming a fixed poll count covers three subprocesses.
+⋮----
+future = pool.submit(runner.run, cycles=0, idle_sleep_seconds=0.01)
+⋮----
+deadline = time.monotonic() + 5
+⋮----
+outcomes = future.result(timeout=5)
 ⋮----
 # Managed Project implementation tasks have max_attempts=3. A worker
 # failure is automatically retried with a new job key until that
@@ -20186,7 +20198,19 @@ control = ControlPlane(str(tmp_path / "native-outage.sqlite"), authorizer=_auth(
 ⋮----
 deadline = time.time() + 0.4
 ⋮----
-def unavailable(_key)
+class InvalidHeartbeat(make_handler(control))
+⋮----
+def do_POST(self)
+⋮----
+body = b"<html>private-proxy-page</html>"
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), InvalidHeartbeat)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+heartbeat_active = runner._heartbeat_active
+⋮----
+def unavailable(key)
 ⋮----
 def _prepared_native_worktree(tmp_path)
 ⋮----
@@ -20240,6 +20264,10 @@ def log_message(self, *_args)
 destination = ThreadingHTTPServer(("127.0.0.1", 0), Destination)
 ⋮----
 class Gateway(BaseHTTPRequestHandler)
+⋮----
+success_bodies = {
+⋮----
+body = success_bodies[self.path]
 ⋮----
 bodies = {
 ⋮----
@@ -25034,6 +25062,13 @@ production-os remote-worker-poll \
 ```
 
 The worker protocol supports heartbeat, capability-aware claim, acknowledgement, completion and failure reporting.
+
+Remote worker responses must be UTF-8 JSON objects within 1 MB. Malformed JSON,
+truncated HTTP responses, read timeouts and connection failures use the same
+recoverable control-plane error path. Native execution keeps its existing
+heartbeat failure threshold and waits for cooperative cancellation before
+returning an abandoned outcome; a proxy error cannot bypass that supervision.
+HTTP error status remains available even when its response body cannot be read.
 
 ### Docker
 

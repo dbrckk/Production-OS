@@ -9203,18 +9203,26 @@ def _request(self, path: str, payload: dict | None = None) -> tuple[int, dict]
 body = None if payload is None else json.dumps(payload).encode("utf-8")
 request = urllib.request.Request(
 ⋮----
-raw = response.read()
+raw = response.read(1_000_001)
+status = response.status
+# A bounded read does not raise IncompleteRead for a short
+# Content-Length response; reject unfinished framing explicitly.
+remaining = getattr(response, "length", None)
 ⋮----
 # Proxies can return HTML, empty bodies or non-object JSON.
 # Preserve the HTTP failure even when no API error is available.
 ⋮----
 raw = exc.read(8192)
 ⋮----
+raw = b""
+⋮----
 error_payload = json.loads(raw or b"{}")
 ⋮----
 error_payload = {}
 detail = error_payload.get("error") if isinstance(error_payload, dict) else None
 message = f"control-plane HTTP {exc.code}"
+⋮----
+value = json.loads(raw.decode("utf-8") or "{}")
 ⋮----
 payload = {"worker_id":self.worker_id}
 ⋮----
