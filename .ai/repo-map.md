@@ -3735,12 +3735,12 @@ constraints = dict(handoff.get("constraints", {}) or {})
 ⋮----
 normalized_handoff = {
 ⋮----
-raw_request = normalized_handoff.get("resource_request", {}) or {}
-normalized_request = {
+raw_request = normalized_handoff.get("resource_request", {})
+normalized_request = validated_budget_amounts(
 ⋮----
 decision = budget_ledger.check(
 ⋮----
-portfolio_budgets = {
+portfolio_budgets = validated_budget_amounts(
 ⋮----
 worker = None
 ⋮----
@@ -4194,6 +4194,19 @@ limits: dict[str, float]
 ⋮----
 def to_dict(self) -> dict
 ⋮----
+def validated_budget_amounts(values: dict, *, label: str) -> dict[str, float]
+⋮----
+"""Reject invalid/negative budget values before checks or persistence.
+
+    A NaN projection compares false to every finite ceiling; negative amounts
+    would silently refund consumed quota. Neither is a valid resource request.
+    Numeric strings remain accepted for backwards-compatible ledger reads.
+    """
+⋮----
+normalized: dict[str, float] = {}
+⋮----
+value = float(raw)
+⋮----
 class BudgetLedger
 ⋮----
 def __init__(self, path: str | Path)
@@ -4204,20 +4217,29 @@ def load(self) -> None
 ⋮----
 def _save_unlocked(self) -> None
 ⋮----
-usage = dict(self.payload.get("usage", {}).get(repository, {}))
-request = request or {}
-reasons=[]
+usage = validated_budget_amounts(
+request = validated_budget_amounts(
+limits = validated_budget_amounts(limits, label="budget limits")
+reasons: list[str] = []
 ⋮----
-projected = float(usage.get(key, 0.0)) + float(request.get(key, 0.0))
+projected = usage.get(key, 0.0) + request.get(key, 0.0)
 ⋮----
 idempotency_key = str(idempotency_key or "").strip()
 ⋮----
+normalized_delta = validated_budget_amounts(delta, label="budget delta")
+⋮----
 recorded = self.payload.setdefault(
 usage = self.payload.setdefault("usage", {}).setdefault(
+normalized_usage = validated_budget_amounts(
+⋮----
+updated = dict(normalized_usage)
+⋮----
+projected = updated.get(key, 0.0) + value
 ⋮----
 def record(self, repository: str, delta: dict[str, float]) -> dict[str, float]
 ⋮----
 usage = self.payload.setdefault("usage", {}).setdefault(repository, {})
+updated = validated_budget_amounts(
 ````
 
 ## File: src/production_os/builder_identity.py
@@ -5949,9 +5971,9 @@ required: list[str] = []
 lang = assessment.evidence.language.lower()
 ⋮----
 repository = str(handoff.get("repository") or "")
-⋮----
-raw_request = handoff.get("resource_request", {}) or {}
-resource_request = {
+# Validate before the first persistent mutation: an invalid receipt must
+# not consume a rate-limit reservation during crash recovery.
+resource_request = validated_budget_amounts(
 ⋮----
 def _load_github_mappings(path: str | None) -> list[dict]
 ⋮----
@@ -10025,7 +10047,7 @@ approval_from = str(policy.get("approval_required_from", "critical"))
 requires_approval = (
 ⋮----
 allowed_workers = tuple(
-budgets = {
+budgets = validated_budget_amounts(
 ````
 
 ## File: src/production_os/portfolio_optimizer.py
@@ -13933,6 +13955,13 @@ def test_autonomous_admission_blocks_repository_budget(tmp_path)
 ⋮----
 ledger = BudgetLedger(tmp_path / "budget.json")
 ⋮----
+# Admission must fail before any project or worker dispatch even when no
+# ledger is configured. Invalid requests must never be silently dropped.
+⋮----
+request = _request(handoff={
+⋮----
+malformed = _request(handoff={
+⋮----
 def test_autonomous_admission_blocks_portfolio_budget(tmp_path)
 ⋮----
 def test_autonomous_admission_requires_human_approval(tmp_path)
@@ -14894,6 +14923,8 @@ project_id = first["managed_projects"][0]["project_id"]
 ledger = BudgetLedger(budget_path)
 ⋮----
 rate = RateLimitStore(rate_path)
+⋮----
+# A malformed old receipt must not be charged or consume a rate slot.
 ⋮----
 real_commit = controller.commit_autonomous_admission
 calls = {"count":0}
@@ -18654,6 +18685,11 @@ ledger=BudgetLedger(tmp_path/"budget.json")
 ⋮----
 decision=ledger.check("o/a",{"tokens":100},{"tokens":20})
 ⋮----
+# JSON accepts NaN/Infinity in some Python decoders; neither may make a
+# finite budget comparison evaluate falsely and approve a dispatch.
+⋮----
+# Even a mathematically finite pair can overflow during projection.
+⋮----
 def test_rate_limit_check_does_not_mutate_store(tmp_path)
 ⋮----
 path = tmp_path / "rate.json"
@@ -18676,6 +18712,10 @@ ledger = BudgetLedger(path)
 first = ledger.record_once(
 reloaded = BudgetLedger(path)
 second = reloaded.record_once(
+⋮----
+# Reject the entire multi-resource update, including a valid earlier item.
+⋮----
+final = BudgetLedger(path)
 ⋮----
 def test_different_project_ids_charge_independently(tmp_path)
 ⋮----
@@ -22652,6 +22692,17 @@ markers = [
 Portfolio control plane for autonomous software production.
 
 Production-OS manages portfolio state, prioritization, reuse, compatibility, validation, and execution feedback before handing work to `ai-dev-server`.
+
+## Autonomous resource-budget integrity
+
+Budget admission and persistent budget accounting reject negative, non-finite
+(`NaN`/`Infinity`) and boolean resource amounts before dispatch or writing
+receipts. Both repository and portfolio limits are checked; corrupted persisted
+usage fails closed instead of silently permitting further consumption.
+Checks reject arithmetic overflow, and invalid multi-resource reservations do
+not partially update the ledger or consume an idempotency key. This protects
+the existing configured budgets; it does **not** increase free model capacity
+or make reservation checks across concurrent workers atomic.
 
 ## Local development checks
 

@@ -756,6 +756,13 @@ def test_autonomous_admission_blocks_repository_budget(tmp_path)
 ⋮----
 ledger = BudgetLedger(tmp_path / "budget.json")
 ⋮----
+# Admission must fail before any project or worker dispatch even when no
+# ledger is configured. Invalid requests must never be silently dropped.
+⋮----
+request = _request(handoff={
+⋮----
+malformed = _request(handoff={
+⋮----
 def test_autonomous_admission_blocks_portfolio_budget(tmp_path)
 ⋮----
 def test_autonomous_admission_requires_human_approval(tmp_path)
@@ -1717,6 +1724,8 @@ project_id = first["managed_projects"][0]["project_id"]
 ledger = BudgetLedger(budget_path)
 ⋮----
 rate = RateLimitStore(rate_path)
+⋮----
+# A malformed old receipt must not be charged or consume a rate slot.
 ⋮----
 real_commit = controller.commit_autonomous_admission
 calls = {"count":0}
@@ -5477,6 +5486,11 @@ ledger=BudgetLedger(tmp_path/"budget.json")
 ⋮----
 decision=ledger.check("o/a",{"tokens":100},{"tokens":20})
 ⋮----
+# JSON accepts NaN/Infinity in some Python decoders; neither may make a
+# finite budget comparison evaluate falsely and approve a dispatch.
+⋮----
+# Even a mathematically finite pair can overflow during projection.
+⋮----
 def test_rate_limit_check_does_not_mutate_store(tmp_path)
 ⋮----
 path = tmp_path / "rate.json"
@@ -5499,6 +5513,10 @@ ledger = BudgetLedger(path)
 first = ledger.record_once(
 reloaded = BudgetLedger(path)
 second = reloaded.record_once(
+⋮----
+# Reject the entire multi-resource update, including a valid earlier item.
+⋮----
+final = BudgetLedger(path)
 ⋮----
 def test_different_project_ids_charge_independently(tmp_path)
 ⋮----

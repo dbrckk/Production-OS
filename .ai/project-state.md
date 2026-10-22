@@ -237,17 +237,24 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T20:52:05Z
+Generated: 2026-10-22T21:36:19Z
 
 ### Git
 - Branch: `main`
-- Head: `2da544308c52`
-- Commit date: 2026-10-22T16:51:52-04:00
-- Commit: feat: discover star-list website references in Production-OS scans (#294)
+- Head: `2cbb50faa921`
+- Commit date: 2026-10-22T17:35:59-04:00
+- Commit: fix: fail closed on invalid autonomous resource budgets (#295)
 - Tracked files: 577
 
 ### Recently changed files
 - `README.md`
+- `src/production_os/autonomous_admission.py`
+- `src/production_os/budgets.py`
+- `src/production_os/controller.py`
+- `src/production_os/policy.py`
+- `tests/test_autonomous_admission.py`
+- `tests/test_controller_managed_projects.py`
+- `tests/test_policy_budgets.py`
 - `src/production_os/cli.py`
 - `src/production_os/starlist.py`
 - `tests/test_deep_fingerprint_starlist.py`
@@ -256,9 +263,6 @@ Generated: 2026-10-22T20:52:05Z
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_remote_worker_runner.py`
-- `src/production_os/remote_worker.py`
-- `tests/test_release51_one_tap_runner_e2e.py`
-- `tests/test_remote_worker.py`
 
 ### Project signals
 - `pyproject.toml`

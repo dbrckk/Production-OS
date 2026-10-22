@@ -1,8 +1,30 @@
 {
   "files": [
     {
+      "path": "src/production_os/policy.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 840
+    },
+    {
       "path": "src/production_os/cli.py",
       "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 830
+    },
+    {
+      "path": "src/production_os/controller.py",
+      "reasons": [
         "changed",
         "changed-source",
         "dependency-neighbor",
@@ -10,49 +32,10 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 1140
+      "score": 745
     },
     {
-      "path": "src/production_os/__init__.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 500
-    },
-    {
-      "path": "tests/test_remote_worker_runner.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 455
-    },
-    {
-      "path": "tests/test_deep_fingerprint_starlist.py",
-      "reasons": [
-        "changed",
-        "changed-source",
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 440
-    },
-    {
-      "path": "tests/test_browser_computer.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 425
-    },
-    {
-      "path": "src/production_os/starlist.py",
+      "path": "src/production_os/budgets.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -60,57 +43,110 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 385
+      "score": 730
     },
     {
       "path": "tests/test_controller_managed_projects.py",
       "reasons": [
+        "changed",
+        "changed-source",
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 365
+      "score": 675
     },
     {
-      "path": "src/production_os/sqlite_backend.py",
+      "path": "tests/test_autonomous_admission.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 630
+    },
+    {
+      "path": "src/production_os/autonomous_admission.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 590
+    },
+    {
+      "path": "tests/test_policy_budgets.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 525
+    },
+    {
+      "path": "src/production_os/quarantine.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 450
+    },
+    {
+      "path": "src/production_os/runtime_state.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 450
+    },
+    {
+      "path": "src/production_os/rate_limit.py",
       "reasons": [
         "dependency-neighbor"
       ],
       "score": 350
     },
     {
-      "path": "tests/test_browser_loop.py",
+      "path": "src/production_os/workers.py",
       "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 335
+      "score": 325
     },
     {
-      "path": "tests/test_executor_worktree.py",
+      "path": "src/production_os/dispatch.py",
       "reasons": [
+        "dependency-neighbor",
         "impact",
         "reverse-dependency-neighbor",
-        "selected-test",
         "symbol-indexed"
       ],
-      "score": 290
+      "score": 320
     },
     {
-      "path": "tests/test_cli.py",
+      "path": "src/production_os/approvals.py",
       "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 270
+      "score": 300
     },
     {
-      "path": "tests/test_asset_forge_dispatch_probe.py",
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 275
+    },
+    {
+      "path": "tests/test_controller_error_recovery.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
@@ -120,7 +156,7 @@
       "score": 265
     },
     {
-      "path": "tests/test_persistent_agent_runtime.py",
+      "path": "tests/test_controller_daemon.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
@@ -130,151 +166,123 @@
       "score": 260
     },
     {
-      "path": "src/production_os/github_client.py",
+      "path": "tests/test_governance.py",
       "reasons": [
-        "dependency-neighbor"
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
       ],
-      "score": 250
+      "score": 245
+    },
+    {
+      "path": "src/production_os/scheduler.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 215
+    },
+    {
+      "path": "tests/test_controller_asset_capabilities.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 210
+    },
+    {
+      "path": "src/production_os/governance.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 200
     },
     {
       "path": "src/production_os/workflow_engine.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 250
+      "score": 200
     },
     {
-      "path": "tests/test_controller_daemon.py",
+      "path": "src/production_os/policy_validation.py",
       "reasons": [
+        "dependency-neighbor",
         "impact",
         "reverse-dependency-neighbor",
-        "selected-test",
         "symbol-indexed"
-      ],
-      "score": 230
-    },
-    {
-      "path": "src/production_os/remote_worker.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 225
-    },
-    {
-      "path": "src/production_os/remote_worker_runner.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 225
-    },
-    {
-      "path": "tests/test_agent_benchmark.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 225
-    },
-    {
-      "path": "tests/test_release_postgres.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 220
-    },
-    {
-      "path": "tests/test_regression_bisect.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 215
-    },
-    {
-      "path": "tests/test_release21_offline_restore_e2e.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 185
-    },
-    {
-      "path": "src/production_os/control_plane.py",
-      "reasons": [
-        "dependency-neighbor"
       ],
       "score": 175
+    },
+    {
+      "path": "tests/test_controller_leader.py",
+      "reasons": [
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 170
+    },
+    {
+      "path": "src/production_os/journal.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 150
+    },
+    {
+      "path": "src/production_os/managed_projects.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 150
+    },
+    {
+      "path": "tests/test_asset_forge.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 150
     },
     {
       "path": "tests/test_fairness.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 175
-    },
-    {
-      "path": "tests/test_github_automerge.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 175
-    },
-    {
-      "path": "src/production_os/rekor_checkpoint_state.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
       "score": 150
     },
     {
-      "path": "src/production_os/transparency_receipts.py",
+      "path": "src/production_os/emergency.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 150
+      "score": 125
     },
     {
-      "path": "src/production_os/workers.py",
+      "path": "src/production_os/github_client.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 150
+      "score": 125
     },
     {
-      "path": "tests/test_rekor_witness_quorum_cli.py",
+      "path": "tests/test_policy_validation.py",
       "reasons": [
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 115
-    },
-    {
-      "path": "tests/test_transparency_cli.py",
-      "reasons": [
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 115
-    },
-    {
-      "path": "tests/test_github_client_pr_files.py",
-      "reasons": [
+        "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
       "score": 110
     },
     {
-      "path": "tests/test_rekor_checkpoint_state_cli.py",
+      "path": "tests/test_agent_planning_policy.py",
       "reasons": [
         "selected-test",
         "symbol-indexed"

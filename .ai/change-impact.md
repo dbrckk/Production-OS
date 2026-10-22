@@ -1,13 +1,17 @@
 # Change impact
 
-Base: b3bbf2e50b87f7fd76c056c11db2d97fde770048
-Head: 2da544308c529cf53bbc7fefdbfb179e7c7802d5
+Base: 97ac51fb23793ea36c7952491ce828d412db5289
+Head: 2cbb50faa921c988753bfc7b782b20c8360f6461
 
 ## Changed files
 - M README.md
-- M src/production_os/cli.py
-- M src/production_os/starlist.py
-- M tests/test_deep_fingerprint_starlist.py
+- M src/production_os/autonomous_admission.py
+- M src/production_os/budgets.py
+- M src/production_os/controller.py
+- M src/production_os/policy.py
+- M tests/test_autonomous_admission.py
+- M tests/test_controller_managed_projects.py
+- M tests/test_policy_budgets.py
 
 ## Affected areas
 - (root)
@@ -15,7 +19,7 @@ Head: 2da544308c529cf53bbc7fefdbfb179e7c7802d5
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
+- tests/test_autonomous_admission.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
