@@ -1663,13 +1663,29 @@ def test_native_execution_control_plane_outage_abandons_after_existing_failure_t
         deadline = time.time() + 0.4
         while not context.cancellation_event.is_set() and time.time() < deadline:
             time.sleep(0.01)
+        seen["stopped"] = True
         return {"status":"succeeded","result":{"summary":"stopped"}}
 
     monkeypatch.setattr(
         "production_os.remote_worker_runner.execute_native",
         cancellable_native,
     )
-    server, thread, base = _server(control)
+    class InvalidHeartbeat(make_handler(control)):
+        def do_POST(self):
+            if self.path == "/v1/workers/heartbeat" and "event" in seen:
+                self.rfile.read(int(self.headers.get("Content-Length", "0")))
+                body = b"<html>private-proxy-page</html>"
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            return super().do_POST()
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), InvalidHeartbeat)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
     try:
         client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
         runner = RemoteWorkerRunner(
@@ -1681,10 +1697,11 @@ def test_native_execution_control_plane_outage_abandons_after_existing_failure_t
         )
         runner.max_consecutive_heartbeat_failures = 2
         calls = {"count":0}
+        heartbeat_active = runner._heartbeat_active
 
-        def unavailable(_key):
+        def unavailable(key):
             calls["count"] += 1
-            raise RuntimeError("control plane unavailable")
+            return heartbeat_active(key)
 
         runner._heartbeat_active = unavailable
         outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
@@ -1696,6 +1713,7 @@ def test_native_execution_control_plane_outage_abandons_after_existing_failure_t
         }]
         assert calls["count"] == 2
         assert seen["event"].is_set()
+        assert seen["stopped"] is True
     finally:
         _stop(server, thread)
 

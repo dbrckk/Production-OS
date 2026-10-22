@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import http.client
 import json
 import time
 import urllib.error
@@ -58,13 +59,21 @@ class RemoteWorkerClient:
         )
         try:
             with self._opener.open(request, timeout=self.timeout) as response:
-                raw = response.read()
-                return response.status, json.loads(raw or b"{}")
+                raw = response.read(1_000_001)
+                status = response.status
+                # A bounded read does not raise IncompleteRead for a short
+                # Content-Length response; reject unfinished framing explicitly.
+                remaining = getattr(response, "length", None)
+                if len(raw) <= 1_000_000 and isinstance(remaining, int) and remaining > 0:
+                    raise http.client.IncompleteRead(b"", remaining)
         except urllib.error.HTTPError as exc:
             # Proxies can return HTML, empty bodies or non-object JSON.
             # Preserve the HTTP failure even when no API error is available.
-            with exc:
-                raw = exc.read(8192)
+            try:
+                with exc:
+                    raw = exc.read(8192)
+            except (OSError, http.client.HTTPException):
+                raw = b""
             try:
                 error_payload = json.loads(raw or b"{}")
             except (ValueError, UnicodeError):
@@ -74,8 +83,18 @@ class RemoteWorkerClient:
             if isinstance(detail, str) and detail:
                 message += ": " + detail[:1024]
             raise RuntimeError(message) from exc
-        except urllib.error.URLError as exc:
-            raise RuntimeError(f"control-plane unavailable: {exc}") from exc
+        except (OSError, http.client.HTTPException) as exc:
+            raise RuntimeError(f"control-plane unavailable: {type(exc).__name__}") from None
+
+        if len(raw) > 1_000_000:
+            raise RuntimeError("control-plane response too large")
+        try:
+            value = json.loads(raw.decode("utf-8") or "{}")
+        except (ValueError, UnicodeError):
+            raise RuntimeError("control-plane returned invalid JSON") from None
+        if not isinstance(value, dict):
+            raise RuntimeError("control-plane response must be a JSON object")
+        return status, value
 
     def open_session(
         self,
