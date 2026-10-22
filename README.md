@@ -45,8 +45,32 @@ The PostgreSQL end-to-end tests also need a running PostgreSQL instance and
 - **autonomous portfolio scheduling**
 - **execution-slot resource allocation**
 - live `dbrckk/star-list` ranking
+- review-only website discovery from `star-list/websites.json` (no auto-installation)
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
+
+## Curated website references during portfolio scans
+
+A portfolio scan reads two **independent** `dbrckk/star-list` catalogs:
+GitHub repositories from `catalog.json` and curated sites from
+`websites.json`. Every website entry is evaluated against the selected
+action's title and rationale. Suggestions are emitted only when multiple
+relevant signals match; the reported catalog coverage is the number of
+entries inspected, **not** the number validated as compatible.
+
+`production-os scan --owner dbrckk --handoff` returns
+`external_website_candidates` alongside existing
+`external_reference_candidates`. The website records retain their source URL,
+access expectations, reuse/copyright caution, relevance terms and explicit
+`integrationEligible: false`/`reviewRequired: true`. They are **metadata-only
+references**, never Git repositories, downloadable dependencies, trusted agent
+instructions, or proof of permission to copy assets or code. No live website
+crawling, script execution, spending, or automatic integration occurs here.
+
+Use `--star-list-websites-path websites.json` to select the catalog path, or
+`--no-star-list` to disable **both** external catalogs. JSON portfolio output
+reports `star_list.websites_loaded` and `star_list.website_count`, so missing
+or invalid website feeds are distinguishable from empty relevant results.
 
 ## Knowledge graph V3
 
