@@ -4,6 +4,17 @@ Portfolio control plane for autonomous software production.
 
 Production-OS manages portfolio state, prioritization, reuse, compatibility, validation, and execution feedback before handing work to `ai-dev-server`.
 
+## Autonomous resource-budget integrity
+
+Budget admission and persistent budget accounting reject negative, non-finite
+(`NaN`/`Infinity`) and boolean resource amounts before dispatch or writing
+receipts. Both repository and portfolio limits are checked; corrupted persisted
+usage fails closed instead of silently permitting further consumption.
+Checks reject arithmetic overflow, and invalid multi-resource reservations do
+not partially update the ledger or consume an idempotency key. This protects
+the existing configured budgets; it does **not** increase free model capacity
+or make reservation checks across concurrent workers atomic.
+
 ## Local development checks
 
 Use Python 3.11 or 3.12. The development extra includes the PostgreSQL driver
