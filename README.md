@@ -2751,6 +2751,13 @@ production-os remote-worker-poll \
 
 The worker protocol supports heartbeat, capability-aware claim, acknowledgement, completion and failure reporting.
 
+Remote worker responses must be UTF-8 JSON objects within 1 MB. Malformed JSON,
+truncated HTTP responses, read timeouts and connection failures use the same
+recoverable control-plane error path. Native execution keeps its existing
+heartbeat failure threshold and waits for cooperative cancellation before
+returning an abandoned outcome; a proxy error cannot bypass that supervision.
+HTTP error status remains available even when its response body cannot be read.
+
 ### Docker
 
 Prepare `artifacts/auth.json`, then:

@@ -1,5 +1,6 @@
 import json
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
@@ -60,10 +61,34 @@ def test_remote_worker_claim_ack_complete(tmp_path):
 
     class Gateway(BaseHTTPRequestHandler):
         def do_GET(self):
+            if self.command == "POST":
+                self.rfile.read(int(self.headers.get("Content-Length", "0")))
             if self.path.startswith("/redirect/"):
                 self.send_response(int(self.path.rsplit("/", 1)[1]))
                 self.send_header("Location", f"http://127.0.0.1:{destination.server_port}/received")
                 self.end_headers()
+                return
+            success_bodies = {
+                "/ok/html": b"<html>private-proxy-page</html>",
+                "/ok/list": b"[]",
+                "/ok/null": b"null",
+                "/ok/invalid-encoding": b"\xff",
+                "/ok/oversized": b"x" * 1_000_001,
+                "/ok/truncated": b"{}",
+                "/ok/slow": b"{}",
+                "/slow-error": b"{}",
+            }
+            if self.path in success_bodies:
+                body = success_bodies[self.path]
+                self.send_response(502 if self.path == "/slow-error" else 200)
+                self.send_header("Content-Length", str(len(body) + (10 if self.path == "/ok/truncated" else 0)))
+                self.end_headers()
+                if self.path in {"/ok/slow", "/slow-error"}:
+                    time.sleep(0.1)
+                try:
+                    self.wfile.write(body)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
                 return
             bodies = {
                 "/html": b"<html>Bad Gateway</html>",
@@ -99,6 +124,22 @@ def test_remote_worker_claim_ack_complete(tmp_path):
                 client._request(path)
         with pytest.raises(RuntimeError, match="^control-plane HTTP 502: temporarily unavailable$"):
             client._request("/api")
+        for path, reason in (
+            ("/ok/html", "control-plane returned invalid JSON"),
+            ("/ok/invalid-encoding", "control-plane returned invalid JSON"),
+            ("/ok/list", "control-plane response must be a JSON object"),
+            ("/ok/null", "control-plane response must be a JSON object"),
+            ("/ok/oversized", "control-plane response too large"),
+            ("/ok/truncated", "control-plane unavailable: IncompleteRead"),
+        ):
+            with pytest.raises(RuntimeError, match=f"^{reason}$") as error:
+                client._request(path, {"worker_id": "w1"})
+            assert "private-proxy-page" not in str(error.value)
+        client.timeout = 0.02
+        with pytest.raises(RuntimeError, match="^control-plane unavailable: TimeoutError$"):
+            client._request("/ok/slow", {"worker_id": "w1"})
+        with pytest.raises(RuntimeError, match="^control-plane HTTP 502$"):
+            client._request("/slow-error", {"worker_id": "w1"})
     finally:
         for item in (gateway, destination):
             item.shutdown()

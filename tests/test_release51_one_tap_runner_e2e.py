@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import sys
 import threading
+import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from http.server import ThreadingHTTPServer
 
 import pytest
@@ -202,11 +204,23 @@ print(json.dumps({
             heartbeat_interval_seconds=0.05,
             executor_timeout_seconds=5,
         )
-        # Polling cycles are not equivalent to claimed jobs: after a failed
-        # executor result, workflow reconciliation can requeue the retry just
-        # after a poll. Allow bounded spare polls while still asserting exactly
-        # three real attempts below.
-        outcomes = runner.run(cycles=6, idle_sleep_seconds=0)
+        # Polling cycles include time spent waiting for an active executor.
+        # Observe actual attempt exhaustion in one continuous worker session,
+        # instead of assuming a fixed poll count covers three subprocesses.
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(runner.run, cycles=0, idle_sleep_seconds=0.01)
+            try:
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline:
+                    if control.managed_projects.get(project_id)["status"] == "NEEDS_ATTENTION":
+                        break
+                    if future.done():
+                        future.result()
+                        break
+                    time.sleep(0.01)
+            finally:
+                runner.request_stop()
+            outcomes = future.result(timeout=5)
 
         # Managed Project implementation tasks have max_attempts=3. A worker
         # failure is automatically retried with a new job key until that
