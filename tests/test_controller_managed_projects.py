@@ -464,7 +464,7 @@ def test_successful_project_accounting_is_idempotent_across_cycles(
     assert len(rate.events["repo:owner/repo"]) == 1
 
     # A malformed old receipt must not be charged or consume a rate slot.
-    for amount in (float("nan"), float("inf"), -1):
+    for amount in (float("nan"), float("inf"), -1, []):
         with pytest.raises(ValueError, match="managed project resource request"):
             controller._recover_managed_project_accounting(
                 project_id=f"invalid-{str(amount)}",
