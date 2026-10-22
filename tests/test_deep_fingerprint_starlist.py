@@ -200,7 +200,7 @@ def test_starlist_catalog_is_ranked_by_score_and_match(capsys):
 
     scan_args = _parse_args([
         "scan", "--owner", "dbrckk", "--star-list-websites-path",
-        "websites.json",
+        "websites.json", "--json",
     ])
     assert scan_args.star_list_websites_path == "websites.json"
     action = ActionCandidate(
