@@ -7103,6 +7103,20 @@ job = client.claim()
 restarted = RemoteWorkerClient(
 reconciled = restarted.open_session(
 ⋮----
+# A response can be lost after the server recorded the first active
+# heartbeat. No executor has started, so that slot must still be cleared.
+heartbeat = restarted.heartbeat
+faults = []
+def lost_activation_response(**kwargs)
+⋮----
+response = heartbeat(**kwargs)
+⋮----
+runner = RemoteWorkerRunner(restarted, [], executor_mode="native")
+⋮----
+recovered = restarted.open_session(max_concurrency=1, active_job_keys=[])
+⋮----
+claimed = restarted.claim()
+⋮----
 def test_worker_session_rejects_token_identity_mismatch(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "identity.sqlite"), authorizer=_auth())

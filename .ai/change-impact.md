@@ -1,13 +1,11 @@
 # Change impact
 
-Base: 0b18299de17a4f80ab1b8ed0e27ddac462f73149
-Head: 1b4866975b64955186411c78cd894b6f4b332982
+Base: 8775b5f045c04c446ca9b4262259797be48b5c4a
+Head: 25ad61d00a23f671247f4bba14d9c2f338e38ba2
 
 ## Changed files
 - M README.md
-- M src/production_os/remote_worker.py
-- M tests/test_release51_one_tap_runner_e2e.py
-- M tests/test_remote_worker.py
+- M src/production_os/remote_worker_runner.py
 - M tests/test_remote_worker_runner.py
 
 ## Affected areas
@@ -16,7 +14,7 @@ Head: 1b4866975b64955186411c78cd894b6f4b332982
 - tests
 
 ## Related test candidates
-- tests/test_remote_worker.py
+- tests/test_remote_worker_runner.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -5,87 +5,61 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "_NoRedirect": {
+    "RemoteWorkerRunner": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 14,
-        "end": 18
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 31,
+        "end": 945
       },
       "symbol_dependencies": [
         {
-          "symbol": "Worker",
+          "symbol": "IntegrationPreflight",
           "definitions": [
             {
-              "file": "src/production_os/workers.py",
-              "line": 13,
+              "file": "src/production_os/executor_worktree.py",
+              "line": 14,
               "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "class_like"
+          "relation": "imported_module"
         },
         {
-          "symbol": "redirect_request",
+          "symbol": "NativeExecutionContext",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "redirect_request": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 15,
-        "end": 18
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
+              "file": "src/production_os/native_executor.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "class_like"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "RemoteJob": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 22,
-        "end": 27
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "to_dict": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 26,
-        "end": 27
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "RemoteWorkerClient": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 30,
-        "end": 268
-      },
-      "symbol_dependencies": [
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PersistentAgentRuntime",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 103,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PreparedWorktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
         {
           "symbol": "RemoteJob",
           "definitions": [
@@ -96,26 +70,242 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "_NoRedirect",
+          "symbol": "RemoteWorkerClient",
           "definitions": [
             {
               "file": "src/production_os/remote_worker.py",
-              "line": 14,
+              "line": 30,
               "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RepositoryCache",
+          "definitions": [
+            {
+              "file": "src/production_os/repository_cache.py",
+              "line": 75,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorktreeRuntimeError",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 63,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "__init__",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 111,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_activate",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 197,
+              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
         },
         {
-          "symbol": "_request",
+          "symbol": "_checkpoint_ref",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 125,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_complete_native_future",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 275,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_deactivate",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 202,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 446,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_heartbeat_active",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 220,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_heartbeat_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_integration_preflight",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 131,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_job_handoff",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 227,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_native_cancel_grace_seconds",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 245,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 120,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_prepare_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_run_native_supervised",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 295,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_select_execution_path",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 231,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_terminate",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 174,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_wait_native_cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 251,
               "kind": "function",
               "language": "python"
             }
@@ -132,7 +322,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "checkpoint_stale",
@@ -144,7 +334,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "claim",
@@ -152,6 +342,18 @@
             {
               "file": "src/production_os/remote_worker.py",
               "line": 167,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "collect",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 885,
               "kind": "function",
               "language": "python"
             }
@@ -168,7 +370,31 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ensure",
+          "definitions": [
+            {
+              "file": "src/production_os/repository_cache.py",
+              "line": 109,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_native",
+          "definitions": [
+            {
+              "file": "src/production_os/native_executor.py",
+              "line": 229,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         },
         {
           "symbol": "fail",
@@ -180,7 +406,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "heartbeat",
@@ -192,7 +418,43 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inspect_worktree_result",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 324,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "mark_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 316,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 197,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         },
         {
           "symbol": "open_session",
@@ -204,7 +466,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "poll",
@@ -216,55 +478,254 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "preintegrate_upstream_commits",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 489,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 11
+      "dependency_count": 40
     },
     "__init__": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 31,
-        "end": 46
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 32,
+        "end": 152
       },
       "symbol_dependencies": [
         {
-          "symbol": "_NoRedirect",
+          "symbol": "IntegrationPreflight",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
+              "file": "src/production_os/executor_worktree.py",
               "line": 14,
               "kind": "class",
               "language": "python"
             }
           ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PersistentAgentRuntime",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 103,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PreparedWorktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteJob",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RepositoryCache",
+          "definitions": [
+            {
+              "file": "src/production_os/repository_cache.py",
+              "line": 75,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_checkpoint_ref",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 125,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_integration_preflight",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 131,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 120,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_prepare_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 197,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "preintegrate_upstream_commits",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 489,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_stop",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "stop_requested",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 117,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
           "relation": "same_file"
         }
       ],
-      "dependency_count": 1
+      "dependency_count": 14
     },
-    "_request": {
+    "request_stop": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 48,
-        "end": 97
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 112,
+        "end": 114
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "open_session": {
+    "stop_requested": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 99,
-        "end": 117
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 117,
+        "end": 118
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_observe_checkpoint": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 120,
+        "end": 123
       },
       "symbol_dependencies": [
         {
-          "symbol": "_request",
+          "symbol": "observe_checkpoint",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "file": "src/production_os/agent_runtime.py",
+              "line": 197,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_checkpoint_ref": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 125,
+        "end": 129
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 120,
               "kind": "function",
               "language": "python"
             }
@@ -274,19 +735,179 @@
       ],
       "dependency_count": 1
     },
-    "heartbeat": {
+    "_integration_preflight": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 119,
-        "end": 165
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 131,
+        "end": 149
       },
       "symbol_dependencies": [
         {
-          "symbol": "_request",
+          "symbol": "IntegrationPreflight",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 14,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PreparedWorktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteJob",
           "definitions": [
             {
               "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "preintegrate_upstream_commits",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 489,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "_prepare_worktree": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 151,
+        "end": 171
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "PreparedWorktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteJob",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ensure",
+          "definitions": [
+            {
+              "file": "src/production_os/repository_cache.py",
+              "line": 109,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "prepare_isolated_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 459,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "_terminate": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 174,
+        "end": 182
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "poll",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 251,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_heartbeat_snapshot": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 184,
+        "end": 195
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_activate": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 197,
+        "end": 200
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_heartbeat_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 184,
               "kind": "function",
               "language": "python"
             }
@@ -296,11 +917,55 @@
       ],
       "dependency_count": 1
     },
-    "claim": {
+    "_deactivate": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 167,
-        "end": 181
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 202,
+        "end": 218
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_heartbeat_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_heartbeat_active": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 220,
+        "end": 224
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_heartbeat_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_job_handoff": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 227,
+        "end": 229
       },
       "symbol_dependencies": [
         {
@@ -313,14 +978,91 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_select_execution_path": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 231,
+        "end": 243
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "_request",
+          "symbol": "RemoteJob",
           "definitions": [
             {
               "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_job_handoff",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 227,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "select_native_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/native_executor.py",
+              "line": 38,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "_native_cancel_grace_seconds": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 245,
+        "end": 249
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_wait_native_cancel": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 251,
+        "end": 272
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_heartbeat_active",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 220,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 120,
               "kind": "function",
               "language": "python"
             }
@@ -330,101 +1072,189 @@
       ],
       "dependency_count": 2
     },
-    "ack": {
+    "_complete_native_future": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 183,
-        "end": 188
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 275,
+        "end": 293
       },
       "symbol_dependencies": [
         {
-          "symbol": "_request",
+          "symbol": "NativeExecutionContext",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "file": "src/production_os/native_executor.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_native",
+          "definitions": [
+            {
+              "file": "src/production_os/native_executor.py",
+              "line": 229,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_run_native_supervised": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 295,
+        "end": 444
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "NativeExecutionContext",
+          "definitions": [
+            {
+              "file": "src/production_os/native_executor.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_checkpoint_ref",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 125,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "checkpoint_stale": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 190,
-        "end": 203
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "_request",
+          "symbol": "_complete_native_future",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 275,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "complete": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 205,
-        "end": 225
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "_request",
+          "symbol": "_deactivate",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 202,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "fail": {
-      "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 227,
-        "end": 249
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "_request",
+          "symbol": "_heartbeat_active",
           "definitions": [
             {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 220,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "_observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 120,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_wait_native_cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 251,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "checkpoint_stale",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 190,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fail",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 227,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 1
+      "dependency_count": 10
     },
-    "poll": {
+    "_execute": {
       "source": {
-        "file": "src/production_os/remote_worker.py",
-        "start": 251,
-        "end": 268
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 446,
+        "end": 863
       },
       "symbol_dependencies": [
+        {
+          "symbol": "NativeExecutionContext",
+          "definitions": [
+            {
+              "file": "src/production_os/native_executor.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
         {
           "symbol": "RemoteJob",
           "definitions": [
@@ -432,6 +1262,316 @@
               "file": "src/production_os/remote_worker.py",
               "line": 22,
               "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorktreeRuntimeError",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 63,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_activate",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 197,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_checkpoint_ref",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 125,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_deactivate",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 202,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_heartbeat_active",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 220,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_integration_preflight",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 131,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_job_handoff",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 227,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_observe_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 120,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_prepare_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_run_native_supervised",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 295,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_select_execution_path",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 231,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_terminate",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 174,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "checkpoint_stale",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 190,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 205,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fail",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 227,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inspect_worktree_result",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 324,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "poll",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 251,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "prepare",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 254,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "prune_integrated_workflow_branches",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 502,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "remove_isolated_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 474,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 25
+    },
+    "run": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 865,
+        "end": 945
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 446,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_heartbeat_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 184,
+              "kind": "function",
               "language": "python"
             }
           ],
@@ -447,48 +1587,96 @@
               "language": "python"
             }
           ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "collect",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 885,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
           "relation": "same_file"
         },
         {
-          "symbol": "heartbeat",
+          "symbol": "mark_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 316,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_session",
           "definitions": [
             {
               "file": "src/production_os/remote_worker.py",
-              "line": 119,
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "collect": {
+      "source": {
+        "file": "src/production_os/remote_worker_runner.py",
+        "start": 885,
+        "end": 1005
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 446,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_auth": {
-      "source": {
-        "file": "tests/test_release51_one_tap_runner_e2e.py",
-        "start": 20,
-        "end": 25
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "TokenAuthorizer",
+          "symbol": "_heartbeat_snapshot",
           "definitions": [
             {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 167,
+              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "token_digest",
+          "symbol": "mark_outcome",
           "definitions": [
             {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
+              "file": "src/production_os/agent_runtime.py",
+              "line": 316,
               "kind": "function",
               "language": "python"
             }
@@ -496,13 +1684,13 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 4
     },
     "_server": {
       "source": {
-        "file": "tests/test_release51_one_tap_runner_e2e.py",
-        "start": 47,
-        "end": 51
+        "file": "tests/test_remote_worker_runner.py",
+        "start": 20,
+        "end": 24
       },
       "symbol_dependencies": [
         {
@@ -522,280 +1710,20 @@
     },
     "_stop": {
       "source": {
-        "file": "tests/test_release51_one_tap_runner_e2e.py",
-        "start": 54,
-        "end": 57
+        "file": "tests/test_remote_worker_runner.py",
+        "start": 27,
+        "end": 30
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "test_release51_one_tap_launch_runs_through_real_runner_to_review_required": {
+    "_auth": {
       "source": {
-        "file": "tests/test_release51_one_tap_runner_e2e.py",
-        "start": 61,
-        "end": 161
+        "file": "tests/test_remote_worker_runner.py",
+        "start": 33,
+        "end": 45
       },
       "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerRunner",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_stop",
-          "definitions": [
-            {
-              "file": "tests/test_release51_one_tap_runner_e2e.py",
-              "line": 54,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 865,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "test_release51_executor_failure_surfaces_as_actionable_production": {
-      "source": {
-        "file": "tests/test_release51_one_tap_runner_e2e.py",
-        "start": 165,
-        "end": 272
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerRunner",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_stop",
-          "definitions": [
-            {
-              "file": "tests/test_release51_one_tap_runner_e2e.py",
-              "line": 54,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "poll",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 251,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "request_stop",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 865,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "test_remote_worker_claim_ack_complete": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 14,
-        "end": 148
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Destination",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 48,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Gateway",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
         {
           "symbol": "TokenAuthorizer",
           "definitions": [
@@ -803,114 +1731,6 @@
               "file": "src/production_os/api_auth.py",
               "line": 31,
               "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 183,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 167,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 205,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "do_GET",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 49,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 63,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "do_POST",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 1245,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "log_message",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 107,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 582,
-              "kind": "function",
               "language": "python"
             }
           ],
@@ -929,935 +1749,13 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 14
-    },
-    "Destination": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 48,
-        "end": 168
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Gateway",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 218,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "do_GET",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 49,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 63,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "do_POST",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 1245,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "log_message",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 107,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_remote_worker_detects_superseded_generation",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 151,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "do_GET": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 49,
-        "end": 169
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Destination",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 48,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Gateway",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 218,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "do_POST",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 1245,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "log_message",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 107,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_remote_worker_detects_superseded_generation",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 151,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "log_message": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 57,
-        "end": 177
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Destination",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 48,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Gateway",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 218,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "do_GET",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 49,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 63,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "do_POST",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 1245,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_remote_worker_detects_superseded_generation",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 151,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "Gateway": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 62,
-        "end": 182
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 218,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 48,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "do_GET",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 49,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 63,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "do_POST",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 1245,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "log_message",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 107,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 582,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_remote_worker_detects_superseded_generation",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker.py",
-              "line": 151,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "test_remote_worker_detects_superseded_generation": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 151,
-        "end": 233
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 218,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 183,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "checkpoint_stale",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 190,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 167,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 205,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 119,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 582,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "test_worker_heartbeat_catalog_drives_automatic_model_route": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 238,
-        "end": 304
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 218,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 119,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 582,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "test_worker_heartbeat_rejects_invalid_model_catalog": {
-      "source": {
-        "file": "tests/test_remote_worker.py",
-        "start": 307,
-        "end": 342
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 119,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 582,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 6
+      "dependency_count": 2
     },
     "test_worker_session_self_registers_and_reconciles_previous_claim": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 46,
-        "end": 93
+        "start": 48,
+        "end": 122
       },
       "symbol_dependencies": [
         {
@@ -1878,6 +1776,18 @@
             {
               "file": "src/production_os/remote_worker.py",
               "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 31,
               "kind": "class",
               "language": "python"
             }
@@ -1889,7 +1799,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -1914,6 +1824,196 @@
             {
               "file": "src/production_os/remote_worker.py",
               "line": 167,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 205,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "lost_activation_response",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "open_session",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 865,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 12
+    },
+    "lost_activation_response": {
+      "source": {
+        "file": "tests/test_remote_worker_runner.py",
+        "start": 99,
+        "end": 219
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 47,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_stop",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 167,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 205,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
               "kind": "function",
               "language": "python"
             }
@@ -1931,15 +2031,63 @@
             }
           ],
           "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 865,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_remote_worker_runner_executes_json_executor_and_completes_job",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 146,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_remote_worker_runner_tolerates_transient_active_heartbeat_failure",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 205,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_worker_session_rejects_token_identity_mismatch",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 125,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 6
+      "dependency_count": 14
     },
     "test_worker_session_rejects_token_identity_mismatch": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 96,
-        "end": 114
+        "start": 125,
+        "end": 143
       },
       "symbol_dependencies": [
         {
@@ -1971,7 +2119,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -1996,8 +2144,8 @@
     "test_remote_worker_runner_executes_json_executor_and_completes_job": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 117,
-        "end": 173
+        "start": 146,
+        "end": 202
       },
       "symbol_dependencies": [
         {
@@ -2041,7 +2189,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2078,8 +2226,8 @@
     "test_remote_worker_runner_tolerates_transient_active_heartbeat_failure": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 176,
-        "end": 227
+        "start": 205,
+        "end": 256
       },
       "symbol_dependencies": [
         {
@@ -2135,7 +2283,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2147,7 +2295,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 214,
+              "line": 243,
               "kind": "function",
               "language": "python"
             }
@@ -2196,8 +2344,8 @@
     "flaky_heartbeat": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 214,
-        "end": 334
+        "start": 243,
+        "end": 363
       },
       "symbol_dependencies": [
         {
@@ -2253,7 +2401,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2289,7 +2437,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 275,
+              "line": 304,
               "kind": "function",
               "language": "python"
             }
@@ -2301,7 +2449,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 230,
+              "line": 259,
               "kind": "function",
               "language": "python"
             }
@@ -2314,8 +2462,8 @@
     "test_remote_worker_runner_fails_job_on_invalid_executor_output": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 230,
-        "end": 273
+        "start": 259,
+        "end": 302
       },
       "symbol_dependencies": [
         {
@@ -2359,7 +2507,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2384,8 +2532,8 @@
     "test_remote_worker_runner_acknowledges_cancel_and_terminates_executor": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 275,
-        "end": 343
+        "start": 304,
+        "end": 372
       },
       "symbol_dependencies": [
         {
@@ -2429,7 +2577,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2466,8 +2614,8 @@
     "test_remote_worker_runner_does_not_expose_worker_token_to_executor": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 345,
-        "end": 397
+        "start": 374,
+        "end": 426
       },
       "symbol_dependencies": [
         {
@@ -2511,7 +2659,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2548,8 +2696,8 @@
     "test_remote_worker_runner_honors_max_concurrency_with_full_active_set": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 399,
-        "end": 489
+        "start": 428,
+        "end": 518
       },
       "symbol_dependencies": [
         {
@@ -2593,7 +2741,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2630,8 +2778,8 @@
     "test_remote_worker_runner_graceful_stop_terminates_children_and_restart_recovers": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 491,
-        "end": 621
+        "start": 520,
+        "end": 650
       },
       "symbol_dependencies": [
         {
@@ -2675,7 +2823,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2736,8 +2884,8 @@
     "test_remote_worker_runner_executes_in_configured_isolated_worktree": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 626,
-        "end": 759
+        "start": 655,
+        "end": 788
       },
       "symbol_dependencies": [
         {
@@ -2781,7 +2929,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2818,8 +2966,8 @@
     "test_remote_worker_runner_preintegrates_multi_parent_commits": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 763,
-        "end": 956
+        "start": 792,
+        "end": 985
       },
       "symbol_dependencies": [
         {
@@ -2863,7 +3011,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2900,8 +3048,8 @@
     "test_remote_worker_runner_rejects_success_with_dirty_worktree": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 960,
-        "end": 1065
+        "start": 989,
+        "end": 1094
       },
       "symbol_dependencies": [
         {
@@ -2945,7 +3093,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -2982,8 +3130,8 @@
     "test_remote_worker_run_defaults_executor_mode_to_auto": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1069,
-        "end": 1077
+        "start": 1098,
+        "end": 1106
       },
       "symbol_dependencies": [
         {
@@ -3016,8 +3164,8 @@
     "test_remote_worker_run_allows_auto_without_executor_command": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1080,
-        "end": 1095
+        "start": 1109,
+        "end": 1124
       },
       "symbol_dependencies": [
         {
@@ -3062,8 +3210,8 @@
     "test_remote_worker_run_rejects_external_mode_without_executor_command": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1098,
-        "end": 1115
+        "start": 1127,
+        "end": 1144
       },
       "symbol_dependencies": [
         {
@@ -3108,8 +3256,8 @@
     "test_remote_worker_run_accepts_native_without_executor_command": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1118,
-        "end": 1133
+        "start": 1147,
+        "end": 1162
       },
       "symbol_dependencies": [
         {
@@ -3154,8 +3302,8 @@
     "_native_browser_handoff_for_runner": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1137,
-        "end": 1160
+        "start": 1166,
+        "end": 1189
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -3163,8 +3311,8 @@
     "test_auto_mode_prefers_native_browser_over_external_executor": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1163,
-        "end": 1211
+        "start": 1192,
+        "end": 1240
       },
       "symbol_dependencies": [
         {
@@ -3208,7 +3356,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -3220,7 +3368,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3232,7 +3380,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1185,
+              "line": 1214,
               "kind": "function",
               "language": "python"
             }
@@ -3269,8 +3417,8 @@
     "fake_native": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1185,
-        "end": 1305
+        "start": 1214,
+        "end": 1334
       },
       "symbol_dependencies": [
         {
@@ -3314,7 +3462,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3350,7 +3498,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1214,
+              "line": 1243,
               "kind": "function",
               "language": "python"
             }
@@ -3362,7 +3510,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1287,
+              "line": 1316,
               "kind": "function",
               "language": "python"
             }
@@ -3374,7 +3522,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1254,
+              "line": 1283,
               "kind": "function",
               "language": "python"
             }
@@ -3386,7 +3534,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1702,
+              "line": 1731,
               "kind": "function",
               "language": "python"
             }
@@ -3399,8 +3547,8 @@
     "test_auto_mode_falls_back_to_external_when_native_is_unsupported": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1214,
-        "end": 1251
+        "start": 1243,
+        "end": 1280
       },
       "symbol_dependencies": [
         {
@@ -3444,7 +3592,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3481,8 +3629,8 @@
     "test_native_mode_rejects_unsupported_job": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1254,
-        "end": 1284
+        "start": 1283,
+        "end": 1313
       },
       "symbol_dependencies": [
         {
@@ -3526,7 +3674,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3551,8 +3699,8 @@
     "test_auto_mode_without_any_executor_fails_executor_unavailable": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1287,
-        "end": 1316
+        "start": 1316,
+        "end": 1345
       },
       "symbol_dependencies": [
         {
@@ -3596,7 +3744,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3620,7 +3768,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1702,
+              "line": 1731,
               "kind": "function",
               "language": "python"
             }
@@ -3633,8 +3781,8 @@
     "test_native_runtime_failure_never_falls_back_external": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1319,
-        "end": 1372
+        "start": 1348,
+        "end": 1401
       },
       "symbol_dependencies": [
         {
@@ -3678,7 +3826,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -3690,7 +3838,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3702,7 +3850,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1340,
+              "line": 1369,
               "kind": "function",
               "language": "python"
             }
@@ -3739,8 +3887,8 @@
     "fail_native": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1340,
-        "end": 1460
+        "start": 1369,
+        "end": 1489
       },
       "symbol_dependencies": [
         {
@@ -3796,7 +3944,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -3808,7 +3956,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -3820,7 +3968,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1407,
+              "line": 1436,
               "kind": "function",
               "language": "python"
             }
@@ -3832,13 +3980,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1446,
+              "line": 1475,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1952,
+              "line": 1981,
               "kind": "function",
               "language": "python"
             }
@@ -3886,13 +4034,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1386,
+              "line": 1415,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1431,
+              "line": 1460,
               "kind": "function",
               "language": "python"
             }
@@ -3904,7 +4052,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1376,
+              "line": 1405,
               "kind": "function",
               "language": "python"
             }
@@ -3916,7 +4064,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1420,
+              "line": 1449,
               "kind": "function",
               "language": "python"
             }
@@ -3929,8 +4077,8 @@
     "test_native_execution_heartbeats_while_future_is_running": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1376,
-        "end": 1417
+        "start": 1405,
+        "end": 1446
       },
       "symbol_dependencies": [
         {
@@ -3986,7 +4134,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -3998,7 +4146,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4010,7 +4158,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1407,
+              "line": 1436,
               "kind": "function",
               "language": "python"
             }
@@ -4046,13 +4194,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1386,
+              "line": 1415,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1431,
+              "line": 1460,
               "kind": "function",
               "language": "python"
             }
@@ -4065,8 +4213,8 @@
     "slow_native": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1386,
-        "end": 1506
+        "start": 1415,
+        "end": 1535
       },
       "symbol_dependencies": [
         {
@@ -4122,7 +4270,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -4134,7 +4282,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4146,25 +4294,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -4176,7 +4324,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1407,
+              "line": 1436,
               "kind": "function",
               "language": "python"
             }
@@ -4188,13 +4336,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1446,
+              "line": 1475,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1952,
+              "line": 1981,
               "kind": "function",
               "language": "python"
             }
@@ -4230,7 +4378,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1472,
+              "line": 1501,
               "kind": "function",
               "language": "python"
             }
@@ -4242,7 +4390,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1420,
+              "line": 1449,
               "kind": "function",
               "language": "python"
             }
@@ -4255,8 +4403,8 @@
     "counted": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1407,
-        "end": 1527
+        "start": 1436,
+        "end": 1556
       },
       "symbol_dependencies": [
         {
@@ -4312,7 +4460,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -4324,7 +4472,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4336,25 +4484,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -4366,13 +4514,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1446,
+              "line": 1475,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1952,
+              "line": 1981,
               "kind": "function",
               "language": "python"
             }
@@ -4408,13 +4556,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1386,
+              "line": 1415,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1431,
+              "line": 1460,
               "kind": "function",
               "language": "python"
             }
@@ -4426,7 +4574,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1472,
+              "line": 1501,
               "kind": "function",
               "language": "python"
             }
@@ -4438,7 +4586,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1420,
+              "line": 1449,
               "kind": "function",
               "language": "python"
             }
@@ -4451,8 +4599,8 @@
     "test_native_execution_timeout_sets_cancel_event_and_fails_once": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1420,
-        "end": 1469
+        "start": 1449,
+        "end": 1498
       },
       "symbol_dependencies": [
         {
@@ -4496,7 +4644,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -4508,7 +4656,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4520,13 +4668,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1446,
+              "line": 1475,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1952,
+              "line": 1981,
               "kind": "function",
               "language": "python"
             }
@@ -4562,13 +4710,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1386,
+              "line": 1415,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1431,
+              "line": 1460,
               "kind": "function",
               "language": "python"
             }
@@ -4581,8 +4729,8 @@
     "counted_fail": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1446,
-        "end": 1566
+        "start": 1475,
+        "end": 1595
       },
       "symbol_dependencies": [
         {
@@ -4638,7 +4786,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -4650,7 +4798,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4662,25 +4810,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -4716,7 +4864,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1472,
+              "line": 1501,
               "kind": "function",
               "language": "python"
             }
@@ -4728,7 +4876,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1533,
+              "line": 1562,
               "kind": "function",
               "language": "python"
             }
@@ -4741,8 +4889,8 @@
     "test_native_execution_cancel_request_sets_event_and_does_not_complete": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1472,
-        "end": 1530
+        "start": 1501,
+        "end": 1559
       },
       "symbol_dependencies": [
         {
@@ -4786,7 +4934,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -4798,7 +4946,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4810,25 +4958,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -4853,8 +5001,8 @@
     "cancellable_native": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1483,
-        "end": 1603
+        "start": 1512,
+        "end": 1632
       },
       "symbol_dependencies": [
         {
@@ -4910,7 +5058,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -4922,7 +5070,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -4958,7 +5106,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1568,
+              "line": 1597,
               "kind": "function",
               "language": "python"
             }
@@ -4970,7 +5118,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1533,
+              "line": 1562,
               "kind": "function",
               "language": "python"
             }
@@ -4982,7 +5130,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1588,
+              "line": 1617,
               "kind": "function",
               "language": "python"
             }
@@ -4995,8 +5143,8 @@
     "test_native_execution_stale_generation_sets_event_and_checkpoints_stale": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1533,
-        "end": 1585
+        "start": 1562,
+        "end": 1614
       },
       "symbol_dependencies": [
         {
@@ -5052,7 +5200,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -5064,7 +5212,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -5076,25 +5224,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -5130,7 +5278,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1568,
+              "line": 1597,
               "kind": "function",
               "language": "python"
             }
@@ -5143,8 +5291,8 @@
     "stale_after_start": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1568,
-        "end": 1688
+        "start": 1597,
+        "end": 1717
       },
       "symbol_dependencies": [
         {
@@ -5164,7 +5312,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1673,
+              "line": 1702,
               "kind": "class",
               "language": "python"
             }
@@ -5212,7 +5360,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -5224,7 +5372,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -5236,25 +5384,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -5278,7 +5426,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1674,
+              "line": 1703,
               "kind": "function",
               "language": "python"
             }
@@ -5338,7 +5486,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1650,
+              "line": 1679,
               "kind": "function",
               "language": "python"
             }
@@ -5350,7 +5498,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1588,
+              "line": 1617,
               "kind": "function",
               "language": "python"
             }
@@ -5363,8 +5511,8 @@
     "test_native_execution_worker_shutdown_sets_event_and_abandons": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1588,
-        "end": 1647
+        "start": 1617,
+        "end": 1676
       },
       "symbol_dependencies": [
         {
@@ -5408,7 +5556,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -5420,7 +5568,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -5432,25 +5580,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -5487,8 +5635,8 @@
     "test_native_execution_control_plane_outage_abandons_after_existing_failure_threshold": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1650,
-        "end": 1718
+        "start": 1679,
+        "end": 1747
       },
       "symbol_dependencies": [
         {
@@ -5508,7 +5656,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1673,
+              "line": 1702,
               "kind": "class",
               "language": "python"
             }
@@ -5556,7 +5704,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -5568,7 +5716,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -5580,25 +5728,25 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1483,
+              "line": 1512,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1544,
+              "line": 1573,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1599,
+              "line": 1628,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1661,
+              "line": 1690,
               "kind": "function",
               "language": "python"
             }
@@ -5610,7 +5758,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1674,
+              "line": 1703,
               "kind": "function",
               "language": "python"
             }
@@ -5658,7 +5806,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1702,
+              "line": 1731,
               "kind": "function",
               "language": "python"
             }
@@ -5669,398 +5817,6 @@
       "dependency_count": 13
     },
     "InvalidHeartbeat": {
-      "source": {
-        "file": "tests/test_remote_worker_runner.py",
-        "start": 1673,
-        "end": 1793
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PreparedWorktree",
-          "definitions": [
-            {
-              "file": "src/production_os/executor_worktree.py",
-              "line": 46,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerRunner",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_heartbeat_active",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 220,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_native_browser_handoff_for_runner",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_prepare_worktree",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 151,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_prepared_native_worktree",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1722,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_stop",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "do_POST",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1674,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 119,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "inspect_worktree_result",
-          "definitions": [
-            {
-              "file": "src/production_os/executor_worktree.py",
-              "line": 324,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 582,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 865,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_native_success_still_rejects_dirty_managed_worktree",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1736,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "unavailable",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1702,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 16
-    },
-    "do_POST": {
-      "source": {
-        "file": "tests/test_remote_worker_runner.py",
-        "start": 1674,
-        "end": 1794
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "InvalidHeartbeat",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1673,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "PreparedWorktree",
-          "definitions": [
-            {
-              "file": "src/production_os/executor_worktree.py",
-              "line": 46,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerClient",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RemoteWorkerRunner",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_heartbeat_active",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 220,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_native_browser_handoff_for_runner",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_prepare_worktree",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 151,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_prepared_native_worktree",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1722,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_stop",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker.py",
-              "line": 119,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "inspect_worktree_result",
-          "definitions": [
-            {
-              "file": "src/production_os/executor_worktree.py",
-              "line": 324,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run",
-          "definitions": [
-            {
-              "file": "src/production_os/remote_worker_runner.py",
-              "line": 865,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_native_success_still_rejects_dirty_managed_worktree",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1736,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "unavailable",
-          "definitions": [
-            {
-              "file": "tests/test_remote_worker_runner.py",
-              "line": 1702,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 15
-    },
-    "unavailable": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
         "start": 1702,
@@ -6132,7 +5888,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -6156,7 +5912,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1722,
+              "line": 1751,
               "kind": "function",
               "language": "python"
             }
@@ -6168,7 +5924,399 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_POST",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1703,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inspect_worktree_result",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 324,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 582,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 865,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_native_success_still_rejects_dirty_managed_worktree",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1765,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "unavailable",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1731,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 16
+    },
+    "do_POST": {
+      "source": {
+        "file": "tests/test_remote_worker_runner.py",
+        "start": 1703,
+        "end": 1823
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 47,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "InvalidHeartbeat",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1702,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "PreparedWorktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_heartbeat_active",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 220,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_native_browser_handoff_for_runner",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1166,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_prepare_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_prepared_native_worktree",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1751,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_stop",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 119,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inspect_worktree_result",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 324,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 865,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_native_success_still_rejects_dirty_managed_worktree",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1765,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "unavailable",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1731,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 15
+    },
+    "unavailable": {
+      "source": {
+        "file": "tests/test_remote_worker_runner.py",
+        "start": 1731,
+        "end": 1851
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 47,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PreparedWorktree",
+          "definitions": [
+            {
+              "file": "src/production_os/executor_worktree.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_heartbeat_active",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 220,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_native_browser_handoff_for_runner",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1166,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_prepare_worktree",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_prepared_native_worktree",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 1751,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_stop",
+          "definitions": [
+            {
+              "file": "tests/test_remote_worker_runner.py",
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -6204,7 +6352,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1736,
+              "line": 1765,
               "kind": "function",
               "language": "python"
             }
@@ -6216,7 +6364,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1796,
+              "line": 1825,
               "kind": "function",
               "language": "python"
             }
@@ -6229,8 +6377,8 @@
     "_prepared_native_worktree": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1722,
-        "end": 1733
+        "start": 1751,
+        "end": 1762
       },
       "symbol_dependencies": [
         {
@@ -6251,8 +6399,8 @@
     "test_native_success_still_rejects_dirty_managed_worktree": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1736,
-        "end": 1793
+        "start": 1765,
+        "end": 1822
       },
       "symbol_dependencies": [
         {
@@ -6296,7 +6444,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -6320,7 +6468,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1722,
+              "line": 1751,
               "kind": "function",
               "language": "python"
             }
@@ -6332,7 +6480,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -6369,8 +6517,8 @@
     "test_native_success_still_rejects_diverged_history": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1796,
-        "end": 1853
+        "start": 1825,
+        "end": 1882
       },
       "symbol_dependencies": [
         {
@@ -6414,7 +6562,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -6438,7 +6586,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1722,
+              "line": 1751,
               "kind": "function",
               "language": "python"
             }
@@ -6450,7 +6598,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -6487,8 +6635,8 @@
     "test_native_success_reports_git_derived_commit_evidence": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1856,
-        "end": 1925
+        "start": 1885,
+        "end": 1954
       },
       "symbol_dependencies": [
         {
@@ -6532,7 +6680,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -6556,7 +6704,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1722,
+              "line": 1751,
               "kind": "function",
               "language": "python"
             }
@@ -6568,7 +6716,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -6617,8 +6765,8 @@
     "test_native_failure_uses_existing_control_plane_failure_path": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1928,
-        "end": 1975
+        "start": 1957,
+        "end": 2004
       },
       "symbol_dependencies": [
         {
@@ -6662,7 +6810,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -6674,7 +6822,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -6686,13 +6834,13 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1446,
+              "line": 1475,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1952,
+              "line": 1981,
               "kind": "function",
               "language": "python"
             }
@@ -6729,8 +6877,8 @@
     "test_native_cancel_keeps_worker_slot_until_handler_actually_stops": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1979,
-        "end": 2049
+        "start": 2008,
+        "end": 2078
       },
       "symbol_dependencies": [
         {
@@ -6774,7 +6922,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1137,
+              "line": 1166,
               "kind": "function",
               "language": "python"
             }
@@ -6786,7 +6934,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
@@ -6810,7 +6958,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 1994,
+              "line": 2023,
               "kind": "function",
               "language": "python"
             }
@@ -6823,8 +6971,8 @@
     "slow_to_stop": {
       "source": {
         "file": "tests/test_remote_worker_runner.py",
-        "start": 1994,
-        "end": 2114
+        "start": 2023,
+        "end": 2143
       },
       "symbol_dependencies": [
         {
@@ -6856,7 +7004,7 @@
           "definitions": [
             {
               "file": "tests/test_remote_worker_runner.py",
-              "line": 25,
+              "line": 27,
               "kind": "function",
               "language": "python"
             }

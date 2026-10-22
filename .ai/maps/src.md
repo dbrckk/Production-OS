@@ -9105,8 +9105,9 @@ key = job.key
 runtime_context = (
 ⋮----
 active_registered = True
-heartbeat = self._activate(key)
 process: subprocess.Popen[str] | None = None
+⋮----
+heartbeat = self._activate(key)
 ⋮----
 execution_path = self._select_execution_path(job)
 ⋮----

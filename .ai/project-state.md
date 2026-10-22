@@ -210,21 +210,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-22T09:26:47Z
+Generated: 2026-10-22T11:13:23Z
 
 ### Git
 - Branch: `main`
-- Head: `1b4866975b64`
-- Commit date: 2026-10-22T05:26:36-04:00
-- Commit: fix(worker): preserve native supervision on malformed HTTP responses
+- Head: `25ad61d00a23`
+- Commit date: 2026-10-22T07:13:13-04:00
+- Commit: fix: clean native worker activity after startup heartbeat failure (#291)
 - Tracked files: 574
 
 ### Recently changed files
 - `README.md`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_remote_worker_runner.py`
 - `src/production_os/remote_worker.py`
 - `tests/test_release51_one_tap_runner_e2e.py`
 - `tests/test_remote_worker.py`
-- `tests/test_remote_worker_runner.py`
 - `docs/VALIDATION_2026-10-21.md`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/dashboard_ui.py`

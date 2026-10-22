@@ -10975,8 +10975,9 @@ key = job.key
 runtime_context = (
 ⋮----
 active_registered = True
-heartbeat = self._activate(key)
 process: subprocess.Popen[str] | None = None
+⋮----
+heartbeat = self._activate(key)
 ⋮----
 execution_path = self._select_execution_path(job)
 ⋮----
@@ -19989,6 +19990,20 @@ job = client.claim()
 restarted = RemoteWorkerClient(
 reconciled = restarted.open_session(
 ⋮----
+# A response can be lost after the server recorded the first active
+# heartbeat. No executor has started, so that slot must still be cleared.
+heartbeat = restarted.heartbeat
+faults = []
+def lost_activation_response(**kwargs)
+⋮----
+response = heartbeat(**kwargs)
+⋮----
+runner = RemoteWorkerRunner(restarted, [], executor_mode="native")
+⋮----
+recovered = restarted.open_session(max_concurrency=1, active_job_keys=[])
+⋮----
+claimed = restarted.claim()
+⋮----
 def test_worker_session_rejects_token_identity_mismatch(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "identity.sqlite"), authorizer=_auth())
@@ -25069,6 +25084,12 @@ recoverable control-plane error path. Native execution keeps its existing
 heartbeat failure threshold and waits for cooperative cancellation before
 returning an abandoned outcome; a proxy error cannot bypass that supervision.
 HTTP error status remains available even when its response body cannot be read.
+
+The first active heartbeat is covered by the same cleanup as executor work. If
+its response is lost after the server accepted it, the connection error remains
+visible, the unused active slot is released locally, and an inactive heartbeat
+is attempted. The acknowledged job is left for normal session reconciliation;
+no executor is started and no failure or completion is invented.
 
 ### Docker
 

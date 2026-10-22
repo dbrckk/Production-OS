@@ -2,29 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(dashboard): auto-wake workers after mobile launch",
-      "terms": [
-        "after",
-        "auto-wake",
-        "dashboard",
-        "feat",
-        "launch",
-        "mobile",
-        "workers"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_store.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_launch.py",
-        "tests/test_dashboard_launch_ux.py",
-        "tests/test_release32_one_tap_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "chore(runtime): pin and enforce supported Python versions",
       "terms": [
         "chore",
@@ -1231,6 +1208,25 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "Clear phantom active state after initial heartbeat failure",
+      "terms": [
+        "active",
+        "after",
+        "clear",
+        "failure",
+        "heartbeat",
+        "initial",
+        "phantom",
+        "state"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_remote_worker_runner.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1848,9 +1844,10 @@
       "src/production_os/agent_runtime.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 4,
-      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/remote_worker_runner.py": 8,
       "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_persistent_agent_runtime.py": 4
+      "tests/test_persistent_agent_runtime.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "activity": {
       "src/production_os/control_plane.py": 4,
@@ -1953,10 +1950,12 @@
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_store.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
       "tests/test_workflow_auto_wake_api.py": 4
     },
     "against": {
@@ -2611,6 +2610,10 @@
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_release18_managed_projects_e2e.py": 4
+    },
+    "clear": {
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "cli": {
       "src/production_os/asset_forge.py": 8,
@@ -3376,7 +3379,9 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "failure": {
-      "src/production_os/cli.py": 4
+      "src/production_os/cli.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "fallback": {
       "src/production_os/asset_forge.py": 8,
@@ -3656,7 +3661,9 @@
       "tests/test_controller_asset_capabilities.py": 4
     },
     "heartbeat": {
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/worker_wake.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
       "tests/test_worker_wake.py": 4
     },
     "heartbeats": {
@@ -3793,6 +3800,10 @@
     "inferred": {
       "src/production_os/workflow_engine.py": 4,
       "tests/test_browser_computer.py": 4
+    },
+    "initial": {
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "inject": {
       "src/production_os/workflow_engine.py": 4,
@@ -4454,6 +4465,10 @@
       "tests/test_browser_computer.py": 4,
       "tests/test_persistent_agent_runtime.py": 4,
       "tests/test_worker_compose_deployment.py": 4
+    },
+    "phantom": {
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "picker": {
       "src/production_os/dashboard_ui.py": 4,
@@ -5737,11 +5752,11 @@
     "state": {
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/executor_worktree.py": 4,
-      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/remote_worker_runner.py": 8,
       "tests/test_dashboard_clear_pairing_state.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_executor_worktree.py": 4,
-      "tests/test_remote_worker_runner.py": 4
+      "tests/test_remote_worker_runner.py": 8
     },
     "status": {
       "src/production_os/control_plane.py": 4,

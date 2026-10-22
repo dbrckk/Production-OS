@@ -2,7 +2,7 @@
   "area": "src-production-os",
   "files": [
     {
-      "path": "src/production_os/remote_worker.py",
+      "path": "src/production_os/remote_worker_runner.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -10,21 +10,7 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 1315
-    },
-    {
-      "path": "src/production_os/control_plane.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 825
-    },
-    {
-      "path": "src/production_os/api_auth.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 775
+      "score": 755
     },
     {
       "path": "src/production_os/cli.py",
@@ -34,24 +20,35 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 765
+      "score": 705
     },
     {
-      "path": "src/production_os/remote_worker_runner.py",
+      "path": "src/production_os/remote_worker.py",
       "reasons": [
-        "dependency-neighbor",
-        "impact",
-        "reverse-dependency-neighbor",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 595
+      "score": 450
+    },
+    {
+      "path": "src/production_os/control_plane.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 325
+    },
+    {
+      "path": "src/production_os/api_auth.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 275
     },
     {
       "path": "src/production_os/__init__.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 425
+      "score": 175
     },
     {
       "path": "src/production_os/executor_worktree.py",
@@ -62,13 +59,6 @@
     },
     {
       "path": "src/production_os/agent_runtime.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/workers.py",
       "reasons": [
         "dependency-neighbor"
       ],
@@ -89,6 +79,52 @@
         "reverse-dependency-neighbor"
       ],
       "score": 80
+    },
+    {
+      "path": "src/production_os/history.py",
+      "reasons": [
+        "dependency-neighbor",
+        "reverse-dependency-neighbor"
+      ],
+      "score": 80
+    },
+    {
+      "path": "src/production_os/workers.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 75
+    },
+    {
+      "path": "src/production_os/workflow_engine.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 75
+    },
+    {
+      "path": "src/production_os/asset_forge.py",
+      "reasons": [
+        "dependency-neighbor",
+        "reverse-dependency-neighbor"
+      ],
+      "score": 55
+    },
+    {
+      "path": "src/production_os/backup.py",
+      "reasons": [
+        "dependency-neighbor",
+        "reverse-dependency-neighbor"
+      ],
+      "score": 55
+    },
+    {
+      "path": "src/production_os/control_surface.py",
+      "reasons": [
+        "dependency-neighbor",
+        "reverse-dependency-neighbor"
+      ],
+      "score": 55
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",
