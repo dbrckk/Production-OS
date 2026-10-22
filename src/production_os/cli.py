@@ -1028,8 +1028,18 @@ def _handoff(
             f"{action.task} {action.rationale}", websites, limit=5
         ),
         "external_catalog_coverage": {
-            "github_entries": len(catalog.get("repositories", [])) if isinstance(catalog, dict) and isinstance(catalog.get("repositories"), list) else 0,
-            "website_entries": len(websites.get("websites", [])) if isinstance(websites, dict) and isinstance(websites.get("websites"), list) else 0,
+            "github_entries": (
+                len(catalog["repositories"])
+                if isinstance(catalog, dict)
+                and isinstance(catalog.get("repositories"), list)
+                else 0
+            ),
+            "website_entries": (
+                len(websites["websites"])
+                if isinstance(websites, dict)
+                and isinstance(websites.get("websites"), list)
+                else 0
+            ),
         },
         "constraints": {
             "preserve_existing_behavior": True,
@@ -1194,14 +1204,38 @@ def run_scan(args: argparse.Namespace) -> int:
                 "repository": args.star_list_repo,
                 "path": args.star_list_path,
                 "loaded": bool(catalog),
-                "repository_count": len(catalog.get("repositories", [])) if isinstance(catalog, dict) and isinstance(catalog.get("repositories"), list) else 0,
+                "repository_count": (
+                    len(catalog["repositories"])
+                    if isinstance(catalog, dict)
+                    and isinstance(catalog.get("repositories"), list)
+                    else 0
+                ),
                 "websites_path": args.star_list_websites_path,
-                "websites_loaded": isinstance(websites, dict) and isinstance(websites.get("websites"), list),
-                "website_count": len(websites.get("websites", [])) if isinstance(websites, dict) and isinstance(websites.get("websites"), list) else 0,
+                "websites_loaded": (
+                    isinstance(websites, dict)
+                    and isinstance(websites.get("websites"), list)
+                ),
+                "website_count": (
+                    len(websites["websites"])
+                    if isinstance(websites, dict)
+                    and isinstance(websites.get("websites"), list)
+                    else 0
+                ),
             },
             "repositories": [a.to_dict() for a in assessments],
             "ranked_actions": [a.to_dict() for a in actions],
             "reuse_opportunities": [item.to_dict() for item in reuse],
+            "website_reference_matches": [
+                {
+                    "repository": action.repository,
+                    "task": action.task,
+                    "references": matches,
+                }
+                for action in actions
+                if (matches := rank_website_catalog(
+                    f"{action.task} {action.rationale}", websites, limit=5
+                ))
+            ],
             "knowledge_graph": graph,
             "regressions": [
                 {
