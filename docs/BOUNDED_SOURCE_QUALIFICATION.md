@@ -19,3 +19,25 @@ qualification at the exact source commit. The normal PR CI is an additional
 review gate. Neither the handoff nor the worker merges or deploys the source
 change. A provider diagnostic alone does not establish autonomous delivery or
 sustained free inference capacity.
+
+## Exact-commit workflow dispatch and execution fence
+
+The trusted handoff dispatches `production-os-source-qualification.yml`
+with the reviewed `studio/mp-*` branch **and** a required `expected_sha`
+input. The qualification workflow rejects unexpected repositories, branch
+names, malformed SHAs and any difference between the dispatch-time GitHub
+commit and that reviewed SHA **before** checking out or running candidate
+code. `actions/checkout` uses the immutable SHA, not the movable branch
+tip; the job additionally checks `git rev-parse HEAD` before compilation,
+test execution or building a distribution.
+
+This closes a race in which an accepted handoff dispatched a branch-only
+qualification and a subsequent branch movement could cause that run to
+validate the wrong revision. A failed guard must not be treated as a
+qualified source change. Record the exact candidate SHA, associated draft
+PR head and successful job conclusion together; a passing check for a
+different SHA is not evidence of delivery.
+
+This CI gate is not itself an inference call, a model-authored source
+change, a verified end-to-end autonomous PR, a merge, or a deployment.
+Provider capacity and production-device qualification remain separate.
