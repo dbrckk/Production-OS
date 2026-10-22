@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from .budgets import validated_budget_amounts
+
 
 RISK_ORDER = {"low":0, "medium":1, "high":2, "critical":3}
 
@@ -159,11 +161,10 @@ def evaluate_policy(
     allowed_workers = tuple(
         str(x) for x in policy.get("allowed_worker_classes", []) if str(x)
     )
-    budgets = {
-        str(k): float(v)
-        for k, v in (policy.get("budgets", {}) or {}).items()
-        if isinstance(v, (int, float))
-    }
+    budgets = validated_budget_amounts(
+        policy.get("budgets") or {},
+        label="repository policy budget limits",
+    )
 
     return PolicyDecision(
         allowed=allowed,
