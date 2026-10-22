@@ -71,6 +71,8 @@ Use `--star-list-websites-path websites.json` to select the catalog path, or
 `--no-star-list` to disable **both** external catalogs. JSON portfolio output
 reports `star_list.websites_loaded` and `star_list.website_count`, so missing
 or invalid website feeds are distinguishable from empty relevant results.
+The JSON portfolio report also includes `website_reference_matches`, containing
+relevant review-only websites for each action across the assessed repositories.
 
 ## Knowledge graph V3
 
