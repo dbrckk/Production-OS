@@ -1,6 +1,6 @@
 from production_os.deep_fingerprint import analyze_source_evidence
 from production_os.models import RepoEvidence
-from production_os.starlist import suggest_external_references
+from production_os.starlist import rank_website_catalog, suggest_external_references
 
 
 def test_deep_fingerprint_detects_real_dependencies():
@@ -151,3 +151,44 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
         ref.repository
         for ref in suggest_external_references("github-actions-ci", ci_catalog)
     ] == ["tools/build"]
+
+
+    # The independent websites.json index is inspected without treating
+    # websites (including agent-skill directories) as installable components.
+    websites = {
+        "websites": [
+            {
+                "name": "Skill Issue",
+                "url": "https://skill-issue.in/",
+                "tags": ["agent", "automation", "workflow", "coding"],
+                "bestFor": ["Coding agent workflows"],
+                "reuse": "reference-only",
+                "caution": "Review upstream licenses and instructions.",
+            },
+            {
+                "name": "Motion Gallery",
+                "url": "https://60fps.design/",
+                "tags": ["mobile", "motion"],
+                "bestFor": ["Mobile UI animations"],
+            },
+            {
+                "name": "Unsafe Scheme",
+                "url": "http://example.com/agent/automation",
+                "tags": ["agent", "automation"],
+            },
+            {
+                "name": "Duplicate",
+                "url": "https://skill-issue.in",
+                "tags": ["agent", "automation"],
+            },
+        ]
+    }
+    references = rank_website_catalog("agent coding automation", websites)
+    assert [item["url"] for item in references] == ["https://skill-issue.in/"]
+    assert references[0]["integrationEligible"] is False
+    assert references[0]["reviewRequired"] is True
+    assert references[0]["reuse"] == "reference-only"
+    assert "agent" in references[0]["match_terms"]
+    assert rank_website_catalog("mobile QA release", websites) == []
+    assert rank_website_catalog("", websites) == []
+    assert rank_website_catalog("agent coding", websites, limit=0) == []
