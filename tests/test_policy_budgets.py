@@ -40,8 +40,9 @@ def test_budget_blocks_projected_usage(tmp_path):
     assert ledger.check("o/a", {"tokens":100}, {"tokens":10}).allowed
 
     # Even a mathematically finite pair can overflow during projection.
+    ledger.record("o/overflow", {"tokens":1e308})
     assert not ledger.check(
-        "o/a", {"tokens":1e308}, {"tokens":1e308}
+        "o/overflow", {"tokens":1e308}, {"tokens":1e308}
     ).allowed
 
 
