@@ -86,7 +86,9 @@ class BudgetLedger:
             self.payload.get("usage", {}).get(repository, {}),
             label="recorded budget usage",
         )
-        request = validated_budget_amounts(request or {}, label="budget request")
+        request = validated_budget_amounts(
+            {} if request is None else request, label="budget request"
+        )
         limits = validated_budget_amounts(limits, label="budget limits")
         reasons: list[str] = []
         for key, limit in limits.items():
