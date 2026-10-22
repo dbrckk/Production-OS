@@ -162,7 +162,7 @@ def evaluate_policy(
         str(x) for x in policy.get("allowed_worker_classes", []) if str(x)
     )
     budgets = validated_budget_amounts(
-        policy.get("budgets") or {},
+        {} if policy.get("budgets") is None else policy["budgets"],
         label="repository policy budget limits",
     )
 
