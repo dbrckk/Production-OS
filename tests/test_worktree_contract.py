@@ -71,6 +71,106 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert '"ref": branch' in bridge
     assert "Source branch moved after the reviewed PR event" in bridge
     assert "Source patch exceeds approved normalization change" in bridge
+    # Run the actual trusted relay logic against a local HTTP fixture. Never
+    # contact GitHub or consume a real workflow dispatch in this regression.
+    bridge_script = textwrap.dedent(
+        bridge.split("          python3 - <<'PY'\n", 1)[1]
+        .split("          PY\n", 1)[0]
+    )
+    mock_http = textwrap.dedent("""
+        import io
+        import json
+        import os
+        import urllib.request
+
+        class LocalResponse:
+            def __init__(self, data):
+                self.stream = io.BytesIO(json.dumps(data).encode("utf-8"))
+            def __enter__(self):
+                return self
+            def __exit__(self, *_args):
+                self.stream.close()
+            def read(self, *args):
+                return self.stream.read(*args)
+
+        def offline_api(req, timeout=20):
+            url = req.full_url
+            mode = os.getenv("CASE", "")
+            sha = "a" * 40
+            branch = "studio/mp-" + ("b" * 24)
+            if url.endswith("/pulls/297"):
+                return LocalResponse({
+                    "state": "open",
+                    "base": {"ref": "other" if mode == "wrong-base" else "main"},
+                    "head": {
+                        "sha": sha, "ref": branch,
+                        "repo": {"full_name": "dbrckk/Production-OS"},
+                    },
+                })
+            if "/git/ref/heads/" in url:
+                return LocalResponse({
+                    "object": {"sha": "c" * 40 if mode == "moved" else sha}
+                })
+            if "/compare/main..." in url:
+                patch = (
+                    '@@ -9,7 +9,7 @@\\n'
+                    '-    text = re.sub(r"-+", "-", text).strip("-.").lower()\\n'
+                    '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")'
+                )
+                if mode == "wrong-patch":
+                    patch = patch.replace(".replace", ".UNAUTHORIZED")
+                return LocalResponse({
+                    "status": "ahead",
+                    "files": [{
+                        "filename": "src/production_os/worktree_contract.py",
+                        "status": "modified",
+                        "additions": 1,
+                        "deletions": 1,
+                        "changes": 2,
+                        "patch": patch,
+                    }],
+                })
+            if "/actions/workflows/" in url and req.get_method() == "POST":
+                data = json.loads(req.data.decode("utf-8"))
+                assert data == {
+                    "ref": branch,
+                    "inputs": {"expected_sha": sha},
+                }
+                if mode == "dispatch-error":
+                    raise OSError("Injected dispatch error")
+                return LocalResponse({})
+            raise AssertionError("Unexpected offline API " + url)
+
+        urllib.request.urlopen = offline_api
+    """)
+    bridge_env = {
+        "TARGET_REPOSITORY": "dbrckk/Production-OS",
+        "SOURCE_BRANCH": "studio/mp-" + ("b" * 24),
+        "SOURCE_SHA": "a" * 40,
+        "PR_NUMBER": "297",
+        "REVIEW_TOKEN": "offline-test-token",
+    }
+    for overrides, success in (
+        ({}, True),
+        ({"CASE": "wrong-base"}, False),
+        ({"CASE": "moved"}, False),
+        ({"CASE": "wrong-patch"}, False),
+        ({"CASE": "dispatch-error"}, False),
+        ({"TARGET_REPOSITORY": "untrusted/repo"}, False),
+        ({"SOURCE_BRANCH": "other-branch"}, False),
+        ({"SOURCE_SHA": "invalid"}, False),
+    ):
+        result = subprocess.run(
+            [sys.executable, "-c", mock_http + "\n" + bridge_script],
+            env={**os.environ, **bridge_env, "CASE": "", **overrides},
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert (result.returncode == 0) is success, result.stderr
+        if success:
+            assert "Requested immutable source qualification" in result.stdout
+
     script = textwrap.dedent(
         workflow.split("          python - <<'PY'\n", 1)[1]
         .split("          PY\n", 1)[0]
