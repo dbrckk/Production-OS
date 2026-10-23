@@ -1,10 +1,10 @@
 # Change impact
 
-Base: 364422c7c6a58298edaf1a783d5797127ddb6827
-Head: 2b484146a2201b458e543cadf1cc6093dcbdffb2
+Base: 0ddc08995a3f2490e1673cab4fb5646e9f7abedf
+Head: 149cec3b89e3f3083841148c678b4c2368696e77
 
 ## Changed files
-- M .github/workflows/production-os-review-handoff.yml
+- M .github/workflows/production-os-source-qualification.yml
 - M docs/BOUNDED_SOURCE_QUALIFICATION.md
 - M tests/test_worktree_contract.py
 

@@ -8798,6 +8798,11 @@ valid_env = {
 ⋮----
 result = subprocess.run(
 ⋮----
+# The PR-event route is a separate trust boundary. Run the same embedded
+# pre-check against fake read-only GitHub responses, never a network API.
+fixture = textwrap.dedent("""
+pr_env = {
+⋮----
 def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "workflow.sqlite")

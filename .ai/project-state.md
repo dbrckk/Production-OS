@@ -237,20 +237,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-23T09:08:09Z
+Generated: 2026-10-23T09:22:05Z
 
 ### Git
 - Branch: `main`
-- Head: `2b484146a220`
-- Commit date: 2026-10-23T05:07:59-04:00
-- Commit: fix: preserve source qualification on GitHub PR permission failures (#298)
+- Head: `149cec3b89e3`
+- Commit date: 2026-10-23T05:21:53-04:00
+- Commit: feat: automatically qualify reviewed Studio source PRs by immutable SHA (#299)
 - Tracked files: 577
 
 ### Recently changed files
-- `.github/workflows/production-os-review-handoff.yml`
+- `.github/workflows/production-os-source-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `tests/test_worktree_contract.py`
-- `.github/workflows/production-os-source-qualification.yml`
+- `.github/workflows/production-os-review-handoff.yml`
 - `README.md`
 - `src/production_os/autonomous_admission.py`
 - `src/production_os/budgets.py`
