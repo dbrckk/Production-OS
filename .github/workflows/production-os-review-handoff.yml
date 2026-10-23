@@ -71,11 +71,18 @@ jobs:
               except urllib.error.HTTPError as exc:
                   # Never collapse a forbidden ref lookup or compare into an
                   # unproven claim that only PR creation is disabled.
-                  operation = {
-                      "/pulls": "draft PR creation",
-                      "/actions/workflows/production-os-source-qualification.yml/dispatches":
-                          "immutable qualification dispatch",
-                  }.get(path, "review preflight or PR lookup")
+                  if path.startswith("/git/ref/heads/"):
+                      operation = "exact candidate branch lookup"
+                  elif path.startswith("/compare/"):
+                      operation = "reviewed source diff comparison"
+                  elif path.startswith("/pulls?"):
+                      operation = "existing draft PR lookup"
+                  elif path == "/pulls":
+                      operation = "draft PR creation"
+                  elif path.startswith("/actions/workflows/"):
+                      operation = "immutable qualification dispatch"
+                  else:
+                      operation = "review preflight"
                   if exc.code in {401, 403} and method == "POST" and path == "/pulls":
                       raise SystemExit(
                           "GitHub rejected trusted draft PR creation (HTTP "
