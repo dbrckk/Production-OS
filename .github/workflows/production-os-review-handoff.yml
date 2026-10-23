@@ -69,12 +69,34 @@ jobs:
                       raw = response.read(1000000)
                       return json.loads(raw) if raw else {}
               except urllib.error.HTTPError as exc:
-                  if exc.code in {401, 403}:
+                  # Never collapse a forbidden ref lookup or compare into an
+                  # unproven claim that only PR creation is disabled.
+                  if path.startswith("/git/ref/heads/"):
+                      operation = "exact candidate branch lookup"
+                  elif path.startswith("/compare/"):
+                      operation = "reviewed source diff comparison"
+                  elif path.startswith("/pulls?"):
+                      operation = "existing draft PR lookup"
+                  elif path == "/pulls":
+                      operation = "draft PR creation"
+                  elif path.startswith("/actions/workflows/"):
+                      operation = "immutable qualification dispatch"
+                  else:
+                      operation = "review preflight"
+                  if exc.code in {401, 403} and method == "POST" and path == "/pulls":
                       raise SystemExit(
-                          "Target GitHub Actions must allow pull-request creation "
-                          "(Pull requests:write and repository setting)"
+                          "GitHub rejected trusted draft PR creation (HTTP "
+                          + str(exc.code) + "). Check Actions workflow "
+                          "Pull requests:write and repository Actions > "
+                          "General > Allow GitHub Actions to create and "
+                          "approve pull requests. Source CI was requested "
+                          "independently before PR creation."
                       ) from None
-                  raise SystemExit("Review handoff GitHub API returned HTTP " + str(exc.code)) from None
+                  raise SystemExit(
+                      "Trusted review handoff " + operation + " failed ("
+                      + method + " HTTP " + str(exc.code) +
+                      "); check the relevant token permissions or repository policy"
+                  ) from None
 
           ref = request("GET", "/git/ref/heads/" + branch)
           verified = (ref.get("object") or {}).get("sha")
@@ -120,6 +142,16 @@ jobs:
           if (latest_ref.get("object") or {}).get("sha") != sha:
               raise SystemExit("Review handoff rejected a branch movement after comparison")
 
+          # Preserve independently testable evidence even when GitHub Actions
+          # policy blocks its GITHUB_TOKEN from creating pull requests. A
+          # refused PR still fails this job; it must not silently claim
+          # end-to-end autonomous delivery.
+          request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
+              "ref": branch,
+              "inputs": {"expected_sha": sha},
+          })
+          print("Requested immutable source CI for " + sha, flush=True)
+
           owner = repo.split("/", 1)[0]
           query = urllib.parse.urlencode({
               "state": "open", "head": owner + ":" + branch, "base": "main",
@@ -151,11 +183,4 @@ jobs:
               if not isinstance(created, dict) or not created.get("number"):
                   raise SystemExit("Review handoff did not receive a real PR number")
               print("Opened draft review: " + str(created.get("html_url") or ""))
-          # Trigger the pre-existing trusted qualification workflow against the
-          # exact reviewed branch; the model cannot modify workflow files.
-          request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
-              "ref": branch,
-              "inputs": {"expected_sha": sha},
-          })
-          print("Requested immutable source CI for " + sha)
           PY
