@@ -8788,6 +8788,10 @@ root = Path(__file__).resolve().parents[1]
 workflow = (root / ".github/workflows/production-os-source-qualification.yml").read_text()
 handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_text()
 ⋮----
+# Only allow handoff on the immutable, already-vetted candidate.
+# Even with GitHub Actions' PR creation disabled, qualification is
+# requested first and the subsequent PR failure stays a job failure.
+⋮----
 script = textwrap.dedent(
 valid_sha = "a" * 40
 valid_env = {
