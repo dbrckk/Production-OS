@@ -75,6 +75,8 @@ jobs:
                       operation = "exact candidate branch lookup"
                   elif path.startswith("/compare/"):
                       operation = "reviewed source diff comparison"
+                  elif path.startswith("/contents/"):
+                      operation = "current source blob lookup"
                   elif path.startswith("/pulls?"):
                       operation = "existing draft PR lookup"
                   elif path == "/pulls":
@@ -141,6 +143,28 @@ jobs:
           latest_ref = request("GET", "/git/ref/heads/" + branch)
           if (latest_ref.get("object") or {}).get("sha") != sha:
               raise SystemExit("Review handoff rejected a branch movement after comparison")
+
+          # A three-dot comparison uses the merge base. After a squash merge
+          # it can still show the original patch even when main already has
+          # the candidate bytes. Check the current file before any side effect.
+          main_ref = request("GET", "/git/ref/heads/main")
+          main_sha = (main_ref.get("object") or {}).get("sha")
+          if not isinstance(main_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", main_sha):
+              raise SystemExit("Review handoff could not pin current main")
+          source_path = "src/production_os/worktree_contract.py"
+          blobs = []
+          for revision in (main_sha, sha):
+              source = request("GET", "/contents/" + source_path + "?ref=" + revision)
+              blob_sha = source.get("sha") if isinstance(source, dict) else None
+              if (not isinstance(source, dict) or source.get("type") != "file"
+                      or source.get("path") != source_path
+                      or not isinstance(blob_sha, str)
+                      or not re.fullmatch(r"[a-f0-9]{40}", blob_sha)):
+                  raise SystemExit("Review handoff received invalid source blob evidence")
+              blobs.append(blob_sha)
+          if blobs[0] == blobs[1]:
+              print("Source already present in main; no PR or CI requested: " + sha)
+              raise SystemExit(0)
 
           # Preserve independently testable evidence even when GitHub Actions
           # policy blocks its GITHUB_TOKEN from creating pull requests. A

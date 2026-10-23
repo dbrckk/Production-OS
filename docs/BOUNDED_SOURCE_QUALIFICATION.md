@@ -1,11 +1,25 @@
 # Bounded autonomous source qualification
 
-The reviewed pilot objective is Git branch validity in
+The completed pilot objective was Git branch validity in
 `src/production_os/worktree_contract.py::_slug`. Identifiers containing
-`..`, or a workflow slug ending in `.lock`, currently produce references
-that Git refuses. The worker may propose only the existing normalization
+`..`, or a workflow slug ending in `.lock`, previously produced references
+that Git refused. The approved worker proposal was the existing normalization
 assignment followed by `.replace(".", "-")`. Digest inputs, limits,
 attempt isolation and every other source byte must remain unchanged.
+
+The model-produced fix was merged through PR #297. The permission recovery
+subsequently proved automatic PR creation (#302) and independent exact-source
+qualification (run39956492079:54 tests,eight actual Git worktrees and builds).
+PR #302 was closed as a duplicate. The original canary failed; this recovery
+does not establish an uninterrupted fresh autonomous delivery.
+
+Before dispatching qualification or opening a PR, the handoff now compares
+the candidate source blob with the source blob at a pinned current main
+commit. Equal blobs mean the source is already applied: it reports that
+outcome and exits without creating a PR or dispatching CI. This matters after
+a squash merge because GitHub's three-dot comparison can still show the old
+patch against the merge base. Invalid blob evidence fails closed. This
+already-applied outcome does not manufacture new review or CI evidence.
 
 The default-branch review handoff verifies the exact branch tip and a
 single-file, single-assignment diff before opening a draft PR and requesting
