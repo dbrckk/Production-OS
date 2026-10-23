@@ -78,26 +78,31 @@ change broad permissions or add credentials silently. Other operations
 need their own stage diagnosis. No paid inference or quota increase
 is part of this recovery.
 
-## Automatic qualification from a reviewed Studio pull request
+## Trusted PR event bridge (including legacy Studio branches)
 
-The read-only source qualification workflow now also observes
-`pull_request` events (`opened`, `reopened`, `synchronize`, `edited`) targeting
-`main`, but it runs only for same-repository `studio/mp-<24 lowercase hex>`
-heads. The candidate is taken from GitHub's immutable PR head SHA, not
-the synthetic merge commit or a floating branch checkout. Before installing
-or executing candidate code, a trusted pre-check verifies the branch tip
-still equals the PR head, independently compares `main...<head SHA>` using
-the GitHub API, and enforces the identical one-file, one-assignment source
-patch allowlist used by the trusted handoff.
+A Studio candidate can predate changes to the qualification workflow. GitHub
+may then evaluate `pull_request` triggers from a historical source branch,
+so editing that PR does not guarantee the new workflow will launch.
 
-The lookup token exists **only in the preflight step**; the source checkout
-disables persisted credentials. All qualification jobs remain read-only,
-with no model or operator secrets. A moved branch, unrelated PR, changed
-patch or failed read-only API check fails closed. The manual dispatch path
-and its exact-SHA guard remain supported.
+`.github/workflows/trusted-studio-pr-qualification.yml` uses
+`pull_request_target` from the trusted default branch. It does **not**
+check out, install or execute candidate code, and never creates or merges a
+PR. Its only write permission is `actions: write`, used to dispatch the
+existing **read-only** `production-os-source-qualification.yml` with both
+the vetted Studio branch and immutable `expected_sha`. This works even
+when a legacy source branch predates the new default-branch workflow.
 
-For the operator-assisted [PR #297](https://github.com/dbrckk/Production-OS/pull/297),
-editing its description after this workflow is merged triggers an exact-head
-qualification without adding commits to the model-authored source branch.
-Passing that workflow establishes independent *code validation*, not
-autonomous PR creation, model capacity or production deployment.
+Before dispatch, the trusted script verifies the exact open PR number,
+main-branch target, same-repository source branch, unchanged source commit,
+single modified source file and exact authorized one-assignment patch.
+HTTP errors fail closed without logging API credentials. The dispatched
+qualification workflow remains `workflow_dispatch`-only to avoid
+duplicate GitHub runner usage and preserves its own immutable SHA checks,
+actual eight Git worktrees, existing runner tests, and build gate.
+
+The event bridge is activated on `opened`, `reopened`, `synchronize`,
+`edited` and `ready_for_review` for PRs against `main`. An operator can
+edit the description of existing [draft PR #297](https://github.com/dbrckk/Production-OS/pull/297)
+without changing its original model-authored commit, which requests a new
+qualification from the default-branch bridge. Success still does not prove
+fully autonomous PR creation, commercial model capacity or deployment.
