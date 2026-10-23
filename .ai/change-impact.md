@@ -1,21 +1,16 @@
 # Change impact
 
-Base: ebe1df38db3bfa2b9fab5125efe2bf757eec6d88
-Head: b90210777892d4ac21c9befdb686a0e18ada2366
+Base: a9d0332673c1db692f77a209732df1828d61c547
+Head: 0e7e1866ce76270cf8ee85e3377d3e12678274bd
 
 ## Changed files
-- M .github/workflows/production-os-source-qualification.yml
-- A .github/workflows/trusted-studio-pr-qualification.yml
-- M docs/BOUNDED_SOURCE_QUALIFICATION.md
-- M tests/test_worktree_contract.py
+- M src/production_os/worktree_contract.py
 
 ## Affected areas
-- .github
-- docs
-- tests
+- src
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_worktree_contract.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

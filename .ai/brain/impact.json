@@ -1,34 +1,421 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "149cec3b89e3f3083841148c678b4c2368696e77",
-  "head": "b90210777892d4ac21c9befdb686a0e18ada2366",
+  "base": "b90210777892d4ac21c9befdb686a0e18ada2366",
+  "head": "0e7e1866ce76270cf8ee85e3377d3e12678274bd",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": ".github/workflows/production-os-source-qualification.yml",
-      "status": "M"
-    },
-    {
-      "path": ".github/workflows/trusted-studio-pr-qualification.yml",
-      "status": "A"
-    },
-    {
-      "path": "docs/BOUNDED_SOURCE_QUALIFICATION.md",
-      "status": "M"
-    },
-    {
-      "path": "tests/test_worktree_contract.py",
+      "path": "src/production_os/worktree_contract.py",
       "status": "M"
     }
   ],
   "changed_source_files": [
-    "tests/test_worktree_contract.py"
+    "src/production_os/worktree_contract.py"
   ],
   "impacted_files": [
+    "src/production_os/workflow_engine.py",
+    "src/production_os/worktree_contract.py",
+    "tests/test_executor_worktree.py",
     "tests/test_worktree_contract.py"
   ],
   "impacted_symbols": [
+    {
+      "name": "_now",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 28
+    },
+    {
+      "name": "_is_postgres",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 32
+    },
+    {
+      "name": "_sql",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 36
+    },
+    {
+      "name": "_execute",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 40
+    },
+    {
+      "name": "_retry_context",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 44
+    },
+    {
+      "name": "_single_upstream_commit_ref",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 107
+    },
+    {
+      "name": "_upstream_context",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 121
+    },
+    {
+      "name": "WorkflowTaskSpec",
+      "kind": "class",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 218
+    },
+    {
+      "name": "from_dict",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 228
+    },
+    {
+      "name": "WorkflowEngine",
+      "kind": "class",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 245
+    },
+    {
+      "name": "_expand_splittable_tasks",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 247
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 319
+    },
+    {
+      "name": "_validate",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 328
+    },
+    {
+      "name": "visit",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 349
+    },
+    {
+      "name": "create",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 363
+    },
+    {
+      "name": "apply_change_impact",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 454
+    },
+    {
+      "name": "_spec_from_task",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 583
+    },
+    {
+      "name": "create_pr_generation",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 603
+    },
+    {
+      "name": "supersede",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 631
+    },
+    {
+      "name": "find_pr_template",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 733
+    },
+    {
+      "name": "create_from_pr_template",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 756
+    },
+    {
+      "name": "generation_refreshable",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 787
+    },
+    {
+      "name": "ensure_pr_generation",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 802
+    },
+    {
+      "name": "find_by_github_pr",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 886
+    },
+    {
+      "name": "get",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 919
+    },
+    {
+      "name": "_task_dict",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 963
+    },
+    {
+      "name": "_artifact_dict",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 986
+    },
+    {
+      "name": "update_metadata",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 998
+    },
+    {
+      "name": "add_task",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1032
+    },
+    {
+      "name": "refresh",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1114
+    },
+    {
+      "name": "dispatch_ready",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1223
+    },
+    {
+      "name": "_dynamic_agent_specs",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1526
+    },
+    {
+      "name": "_apply_dynamic_agent_specs",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1763
+    },
+    {
+      "name": "record_result",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1803
+    },
+    {
+      "name": "retry_task",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2044
+    },
+    {
+      "name": "record_cancelled",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2120
+    },
+    {
+      "name": "cancel",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2170
+    },
+    {
+      "name": "assert_generation_current",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2209
+    },
+    {
+      "name": "job_generation_current",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2248
+    },
+    {
+      "name": "add_artifact",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2265
+    },
+    {
+      "name": "critical_path",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2333
+    },
+    {
+      "name": "longest",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 2338
+    },
+    {
+      "name": "_slug",
+      "kind": "function",
+      "file": "src/production_os/worktree_contract.py",
+      "line": 10
+    },
+    {
+      "name": "build_worktree_contract",
+      "kind": "function",
+      "file": "src/production_os/worktree_contract.py",
+      "line": 16
+    },
+    {
+      "name": "_git",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 19
+    },
+    {
+      "name": "_repo",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 30
+    },
+    {
+      "name": "test_prepare_isolated_worktree_creates_attempt_scoped_branch",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 42
+    },
+    {
+      "name": "test_prepare_isolated_worktree_reuses_matching_existing_workspace",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 69
+    },
+    {
+      "name": "test_retry_contract_gets_distinct_worktree",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 94
+    },
+    {
+      "name": "test_remove_isolated_worktree_detaches_and_prunes",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 124
+    },
+    {
+      "name": "test_prepare_rejects_non_repository_root",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 145
+    },
+    {
+      "name": "test_remote_worker_cli_parses_repository_worktree_configuration",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 165
+    },
+    {
+      "name": "test_repository_root_mapping_rejects_ambiguous_values",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 185
+    },
+    {
+      "name": "test_runner_uses_repository_cache_when_no_explicit_mapping",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 198
+    },
+    {
+      "name": "DummyClient",
+      "kind": "class",
+      "file": "tests/test_executor_worktree.py",
+      "line": 206
+    },
+    {
+      "name": "test_remote_worker_cli_exposes_repository_cache_root",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 245
+    },
+    {
+      "name": "_commit",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 262
+    },
+    {
+      "name": "_current_branch",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 268
+    },
+    {
+      "name": "test_preintegrate_upstream_commits_applies_clean_independent_changes",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 272
+    },
+    {
+      "name": "test_preintegrate_conflict_rolls_back_entire_preflight",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 319
+    },
+    {
+      "name": "test_preintegrate_missing_commit_leaves_clean_starting_state",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 365
+    },
+    {
+      "name": "test_preintegrate_dirty_workspace_defers_without_mutation",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 395
+    },
+    {
+      "name": "test_inspect_worktree_result_reports_clean_committed_evidence",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 432
+    },
+    {
+      "name": "test_inspect_worktree_result_reports_uncommitted_changes",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 468
+    },
+    {
+      "name": "test_prune_integrated_workflow_branches_deletes_only_ancestors",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 499
+    },
+    {
+      "name": "test_prune_integrated_workflow_branches_rejects_foreign_branch",
+      "kind": "function",
+      "file": "tests/test_executor_worktree.py",
+      "line": 550
+    },
     {
       "name": "test_worktree_contract_is_deterministic_and_attempt_scoped",
       "kind": "function",
@@ -61,6 +448,7 @@
     }
   ],
   "selected_tests": [
+    "tests/test_executor_worktree.py",
     "tests/test_worktree_contract.py"
   ]
 }

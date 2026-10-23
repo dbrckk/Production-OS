@@ -237,29 +237,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-23T09:38:36Z
+Generated: 2026-10-23T09:42:23Z
 
 ### Git
 - Branch: `main`
-- Head: `b90210777892`
-- Commit date: 2026-10-23T05:38:26-04:00
-- Commit: fix: dispatch exact-source CI for legacy Studio PRs from trusted main (#300)
+- Head: `0e7e1866ce76`
+- Commit date: 2026-10-23T05:42:13-04:00
+- Commit: fix(worktrees): normalize Git-ref dots in model-authored canary 42 (#297)
 - Tracked files: 578
 
 ### Recently changed files
+- `src/production_os/worktree_contract.py`
 - `.github/workflows/production-os-source-qualification.yml`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `tests/test_worktree_contract.py`
 - `.github/workflows/production-os-review-handoff.yml`
-- `README.md`
-- `src/production_os/autonomous_admission.py`
-- `src/production_os/budgets.py`
-- `src/production_os/controller.py`
-- `src/production_os/policy.py`
-- `tests/test_autonomous_admission.py`
-- `tests/test_controller_managed_projects.py`
-- `tests/test_policy_budgets.py`
 
 ### Project signals
 - `pyproject.toml`

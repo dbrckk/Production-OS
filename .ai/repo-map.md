@@ -13646,7 +13646,7 @@ _SCHEMA = "production-os/git-worktree-isolation/v1"
 def _slug(value: str, *, limit: int = 32) -> str
 ⋮----
 text = re.sub(r"[^a-zA-Z0-9._-]+", "-", str(value or "").strip())
-text = re.sub(r"-+", "-", text).strip("-.").lower()
+text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")
 ⋮----
 repository = str(repository or "").strip()
 workflow_id = str(workflow_id or "").strip()

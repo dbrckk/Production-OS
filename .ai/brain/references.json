@@ -5,90 +5,171 @@
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
   "symbols": {
-    "test_worktree_contract_is_deterministic_and_attempt_scoped": {
+    "_slug": {
       "definition": {
-        "file": "tests/test_worktree_contract.py",
-        "line": 12,
+        "file": "src/production_os/worktree_contract.py",
+        "line": 10,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worktree_contract.py",
-          "line": 12,
-          "preview": "def test_worktree_contract_is_deterministic_and_attempt_scoped():",
+          "file": "src/production_os/worktree_contract.py",
+          "line": 10,
+          "preview": "def _slug(value: str, *, limit: int = 32) -> str:",
           "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 38,
+          "preview": "f\"{_slug(workflow_id, limit=20)}/\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 39,
+          "preview": "f\"{_slug(task_id, limit=28)}-a{int(attempt)}-{digest}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 41,
+          "preview": "workspace_key = f\"{_slug(task_id, limit=20)}-{digest}\"",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 4
     },
-    "test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks": {
+    "build_worktree_contract": {
       "definition": {
-        "file": "tests/test_worktree_contract.py",
-        "line": 202,
+        "file": "src/production_os/worktree_contract.py",
+        "line": 16,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worktree_contract.py",
-          "line": 202,
-          "preview": "def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path):",
+          "file": "src/production_os/workflow_engine.py",
+          "line": 22,
+          "preview": "from .worktree_contract import build_worktree_contract",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/workflow_engine.py",
+          "line": 1323,
+          "preview": "handoff[\"isolation\"] = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 16,
+          "preview": "def build_worktree_contract(",
           "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_integration_target_contract_is_preserved_in_dispatch": {
-      "definition": {
-        "file": "tests/test_worktree_contract.py",
-        "line": 244,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 16,
+          "preview": "from production_os.worktree_contract import build_worktree_contract",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 45,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 71,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 96,
+          "preview": "first_contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 102,
+          "preview": "retry_contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 126,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 220,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 287,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 334,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 368,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 404,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 435,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 471,
+          "preview": "contract = build_worktree_contract(",
+          "definition_candidate": false
+        },
         {
           "file": "tests/test_worktree_contract.py",
-          "line": 244,
-          "preview": "def test_integration_target_contract_is_preserved_in_dispatch(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_dependent_worktree_bases_from_single_upstream_commit": {
-      "definition": {
-        "file": "tests/test_worktree_contract.py",
-        "line": 274,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+          "line": 9,
+          "preview": "from production_os.worktree_contract import build_worktree_contract",
+          "definition_candidate": false
+        },
         {
           "file": "tests/test_worktree_contract.py",
-          "line": 274,
-          "preview": "def test_dependent_worktree_bases_from_single_upstream_commit(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_multi_parent_integration_does_not_guess_one_upstream_base": {
-      "definition": {
-        "file": "tests/test_worktree_contract.py",
-        "line": 326,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+          "line": 13,
+          "preview": "first = build_worktree_contract(",
+          "definition_candidate": false
+        },
         {
           "file": "tests/test_worktree_contract.py",
-          "line": 326,
-          "preview": "def test_multi_parent_integration_does_not_guess_one_upstream_base(tmp_path):",
-          "definition_candidate": true
+          "line": 20,
+          "preview": "again = build_worktree_contract(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 27,
+          "preview": "retry = build_worktree_contract(",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 20
     }
   }
 }
