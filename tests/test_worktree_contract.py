@@ -46,7 +46,10 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     root = Path(__file__).resolve().parents[1]
     workflow = (root / ".github/workflows/production-os-source-qualification.yml").read_text()
     handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_text()
-    assert "ref: ${{ inputs.expected_sha }}" in workflow
+    assert (
+        "ref: ${{ github.event_name == 'pull_request' && "
+        "github.event.pull_request.head.sha || inputs.expected_sha }}"
+    ) in workflow
     assert '"inputs": {"expected_sha": sha}' in handoff
     # Only allow handoff on the immutable, already-vetted candidate.
     # Even with GitHub Actions' PR creation disabled, qualification is
