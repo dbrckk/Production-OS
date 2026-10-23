@@ -237,17 +237,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-23T09:22:05Z
+Generated: 2026-10-23T09:38:36Z
 
 ### Git
 - Branch: `main`
-- Head: `149cec3b89e3`
-- Commit date: 2026-10-23T05:21:53-04:00
-- Commit: feat: automatically qualify reviewed Studio source PRs by immutable SHA (#299)
-- Tracked files: 577
+- Head: `b90210777892`
+- Commit date: 2026-10-23T05:38:26-04:00
+- Commit: fix: dispatch exact-source CI for legacy Studio PRs from trusted main (#300)
+- Tracked files: 578
 
 ### Recently changed files
 - `.github/workflows/production-os-source-qualification.yml`
+- `.github/workflows/trusted-studio-pr-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `tests/test_worktree_contract.py`
 - `.github/workflows/production-os-review-handoff.yml`
@@ -259,9 +260,6 @@ Generated: 2026-10-23T09:22:05Z
 - `tests/test_autonomous_admission.py`
 - `tests/test_controller_managed_projects.py`
 - `tests/test_policy_budgets.py`
-- `src/production_os/cli.py`
-- `src/production_os/starlist.py`
-- `tests/test_deep_fingerprint_starlist.py`
 
 ### Project signals
 - `pyproject.toml`

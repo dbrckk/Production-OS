@@ -1,10 +1,11 @@
 # Change impact
 
-Base: 0ddc08995a3f2490e1673cab4fb5646e9f7abedf
-Head: 149cec3b89e3f3083841148c678b4c2368696e77
+Base: ebe1df38db3bfa2b9fab5125efe2bf757eec6d88
+Head: b90210777892d4ac21c9befdb686a0e18ada2366
 
 ## Changed files
 - M .github/workflows/production-os-source-qualification.yml
+- A .github/workflows/trusted-studio-pr-qualification.yml
 - M docs/BOUNDED_SOURCE_QUALIFICATION.md
 - M tests/test_worktree_contract.py
 

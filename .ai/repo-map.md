@@ -45,6 +45,7 @@ The content is organized as follows:
     production-os-review-handoff.yml
     production-os-source-qualification.yml
     semantic-refresh.yml
+    trusted-studio-pr-qualification.yml
   dependabot.yml
 .serena/
   project.yml
@@ -1092,9 +1093,6 @@ jobs:
 name: Bounded source qualification
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, edited]
-    branches: [main]
   workflow_dispatch:
     inputs:
       expected_sha:
@@ -1106,123 +1104,45 @@ permissions:
   contents: read
 
 concurrency:
-  group: source-qualification-${{ github.event.pull_request.head.sha || github.sha }}
+  group: source-qualification-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
   qualify:
-    # Never execute source from unrelated PRs or forks. A same-repository
-    # Studio PR still must pass the immutable ref and exact-diff gate below.
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == 'dbrckk/Production-OS' && startsWith(github.event.pull_request.head.ref, 'studio/mp-')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Verify immutable handoff before checkout
         env:
-          EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.expected_sha }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
           DISPATCH_SHA: ${{ github.sha }}
           DISPATCH_REF: ${{ github.ref }}
-          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
-          SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
-          EVENT_NAME: ${{ github.event_name }}
           REPOSITORY: ${{ github.repository }}
-          READ_TOKEN: ${{ github.token }}
         run: |
           python - <<'PY'
-          import json
           import os
           import re
-          import urllib.error
-          import urllib.request
-          
-          repo = os.environ["REPOSITORY"]
-          expected = os.environ["EXPECTED_SHA"]
-          event = os.environ["EVENT_NAME"]
-          if repo != "dbrckk/Production-OS":
-              raise SystemExit("Qualification requires the trusted repository")
-          if not re.fullmatch(r"[0-9a-f]{40}", expected):
-              raise SystemExit("Qualification requires an immutable 40-digit commit SHA")
-          
-          if event == "workflow_dispatch":
-              if not re.fullmatch(r"refs/heads/studio/mp-[a-f0-9]{24}",
-                                  os.environ["DISPATCH_REF"]):
-                  raise SystemExit("Manual qualification requires a Studio source branch")
-              if os.environ["DISPATCH_SHA"] != expected:
-                  raise SystemExit("Manual dispatch SHA differs from reviewed commit")
-          elif event == "pull_request":
-              branch = os.environ["SOURCE_BRANCH"]
-              if os.environ["SOURCE_REPOSITORY"] != repo:
-                  raise SystemExit("Untrusted source repository")
-              if not re.fullmatch(r"studio/mp-[a-f0-9]{24}", branch):
-                  raise SystemExit("Untrusted source branch")
-              if not re.fullmatch(r"refs/pull/[0-9]+/merge",
-                                  os.environ["DISPATCH_REF"]):
-                  raise SystemExit("Unexpected pull request event ref")
-          
-              headers = {
-                  "Accept": "application/vnd.github+json",
-                  "Authorization": "Bearer " + os.environ["READ_TOKEN"],
-                  "X-GitHub-Api-Version": "2022-11-28",
-                  "User-Agent": "production-os-bounded-source-qualification",
-              }
-          
-              def github_get(path):
-                  request = urllib.request.Request(
-                      "https://api.github.com/repos/" + repo + path, headers=headers,
-                  )
-                  try:
-                      with urllib.request.urlopen(request, timeout=20) as response:
-                          return json.load(response)
-                  except (urllib.error.URLError, ValueError, OSError) as exc:
-                      raise SystemExit("Qualification cannot verify GitHub source evidence: "
-                                       + type(exc).__name__) from None
-          
-              ref = github_get("/git/ref/heads/" + branch)
-              if (ref.get("object") or {}).get("sha") != expected:
-                  raise SystemExit("Studio source branch moved since PR event")
-              comparison = github_get("/compare/main..." + expected)
-              files = comparison.get("files")
-              if comparison.get("status") not in {"ahead", "diverged"}:
-                  raise SystemExit("Source commit is not ahead of reviewed main")
-              if not isinstance(files, list) or len(files) != 1:
-                  raise SystemExit("Source change is outside one-file review scope")
-              changed = files[0]
-              patch = changed.get("patch")
-              if (
-                  changed.get("filename") != "src/production_os/worktree_contract.py"
-                  or changed.get("status") != "modified"
-                  or type(changed.get("additions")) is not int
-                  or type(changed.get("deletions")) is not int
-                  or type(changed.get("changes")) is not int
-                  or changed["additions"] != 1
-                  or changed["deletions"] != 1
-                  or changed["changes"] != 2
-                  or not isinstance(patch, str)
-                  or len(patch) > 4000
-              ):
-                  raise SystemExit("Source patch violates the bounded review contract")
-              edits = [
-                  line for line in patch.splitlines()
-                  if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
-              ]
-              if [line.replace("'", '"') for line in edits] != [
-                  '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
-                  '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
-              ]:
-                  raise SystemExit("Source patch contains an unauthorized edit")
-          else:
-              raise SystemExit("Unrecognized source qualification event")
-          
-          print("Trusted qualification pinned to " + expected)
+
+          expected = os.environ['EXPECTED_SHA']
+          if not re.fullmatch(r'[0-9a-f]{40}', expected):
+              raise SystemExit('Qualification requires a valid immutable commit SHA')
+          if os.environ['REPOSITORY'] != 'dbrckk/Production-OS':
+              raise SystemExit('Qualification must run in the trusted repository')
+          if not re.fullmatch(r'refs/heads/studio/mp-[a-f0-9]{24}',
+                              os.environ['DISPATCH_REF']):
+              raise SystemExit('Qualification only accepts reviewed Studio source branches')
+          if os.environ['DISPATCH_SHA'] != expected:
+              raise SystemExit('Dispatch SHA differs from the independently reviewed commit')
+          print('Trusted source qualification pinned to ' + expected)
           PY
       - name: Checkout reviewed source at immutable SHA
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.expected_sha }}
+          ref: ${{ inputs.expected_sha }}
       - name: Verify checkout matches the reviewed commit
         env:
-          EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.expected_sha }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
@@ -1310,6 +1230,148 @@ jobs:
     uses: dbrckk/repo-brain/.github/workflows/reusable-semantic.yml@main
     with:
       commit_changes: true
+````
+
+## File: .github/workflows/trusted-studio-pr-qualification.yml
+````yaml
+name: Trusted Studio PR qualification handoff
+
+# Trusted default-branch workflow: never check out or execute PR head code.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+concurrency:
+  group: trusted-studio-source-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch-reviewed-source:
+    if: ${{ github.event.pull_request.head.repo.full_name == 'dbrckk/Production-OS' && startsWith(github.event.pull_request.head.ref, 'studio/mp-') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      REVIEW_TOKEN: ${{ github.token }}
+      SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      TARGET_REPOSITORY: ${{ github.repository }}
+    steps:
+      - name: Independently review source diff and dispatch pinned read-only CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.request
+
+          repo = os.environ["TARGET_REPOSITORY"]
+          branch = os.environ["SOURCE_BRANCH"]
+          sha = os.environ["SOURCE_SHA"]
+          number = os.environ["PR_NUMBER"]
+          if repo != "dbrckk/Production-OS":
+              raise SystemExit("Trusted source dispatch requires target repository")
+          if not re.fullmatch(r"studio/mp-[0-9a-f]{24}", branch):
+              raise SystemExit("Source branch is outside approved Studio namespace")
+          if not re.fullmatch(r"[0-9a-f]{40}", sha):
+              raise SystemExit("Expected source SHA is not an immutable commit")
+          if not number.isdecimal() or int(number) < 1:
+              raise SystemExit("Invalid source PR number")
+
+          headers = {
+              "Authorization": "Bearer " + os.environ["REVIEW_TOKEN"],
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "production-os-trusted-studio-pr-handoff",
+          }
+          base = "https://api.github.com/repos/" + repo
+
+          def request(method, path, data=None):
+              payload = json.dumps(data).encode("utf-8") if data is not None else None
+              action = urllib.request.Request(
+                  base + path, data=payload, method=method,
+                  headers={
+                      **headers,
+                      **({"Content-Type": "application/json"} if payload else {}),
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(action, timeout=20) as response:
+                      raw = response.read(1000000)
+                      return json.loads(raw) if raw else {}
+              except urllib.error.HTTPError as exc:
+                  raise SystemExit(
+                      "Trusted Studio qualification " + method + " request failed "
+                      "with HTTP " + str(exc.code)
+                  ) from None
+              except (urllib.error.URLError, ValueError, OSError) as exc:
+                  raise SystemExit(
+                      "Trusted Studio qualification API unavailable: "
+                      + type(exc).__name__
+                  ) from None
+
+          review = request("GET", "/pulls/" + number)
+          if (
+              review.get("state") != "open"
+              or (review.get("base") or {}).get("ref") != "main"
+              or (review.get("head") or {}).get("sha") != sha
+              or (review.get("head") or {}).get("ref") != branch
+              or ((review.get("head") or {}).get("repo") or {}).get("full_name") != repo
+          ):
+              raise SystemExit("Source PR moved or no longer matches the event")
+
+          ref = request("GET", "/git/ref/heads/" + branch)
+          if (ref.get("object") or {}).get("sha") != sha:
+              raise SystemExit("Source branch moved after the reviewed PR event")
+          comparison = request("GET", "/compare/main..." + sha)
+          files = comparison.get("files")
+          if comparison.get("status") not in {"ahead", "diverged"}:
+              raise SystemExit("Source commit is not a valid branch from main")
+          if not isinstance(files, list) or len(files) != 1:
+              raise SystemExit("Source change requires exactly one reviewed file")
+          changed = files[0]
+          patch = changed.get("patch")
+          if (
+              changed.get("filename") != "src/production_os/worktree_contract.py"
+              or changed.get("status") != "modified"
+              or type(changed.get("additions")) is not int
+              or type(changed.get("deletions")) is not int
+              or type(changed.get("changes")) is not int
+              or changed["additions"] != 1
+              or changed["deletions"] != 1
+              or changed["changes"] != 2
+              or not isinstance(patch, str)
+              or len(patch) > 4000
+          ):
+              raise SystemExit("Unapproved bounded-source diff")
+          edits = [
+              line for line in patch.splitlines()
+              if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
+          ]
+          if [line.replace("'", '"') for line in edits] != [
+              '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
+              '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
+          ]:
+              raise SystemExit("Source patch exceeds approved normalization change")
+
+          # No PR creation here. This default-branch workflow only requests
+          # the existing read-only qualification job at the vetted SHA.
+          request(
+              "POST",
+              "/actions/workflows/production-os-source-qualification.yml/dispatches",
+              {"ref": branch, "inputs": {"expected_sha": sha}},
+          )
+          print("Requested immutable source qualification for " + sha)
+          PY
 ````
 
 ## File: .github/dependabot.yml
@@ -22134,16 +22196,21 @@ handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_tex
 # Even with GitHub Actions' PR creation disabled, qualification is
 # requested first and the subsequent PR failure stays a job failure.
 ⋮----
-script = textwrap.dedent(
-valid_sha = "a" * 40
-valid_env = {
+# pull_request_target is evaluated using trusted main, unlike a stale
+# Studio branch. It may request only the read-only pinned source workflow.
+bridge = (root / ".github/workflows/trusted-studio-pr-qualification.yml").read_text()
+⋮----
+# Run the actual trusted relay logic against a local HTTP fixture. Never
+# contact GitHub or consume a real workflow dispatch in this regression.
+bridge_script = textwrap.dedent(
+mock_http = textwrap.dedent("""
+bridge_env = {
 ⋮----
 result = subprocess.run(
 ⋮----
-# The PR-event route is a separate trust boundary. Run the same embedded
-# pre-check against fake read-only GitHub responses, never a network API.
-fixture = textwrap.dedent("""
-pr_env = {
+script = textwrap.dedent(
+valid_sha = "a" * 40
+valid_env = {
 ⋮----
 def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
 ⋮----

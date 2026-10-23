@@ -8792,16 +8792,21 @@ handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_tex
 # Even with GitHub Actions' PR creation disabled, qualification is
 # requested first and the subsequent PR failure stays a job failure.
 ⋮----
-script = textwrap.dedent(
-valid_sha = "a" * 40
-valid_env = {
+# pull_request_target is evaluated using trusted main, unlike a stale
+# Studio branch. It may request only the read-only pinned source workflow.
+bridge = (root / ".github/workflows/trusted-studio-pr-qualification.yml").read_text()
+⋮----
+# Run the actual trusted relay logic against a local HTTP fixture. Never
+# contact GitHub or consume a real workflow dispatch in this regression.
+bridge_script = textwrap.dedent(
+mock_http = textwrap.dedent("""
+bridge_env = {
 ⋮----
 result = subprocess.run(
 ⋮----
-# The PR-event route is a separate trust boundary. Run the same embedded
-# pre-check against fake read-only GitHub responses, never a network API.
-fixture = textwrap.dedent("""
-pr_env = {
+script = textwrap.dedent(
+valid_sha = "a" * 40
+valid_env = {
 ⋮----
 def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
 ⋮----
