@@ -77,3 +77,27 @@ must permit creation. This is a repository-owner configuration; do not
 change broad permissions or add credentials silently. Other operations
 need their own stage diagnosis. No paid inference or quota increase
 is part of this recovery.
+
+## Automatic qualification from a reviewed Studio pull request
+
+The read-only source qualification workflow now also observes
+`pull_request` events (`opened`, `reopened`, `synchronize`, `edited`) targeting
+`main`, but it runs only for same-repository `studio/mp-<24 lowercase hex>`
+heads. The candidate is taken from GitHub's immutable PR head SHA, not
+the synthetic merge commit or a floating branch checkout. Before installing
+or executing candidate code, a trusted pre-check verifies the branch tip
+still equals the PR head, independently compares `main...<head SHA>` using
+the GitHub API, and enforces the identical one-file, one-assignment source
+patch allowlist used by the trusted handoff.
+
+The lookup token exists **only in the preflight step**; the source checkout
+disables persisted credentials. All qualification jobs remain read-only,
+with no model or operator secrets. A moved branch, unrelated PR, changed
+patch or failed read-only API check fails closed. The manual dispatch path
+and its exact-SHA guard remain supported.
+
+For the operator-assisted [PR #297](https://github.com/dbrckk/Production-OS/pull/297),
+editing its description after this workflow is merged triggers an exact-head
+qualification without adding commits to the model-authored source branch.
+Passing that workflow establishes independent *code validation*, not
+autonomous PR creation, model capacity or production deployment.
