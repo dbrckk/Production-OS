@@ -64,6 +64,7 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     bridge = (root / ".github/workflows/trusted-studio-pr-qualification.yml").read_text()
     assert "  pull_request_target:" in bridge
     assert "  contents: read" in bridge and "  actions: write" in bridge
+    assert "  pull-requests: read" in bridge
     assert "uses: actions/checkout" not in bridge
     assert "if: ${{ github.event.pull_request.head.repo.full_name" in bridge
     assert '"inputs": {"expected_sha": sha}' in bridge
