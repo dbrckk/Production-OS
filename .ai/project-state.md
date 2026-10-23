@@ -237,22 +237,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-23T09:42:23Z
+Generated: 2026-10-23T17:41:16Z
 
 ### Git
 - Branch: `main`
-- Head: `0e7e1866ce76`
-- Commit date: 2026-10-23T05:42:13-04:00
-- Commit: fix(worktrees): normalize Git-ref dots in model-authored canary 42 (#297)
+- Head: `cef19f740273`
+- Commit date: 2026-10-23T13:41:05-04:00
+- Commit: fix: avoid duplicate source handoffs after squash merge (#303)
 - Tracked files: 578
 
 ### Recently changed files
+- `.github/workflows/production-os-review-handoff.yml`
+- `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `src/production_os/worktree_contract.py`
 - `.github/workflows/production-os-source-qualification.yml`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
-- `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `tests/test_worktree_contract.py`
-- `.github/workflows/production-os-review-handoff.yml`
 
 ### Project signals
 - `pyproject.toml`

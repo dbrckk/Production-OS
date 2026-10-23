@@ -1,16 +1,18 @@
 # Change impact
 
-Base: a9d0332673c1db692f77a209732df1828d61c547
-Head: 0e7e1866ce76270cf8ee85e3377d3e12678274bd
+Base: 5ed475c4c779dd02b9d14fb484a5d437db3467d5
+Head: cef19f7402733cc15f506f002f60cf3c43510a85
 
 ## Changed files
-- M src/production_os/worktree_contract.py
+- M .github/workflows/production-os-review-handoff.yml
+- M docs/BOUNDED_SOURCE_QUALIFICATION.md
 
 ## Affected areas
-- src
+- .github
+- docs
 
 ## Related test candidates
-- tests/test_worktree_contract.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
