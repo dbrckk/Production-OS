@@ -11,6 +11,10 @@ on:
         description: Immutable reviewed Studio commit for bot-created source PRs
         required: false
         type: string
+      source_branch:
+        description: Reviewed same-repository Studio branch name
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -41,12 +45,13 @@ jobs:
         shell: bash
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
         run: |
           set -euo pipefail
           test "$GITHUB_REPOSITORY" = "dbrckk/Production-OS"
+          test "$GITHUB_REF" = "refs/heads/main"
           [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$GITHUB_REF" =~ ^refs/heads/studio/mp-[0-9a-f]{24}$ ]]
-          test "$GITHUB_SHA" = "$EXPECTED_SHA"
+          [[ "$SOURCE_BRANCH" =~ ^studio/mp-[0-9a-f]{24}$ ]]
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
 
       - name: Set up Python
@@ -95,12 +100,13 @@ jobs:
         shell: bash
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
         run: |
           set -euo pipefail
           test "$GITHUB_REPOSITORY" = "dbrckk/Production-OS"
+          test "$GITHUB_REF" = "refs/heads/main"
           [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$GITHUB_REF" =~ ^refs/heads/studio/mp-[0-9a-f]{24}$ ]]
-          test "$GITHUB_SHA" = "$EXPECTED_SHA"
+          [[ "$SOURCE_BRANCH" =~ ^studio/mp-[0-9a-f]{24}$ ]]
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
 
       - name: Set up Python
@@ -411,12 +417,13 @@ jobs:
         shell: bash
         env:
           EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
         run: |
           set -euo pipefail
           test "$GITHUB_REPOSITORY" = "dbrckk/Production-OS"
+          test "$GITHUB_REF" = "refs/heads/main"
           [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$GITHUB_REF" =~ ^refs/heads/studio/mp-[0-9a-f]{24}$ ]]
-          test "$GITHUB_SHA" = "$EXPECTED_SHA"
+          [[ "$SOURCE_BRANCH" =~ ^studio/mp-[0-9a-f]{24}$ ]]
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
