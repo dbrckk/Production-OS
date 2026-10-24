@@ -91,6 +91,8 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert '"ref": branch' in bridge
     assert "Source branch moved after the reviewed PR event" in bridge
     assert "Source patch exceeds approved normalization change" in bridge
+    assert '"/actions/workflows/ci.yml/dispatches"' in bridge
+    assert "Studio PR full CI rejected a moved branch" in bridge
     # Run the actual trusted relay logic against a local HTTP fixture. Never
     # contact GitHub or consume a real workflow dispatch in this regression.
     bridge_script = textwrap.dedent(
@@ -152,10 +154,19 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
                 })
             if "/actions/workflows/" in url and req.get_method() == "POST":
                 data = json.loads(req.data.decode("utf-8"))
-                assert data == {
-                    "ref": branch,
-                    "inputs": {"expected_sha": sha},
-                }
+                if url.endswith("/ci.yml/dispatches"):
+                    assert data == {
+                        "ref": "main",
+                        "inputs": {
+                            "expected_sha": sha,
+                            "source_branch": branch,
+                        },
+                    }
+                else:
+                    assert data == {
+                        "ref": branch,
+                        "inputs": {"expected_sha": sha},
+                    }
                 if mode == "dispatch-error":
                     raise OSError("Injected dispatch error")
                 return LocalResponse({})
