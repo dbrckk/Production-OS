@@ -237,23 +237,24 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-24T06:49:46Z
+Generated: 2026-10-24T15:19:28Z
 
 ### Git
 - Branch: `main`
-- Head: `e73d9dfaae04`
-- Commit date: 2026-10-24T02:49:35-04:00
-- Commit: feat: independently qualify bounded reviewer-state source repairs (#304)
+- Head: `17e12b0a2a0e`
+- Commit date: 2026-10-24T11:19:19-04:00
+- Commit: fix(ci): run immutable full CI for autonomous Studio source reviews (#306)
 - Tracked files: 579
 
 ### Recently changed files
+- `.github/workflows/ci.yml`
 - `.github/workflows/production-os-review-handoff.yml`
-- `.github/workflows/production-os-review-state-qualification.yml`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
+- `tests/test_worktree_contract.py`
+- `.github/workflows/production-os-review-state-qualification.yml`
 - `src/production_os/worktree_contract.py`
 - `.github/workflows/production-os-source-qualification.yml`
-- `tests/test_worktree_contract.py`
 
 ### Project signals
 - `pyproject.toml`

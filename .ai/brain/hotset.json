@@ -1,14 +1,26 @@
 {
   "files": [
     {
-      "path": ".github/workflows/production-os-review-handoff.yml",
+      "path": "tests/test_worktree_contract.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "impact",
+        "recent-project-state",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 455
+    },
+    {
+      "path": ".github/workflows/ci.yml",
       "reasons": [
         "changed"
       ],
       "score": 100
     },
     {
-      "path": ".github/workflows/production-os-review-state-qualification.yml",
+      "path": ".github/workflows/production-os-review-handoff.yml",
       "reasons": [
         "changed"
       ],
@@ -31,16 +43,24 @@
     {
       "path": "src/production_os/worktree_contract.py",
       "reasons": [
+        "dependency-neighbor",
         "recent-project-state"
       ],
-      "score": 60
+      "score": 85
     },
     {
-      "path": "tests/test_worktree_contract.py",
+      "path": "src/production_os/sqlite_backend.py",
       "reasons": [
-        "recent-project-state"
+        "dependency-neighbor"
       ],
-      "score": 60
+      "score": 50
+    },
+    {
+      "path": "src/production_os/workflow_engine.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 50
     },
     {
       "path": "Dockerfile",
@@ -48,6 +68,20 @@
         "entrypoint"
       ],
       "score": 40
+    },
+    {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 25
+    },
+    {
+      "path": "src/production_os/history.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 25
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",

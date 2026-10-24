@@ -476,6 +476,15 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Immutable reviewed Studio commit for bot-created source PRs
+        required: false
+        type: string
+      source_branch:
+        description: Reviewed same-repository Studio branch name
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -498,6 +507,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.expected_sha || github.sha }}
+      - name: Verify immutable source CI dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha != '' }}
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "dbrckk/Production-OS"
+          test "$GITHUB_REF" = "refs/heads/main"
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_BRANCH" =~ ^studio/mp-[0-9a-f]{24}$ ]]
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -537,6 +562,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.expected_sha || github.sha }}
+      - name: Verify immutable source CI dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha != '' }}
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "dbrckk/Production-OS"
+          test "$GITHUB_REF" = "refs/heads/main"
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_BRANCH" =~ ^studio/mp-[0-9a-f]{24}$ ]]
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
 
       - name: Set up Python
         uses: actions/setup-python@v7
@@ -838,6 +879,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.expected_sha || github.sha }}
+      - name: Verify immutable source CI dispatch
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha != '' }}
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          SOURCE_BRANCH: ${{ inputs.source_branch }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "dbrckk/Production-OS"
+          test "$GITHUB_REF" = "refs/heads/main"
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$SOURCE_BRANCH" =~ ^studio/mp-[0-9a-f]{24}$ ]]
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
       - name: Set up Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
@@ -1127,6 +1184,19 @@ jobs:
               if not isinstance(created, dict) or not created.get("number"):
                   raise SystemExit("Review handoff did not receive a real PR number")
               print("Opened draft review: " + str(created.get("html_url") or ""))
+
+          # GitHub does not reliably run ordinary PR workflows for a PR
+          # created by GITHUB_TOKEN. Request the canonical CI separately
+          # from the TRUSTED default-branch workflow definition, while
+          # passing the immutable source commit for every checkout.
+          current_ref = request("GET", "/git/ref/heads/" + branch)
+          if (current_ref.get("object") or {}).get("sha") != sha:
+              raise SystemExit("Full source CI rejected a moved branch")
+          request("POST", "/actions/workflows/ci.yml/dispatches", {
+              "ref": "main",
+              "inputs": {"expected_sha": sha, "source_branch": branch},
+          })
+          print("Requested full immutable source CI for " + sha, flush=True)
           PY
 ````
 
@@ -1521,7 +1591,21 @@ jobs:
               "/actions/workflows/" + workflow + "/dispatches",
               {"ref": branch, "inputs": {"expected_sha": sha}},
           )
-          print("Requested immutable source qualification for " + sha)
+          print("Requested immutable source qualification for " + sha, flush=True)
+
+          # A previously opened Studio PR may have bot-suppressed normal
+          # pull_request CI. Independently request full read-only tests
+          # using the trusted main workflow and exact reviewed source SHA.
+          current_ref = request("GET", "/git/ref/heads/" + branch)
+          if (current_ref.get("object") or {}).get("sha") != sha:
+              raise SystemExit("Studio PR full CI rejected a moved branch")
+          request(
+              "POST",
+              "/actions/workflows/ci.yml/dispatches",
+              {"ref": "main",
+               "inputs": {"expected_sha": sha, "source_branch": branch}},
+          )
+          print("Requested full immutable Studio PR CI for " + sha)
           PY
 ````
 
@@ -22346,6 +22430,12 @@ handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_tex
 # Only allow handoff on the immutable, already-vetted candidate.
 # Even with GitHub Actions' PR creation disabled, qualification is
 # requested first and the subsequent PR failure stays a job failure.
+⋮----
+# A PR opened by GITHUB_TOKEN may not receive normal pull_request CI.
+# The default-branch workflow must explicitly dispatch the canonical
+# gate with the exact reviewed SHA. Candidate branches never supply
+# new CI workflow instructions or gain write credentials.
+full_ci = (root / ".github/workflows/ci.yml").read_text()
 ⋮----
 # pull_request_target is evaluated using trusted main, unlike a stale
 # Studio branch. It may request only the read-only pinned source workflow.

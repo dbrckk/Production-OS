@@ -8792,6 +8792,12 @@ handoff = (root / ".github/workflows/production-os-review-handoff.yml").read_tex
 # Even with GitHub Actions' PR creation disabled, qualification is
 # requested first and the subsequent PR failure stays a job failure.
 ⋮----
+# A PR opened by GITHUB_TOKEN may not receive normal pull_request CI.
+# The default-branch workflow must explicitly dispatch the canonical
+# gate with the exact reviewed SHA. Candidate branches never supply
+# new CI workflow instructions or gain write credentials.
+full_ci = (root / ".github/workflows/ci.yml").read_text()
+⋮----
 # pull_request_target is evaluated using trusted main, unlike a stale
 # Studio branch. It may request only the read-only pinned source workflow.
 bridge = (root / ".github/workflows/trusted-studio-pr-qualification.yml").read_text()
