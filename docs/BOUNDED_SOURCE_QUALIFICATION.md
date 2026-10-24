@@ -178,3 +178,13 @@ review handoff. The two trusted dispatchers provide recovery if the PR
 was created before this workflow existed. A separate successful run
 and exact checked-out SHA must be confirmed; neither dispatcher marks
 a candidate verified merely by submitting an API request.
+
+### Candidate-specific CI concurrency
+
+The default-branch trusted workflow and a normal manual CI run can have the
+same `github.sha` even though the first checks out a different approved
+source commit. The canonical CI concurrency group therefore selects
+`pull_request.number` for regular PRs, then `inputs.expected_sha` for
+immutable Studio source dispatches, and finally `github.sha` for ordinary
+push or manual builds. This prevents an unrelated `main` verification from
+cancelling a vetted source proof while retaining same-commit supersession.

@@ -74,6 +74,10 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert "  workflow_dispatch:" in full_ci
     assert "      expected_sha:" in full_ci
     assert "      source_branch:" in full_ci
+    assert (
+        "github.event.pull_request.number || inputs.expected_sha || github.sha"
+        in full_ci
+    )
     assert full_ci.count("Verify immutable source CI dispatch") == 3
     assert full_ci.count("ref: ${{ inputs.expected_sha || github.sha }}") == 3
     assert full_ci.count('test "$GITHUB_REF" = "refs/heads/main"') == 3
