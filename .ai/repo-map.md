@@ -1530,6 +1530,12 @@ jobs:
                   ) from None
 
           review = request("GET", "/pulls/" + number)
+          # An older queued pull_request_target event may run after the PR
+          # closes. That event is obsolete, not an invalid new source patch:
+          # never dispatch, but do not fail a healthy branch's unrelated CI.
+          if review.get("state") == "closed":
+              print("Skipping obsolete Studio event: source PR is closed")
+              raise SystemExit(0)
           if (
               review.get("state") != "open"
               or (review.get("base") or {}).get("ref") != "main"
@@ -22452,6 +22458,8 @@ bridge = (root / ".github/workflows/trusted-studio-pr-qualification.yml").read_t
 bridge_script = textwrap.dedent(
 mock_http = textwrap.dedent("""
 bridge_env = {
+⋮----
+# A delayed closed-PR event must be ignored without dispatching CI.
 ⋮----
 result = subprocess.run(
 ⋮----

@@ -8814,6 +8814,8 @@ bridge_script = textwrap.dedent(
 mock_http = textwrap.dedent("""
 bridge_env = {
 ⋮----
+# A delayed closed-PR event must be ignored without dispatching CI.
+⋮----
 result = subprocess.run(
 ⋮----
 script = textwrap.dedent(

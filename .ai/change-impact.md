@@ -1,12 +1,14 @@
 # Change impact
 
-Base: 27295c657775a9ca9a66d1544fb4d3a4da45b20b
-Head: 3857d63f3f762fb6fd06681007b903572fa661c6
+Base: bd3e819d83ff59e822667d23efa04fd774ff149a
+Head: 4bc3820104f2a973dfcd9a85dec815d12a33270d
 
 ## Changed files
-- M tests/test_remote_worker_runner.py
+- M .github/workflows/trusted-studio-pr-qualification.yml
+- M tests/test_worktree_contract.py
 
 ## Affected areas
+- .github
 - tests
 
 ## Related test candidates

@@ -237,22 +237,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-24T20:32:53Z
+Generated: 2026-10-24T20:45:56Z
 
 ### Git
 - Branch: `main`
-- Head: `3857d63f3f76`
-- Commit date: 2026-10-24T16:32:43-04:00
-- Commit: test(worker): wait for actual heartbeat callbacks instead of fixed timing (#301)
+- Head: `4bc3820104f2`
+- Commit date: 2026-10-24T16:45:46-04:00
+- Commit: fix(actions): skip obsolete qualification events for closed Studio PRs
 - Tracked files: 579
 
 ### Recently changed files
+- `.github/workflows/trusted-studio-pr-qualification.yml`
+- `tests/test_worktree_contract.py`
 - `tests/test_remote_worker_runner.py`
 - `.github/workflows/ci.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
-- `tests/test_worktree_contract.py`
 - `.github/workflows/production-os-review-handoff.yml`
-- `.github/workflows/trusted-studio-pr-qualification.yml`
 - `.github/workflows/production-os-review-state-qualification.yml`
 
 ### Project signals
