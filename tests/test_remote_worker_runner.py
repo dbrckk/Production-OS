@@ -1412,8 +1412,16 @@ def test_native_execution_heartbeats_while_future_is_running(
         "required_capabilities":[],
     })
 
+    calls = {"count":0}
+
     def slow_native(_context):
-        time.sleep(0.14)
+        # Keep native work alive until the runner has had an actual chance
+        # to send two heartbeats. A fixed 140 ms sleep can complete before
+        # the second callback under a busy CI runner, falsely failing the
+        # heartbeat contract even when the worker is healthy.
+        deadline = time.monotonic() + 1.2
+        while calls["count"] < 2 and time.monotonic() < deadline:
+            time.sleep(0.01)
         return {"status":"succeeded","result":{"summary":"native ok"}}
 
     monkeypatch.setattr(
@@ -1428,10 +1436,9 @@ def test_native_execution_heartbeats_while_future_is_running(
             [],
             executor_mode="native",
             heartbeat_interval_seconds=0.02,
-            executor_timeout_seconds=2,
+            executor_timeout_seconds=3,
         )
         real_heartbeat = runner._heartbeat_active
-        calls = {"count":0}
 
         def counted(key):
             calls["count"] += 1
