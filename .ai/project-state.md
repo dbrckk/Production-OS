@@ -237,24 +237,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-24T15:19:28Z
+Generated: 2026-10-24T15:26:53Z
 
 ### Git
 - Branch: `main`
-- Head: `17e12b0a2a0e`
-- Commit date: 2026-10-24T11:19:19-04:00
-- Commit: fix(ci): run immutable full CI for autonomous Studio source reviews (#306)
+- Head: `ebbaaeeb7a74`
+- Commit date: 2026-10-24T11:26:43-04:00
+- Commit: fix(ci): isolate autonomous source tests from concurrent main runs (#307)
 - Tracked files: 579
 
 ### Recently changed files
 - `.github/workflows/ci.yml`
-- `.github/workflows/production-os-review-handoff.yml`
-- `.github/workflows/trusted-studio-pr-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `tests/test_worktree_contract.py`
+- `.github/workflows/production-os-review-handoff.yml`
+- `.github/workflows/trusted-studio-pr-qualification.yml`
 - `.github/workflows/production-os-review-state-qualification.yml`
 - `src/production_os/worktree_contract.py`
-- `.github/workflows/production-os-source-qualification.yml`
 
 ### Project signals
 - `pyproject.toml`
