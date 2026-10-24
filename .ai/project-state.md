@@ -237,23 +237,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-24T15:26:53Z
+Generated: 2026-10-24T20:32:53Z
 
 ### Git
 - Branch: `main`
-- Head: `ebbaaeeb7a74`
-- Commit date: 2026-10-24T11:26:43-04:00
-- Commit: fix(ci): isolate autonomous source tests from concurrent main runs (#307)
+- Head: `3857d63f3f76`
+- Commit date: 2026-10-24T16:32:43-04:00
+- Commit: test(worker): wait for actual heartbeat callbacks instead of fixed timing (#301)
 - Tracked files: 579
 
 ### Recently changed files
+- `tests/test_remote_worker_runner.py`
 - `.github/workflows/ci.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `tests/test_worktree_contract.py`
 - `.github/workflows/production-os-review-handoff.yml`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
 - `.github/workflows/production-os-review-state-qualification.yml`
-- `src/production_os/worktree_contract.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -1,16 +1,12 @@
 # Change impact
 
-Base: b0489534cb80a66005255c9583a916374cfc33e5
-Head: ebbaaeeb7a741983cf80a6c76be0f0595da43374
+Base: 27295c657775a9ca9a66d1544fb4d3a4da45b20b
+Head: 3857d63f3f762fb6fd06681007b903572fa661c6
 
 ## Changed files
-- M .github/workflows/ci.yml
-- M docs/BOUNDED_SOURCE_QUALIFICATION.md
-- M tests/test_worktree_contract.py
+- M tests/test_remote_worker_runner.py
 
 ## Affected areas
-- .github
-- docs
 - tests
 
 ## Related test candidates

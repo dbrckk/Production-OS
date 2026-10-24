@@ -1,62 +1,367 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "17e12b0a2a0e06688a52cd7f998a29aa536c8f5b",
-  "head": "ebbaaeeb7a741983cf80a6c76be0f0595da43374",
+  "base": "ebbaaeeb7a741983cf80a6c76be0f0595da43374",
+  "head": "3857d63f3f762fb6fd06681007b903572fa661c6",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": ".github/workflows/ci.yml",
-      "status": "M"
-    },
-    {
-      "path": "docs/BOUNDED_SOURCE_QUALIFICATION.md",
-      "status": "M"
-    },
-    {
-      "path": "tests/test_worktree_contract.py",
+      "path": "tests/test_remote_worker_runner.py",
       "status": "M"
     }
   ],
   "changed_source_files": [
-    "tests/test_worktree_contract.py"
+    "tests/test_remote_worker_runner.py"
   ],
   "impacted_files": [
-    "tests/test_worktree_contract.py"
+    "tests/test_remote_worker_runner.py"
   ],
   "impacted_symbols": [
     {
-      "name": "test_worktree_contract_is_deterministic_and_attempt_scoped",
+      "name": "_server",
       "kind": "function",
-      "file": "tests/test_worktree_contract.py",
-      "line": 12
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 20
     },
     {
-      "name": "test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks",
+      "name": "_stop",
       "kind": "function",
-      "file": "tests/test_worktree_contract.py",
-      "line": 237
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 27
     },
     {
-      "name": "test_integration_target_contract_is_preserved_in_dispatch",
+      "name": "_auth",
       "kind": "function",
-      "file": "tests/test_worktree_contract.py",
-      "line": 279
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 33
     },
     {
-      "name": "test_dependent_worktree_bases_from_single_upstream_commit",
+      "name": "test_worker_session_self_registers_and_reconciles_previous_claim",
       "kind": "function",
-      "file": "tests/test_worktree_contract.py",
-      "line": 309
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 48
     },
     {
-      "name": "test_multi_parent_integration_does_not_guess_one_upstream_base",
+      "name": "lost_activation_response",
       "kind": "function",
-      "file": "tests/test_worktree_contract.py",
-      "line": 361
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 99
+    },
+    {
+      "name": "test_worker_session_rejects_token_identity_mismatch",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 125
+    },
+    {
+      "name": "test_remote_worker_runner_executes_json_executor_and_completes_job",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 146
+    },
+    {
+      "name": "test_remote_worker_runner_tolerates_transient_active_heartbeat_failure",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 205
+    },
+    {
+      "name": "flaky_heartbeat",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 243
+    },
+    {
+      "name": "test_remote_worker_runner_fails_job_on_invalid_executor_output",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 259
+    },
+    {
+      "name": "test_remote_worker_runner_acknowledges_cancel_and_terminates_executor",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 304
+    },
+    {
+      "name": "test_remote_worker_runner_does_not_expose_worker_token_to_executor",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 374
+    },
+    {
+      "name": "test_remote_worker_runner_honors_max_concurrency_with_full_active_set",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 428
+    },
+    {
+      "name": "test_remote_worker_runner_graceful_stop_terminates_children_and_restart_recovers",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 520
+    },
+    {
+      "name": "test_remote_worker_runner_executes_in_configured_isolated_worktree",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 655
+    },
+    {
+      "name": "test_remote_worker_runner_preintegrates_multi_parent_commits",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 792
+    },
+    {
+      "name": "test_remote_worker_runner_rejects_success_with_dirty_worktree",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 989
+    },
+    {
+      "name": "test_remote_worker_run_defaults_executor_mode_to_auto",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1098
+    },
+    {
+      "name": "test_remote_worker_run_allows_auto_without_executor_command",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1109
+    },
+    {
+      "name": "test_remote_worker_run_rejects_external_mode_without_executor_command",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1127
+    },
+    {
+      "name": "test_remote_worker_run_accepts_native_without_executor_command",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1147
+    },
+    {
+      "name": "_native_browser_handoff_for_runner",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1166
+    },
+    {
+      "name": "test_auto_mode_prefers_native_browser_over_external_executor",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1192
+    },
+    {
+      "name": "fake_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1214
+    },
+    {
+      "name": "test_auto_mode_falls_back_to_external_when_native_is_unsupported",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1243
+    },
+    {
+      "name": "test_native_mode_rejects_unsupported_job",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1283
+    },
+    {
+      "name": "test_auto_mode_without_any_executor_fails_executor_unavailable",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1316
+    },
+    {
+      "name": "test_native_runtime_failure_never_falls_back_external",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1348
+    },
+    {
+      "name": "fail_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1369
+    },
+    {
+      "name": "test_native_execution_heartbeats_while_future_is_running",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1405
+    },
+    {
+      "name": "slow_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1417
+    },
+    {
+      "name": "counted",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1443
+    },
+    {
+      "name": "test_native_execution_timeout_sets_cancel_event_and_fails_once",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1456
+    },
+    {
+      "name": "slow_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1467
+    },
+    {
+      "name": "counted_fail",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1482
+    },
+    {
+      "name": "test_native_execution_cancel_request_sets_event_and_does_not_complete",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1508
+    },
+    {
+      "name": "cancellable_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1519
+    },
+    {
+      "name": "cancel_after_ack",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1574
+    },
+    {
+      "name": "unexpected_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1580
+    },
+    {
+      "name": "test_native_execution_stale_generation_sets_event_and_checkpoints_stale",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1596
+    },
+    {
+      "name": "cancellable_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1607
+    },
+    {
+      "name": "stale_after_start",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1631
+    },
+    {
+      "name": "test_native_execution_worker_shutdown_sets_event_and_abandons",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1651
+    },
+    {
+      "name": "cancellable_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1662
+    },
+    {
+      "name": "test_native_execution_control_plane_outage_abandons_after_existing_failure_threshold",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1713
+    },
+    {
+      "name": "cancellable_native",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1724
+    },
+    {
+      "name": "InvalidHeartbeat",
+      "kind": "class",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1736
+    },
+    {
+      "name": "do_POST",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1737
+    },
+    {
+      "name": "unavailable",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1765
+    },
+    {
+      "name": "_prepared_native_worktree",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1785
+    },
+    {
+      "name": "test_native_success_still_rejects_dirty_managed_worktree",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1799
+    },
+    {
+      "name": "test_native_success_still_rejects_diverged_history",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1859
+    },
+    {
+      "name": "test_native_success_reports_git_derived_commit_evidence",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1919
+    },
+    {
+      "name": "test_native_failure_uses_existing_control_plane_failure_path",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 1991
+    },
+    {
+      "name": "counted_fail",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 2015
+    },
+    {
+      "name": "test_native_cancel_keeps_worker_slot_until_handler_actually_stops",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 2042
+    },
+    {
+      "name": "slow_to_stop",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 2057
     }
   ],
   "selected_tests": [
-    "tests/test_worktree_contract.py"
+    "tests/test_remote_worker.py",
+    "tests/test_remote_worker_runner.py"
   ]
 }

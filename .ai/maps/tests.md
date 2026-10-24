@@ -7324,6 +7324,12 @@ control = ControlPlane(str(tmp_path / "native-heartbeat.sqlite"), authorizer=_au
 ⋮----
 def slow_native(_context)
 ⋮----
+# Keep native work alive until the runner has had an actual chance
+# to send two heartbeats. A fixed 140 ms sleep can complete before
+# the second callback under a busy CI runner, falsely failing the
+# heartbeat contract even when the worker is healthy.
+deadline = time.monotonic() + 1.2
+⋮----
 def counted(key)
 ⋮----
 control = ControlPlane(str(tmp_path / "native-timeout.sqlite"), authorizer=_auth())
