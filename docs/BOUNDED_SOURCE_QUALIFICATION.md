@@ -169,5 +169,12 @@ is checked again before dispatch.
 Only successful canonical CI on the exact candidate SHA qualifies
 **application tests**; a successful API dispatch is not a successful CI
 run. The source PR stays a draft, is never auto-merged, and no Render
-deployment is implied. Legacy PRs require a separate explicitly
-pinned dispatch and confirmation of results.
+deployment is implied. For legacy Studio PRs, the existing trusted `pull_request_target`
+bridge can also dispatch the canonical full CI after independently validating
+the PR's exact head and authorized patch. A metadata-only edit can invoke
+that bridge without changing model-authored source. Its CI dispatch uses
+`ref: main` and both immutable source inputs, just like the original
+review handoff. The two trusted dispatchers provide recovery if the PR
+was created before this workflow existed. A separate successful run
+and exact checked-out SHA must be confirmed; neither dispatcher marks
+a candidate verified merely by submitting an API request.
