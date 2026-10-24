@@ -126,7 +126,7 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
             branch = "studio/mp-" + ("b" * 24)
             if url.endswith("/pulls/297"):
                 return LocalResponse({
-                    "state": "open",
+                    "state": "closed" if mode == "closed" else "open",
                     "base": {"ref": "other" if mode == "wrong-base" else "main"},
                     "head": {
                         "sha": sha, "ref": branch,
@@ -187,6 +187,8 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     }
     for overrides, success in (
         ({}, True),
+        # A delayed closed-PR event must be ignored without dispatching CI.
+        ({"CASE": "closed"}, True),
         ({"CASE": "wrong-base"}, False),
         ({"CASE": "moved"}, False),
         ({"CASE": "wrong-patch"}, False),
@@ -203,7 +205,10 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
             check=False,
         )
         assert (result.returncode == 0) is success, result.stderr
-        if success:
+        if overrides.get("CASE") == "closed":
+            assert "Skipping obsolete Studio event: source PR is closed" in result.stdout
+            assert "Requested immutable source qualification" not in result.stdout
+        elif success:
             assert "Requested immutable source qualification" in result.stdout
 
     script = textwrap.dedent(
