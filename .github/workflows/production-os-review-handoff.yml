@@ -224,4 +224,17 @@ jobs:
               if not isinstance(created, dict) or not created.get("number"):
                   raise SystemExit("Review handoff did not receive a real PR number")
               print("Opened draft review: " + str(created.get("html_url") or ""))
+
+          # GitHub does not reliably run ordinary PR workflows for a PR
+          # created by GITHUB_TOKEN. Request the canonical CI separately
+          # from the TRUSTED default-branch workflow definition, while
+          # passing the immutable source commit for every checkout.
+          current_ref = request("GET", "/git/ref/heads/" + branch)
+          if (current_ref.get("object") or {}).get("sha") != sha:
+              raise SystemExit("Full source CI rejected a moved branch")
+          request("POST", "/actions/workflows/ci.yml/dispatches", {
+              "ref": "main",
+              "inputs": {"expected_sha": sha, "source_branch": branch},
+          })
+          print("Requested full immutable source CI for " + sha, flush=True)
           PY

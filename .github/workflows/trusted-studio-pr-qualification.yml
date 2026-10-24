@@ -146,5 +146,19 @@ jobs:
               "/actions/workflows/" + workflow + "/dispatches",
               {"ref": branch, "inputs": {"expected_sha": sha}},
           )
-          print("Requested immutable source qualification for " + sha)
+          print("Requested immutable source qualification for " + sha, flush=True)
+
+          # A previously opened Studio PR may have bot-suppressed normal
+          # pull_request CI. Independently request full read-only tests
+          # using the trusted main workflow and exact reviewed source SHA.
+          current_ref = request("GET", "/git/ref/heads/" + branch)
+          if (current_ref.get("object") or {}).get("sha") != sha:
+              raise SystemExit("Studio PR full CI rejected a moved branch")
+          request(
+              "POST",
+              "/actions/workflows/ci.yml/dispatches",
+              {"ref": "main",
+               "inputs": {"expected_sha": sha, "source_branch": branch}},
+          )
+          print("Requested full immutable Studio PR CI for " + sha)
           PY

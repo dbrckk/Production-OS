@@ -59,6 +59,26 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert "existing draft PR lookup" in handoff
     assert "immutable qualification dispatch" in handoff
     assert "GitHub rejected trusted draft PR creation" in handoff
+    # A PR opened by GITHUB_TOKEN may not receive normal pull_request CI.
+    # The default-branch workflow must explicitly dispatch the canonical
+    # gate with the exact reviewed SHA. Candidate branches never supply
+    # new CI workflow instructions or gain write credentials.
+    full_ci = (root / ".github/workflows/ci.yml").read_text()
+    assert '"/actions/workflows/ci.yml/dispatches"' in handoff
+    assert '"ref": "main"' in handoff
+    assert '"inputs": {"expected_sha": sha, "source_branch": branch}' in handoff
+    assert "Full source CI rejected a moved branch" in handoff
+    assert handoff.index("Full source CI rejected a moved branch") < handoff.index(
+        '"/actions/workflows/ci.yml/dispatches"'
+    )
+    assert "  workflow_dispatch:" in full_ci
+    assert "      expected_sha:" in full_ci
+    assert "      source_branch:" in full_ci
+    assert full_ci.count("Verify immutable source CI dispatch") == 3
+    assert full_ci.count("ref: ${{ inputs.expected_sha || github.sha }}") == 3
+    assert full_ci.count('test "$GITHUB_REF" = "refs/heads/main"') == 3
+    assert full_ci.count('test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"') == 3
+    assert full_ci.count("persist-credentials: false") >= 3
     # pull_request_target is evaluated using trusted main, unlike a stale
     # Studio branch. It may request only the read-only pinned source workflow.
     bridge = (root / ".github/workflows/trusted-studio-pr-qualification.yml").read_text()
@@ -71,6 +91,8 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
     assert '"ref": branch' in bridge
     assert "Source branch moved after the reviewed PR event" in bridge
     assert "Source patch exceeds approved normalization change" in bridge
+    assert '"/actions/workflows/ci.yml/dispatches"' in bridge
+    assert "Studio PR full CI rejected a moved branch" in bridge
     # Run the actual trusted relay logic against a local HTTP fixture. Never
     # contact GitHub or consume a real workflow dispatch in this regression.
     bridge_script = textwrap.dedent(
@@ -132,10 +154,19 @@ def test_worktree_contract_is_deterministic_and_attempt_scoped():
                 })
             if "/actions/workflows/" in url and req.get_method() == "POST":
                 data = json.loads(req.data.decode("utf-8"))
-                assert data == {
-                    "ref": branch,
-                    "inputs": {"expected_sha": sha},
-                }
+                if url.endswith("/ci.yml/dispatches"):
+                    assert data == {
+                        "ref": "main",
+                        "inputs": {
+                            "expected_sha": sha,
+                            "source_branch": branch,
+                        },
+                    }
+                else:
+                    assert data == {
+                        "ref": branch,
+                        "inputs": {"expected_sha": sha},
+                    }
                 if mode == "dispatch-error":
                     raise OSError("Injected dispatch error")
                 return LocalResponse({})

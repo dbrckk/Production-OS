@@ -142,3 +142,39 @@ edit the description of existing [draft PR #297](https://github.com/dbrckk/Produ
 without changing its original model-authored commit, which requests a new
 qualification from the default-branch bridge. Success still does not prove
 fully autonomous PR creation, commercial model capacity or deployment.
+
+## Exact-commit full CI for bot-created source PRs — 2026-10-24
+
+A trusted handoff can open a draft PR using `GITHUB_TOKEN`, but GitHub
+may not run the ordinary `pull_request` workflow automatically for a PR
+created by that token. The [canary 2026-10-24 PR #305](https://github.com/dbrckk/Production-OS/pull/305)
+had successful independent bounded source qualification at
+`f2477fc6e795b5182772cd1ca5e97d8cfe4fac98`, while its PR CI
+reported `action_required` rather than a successful set of CI jobs.
+Those are different gates; qualification alone must never be reported as
+passing the full application CI.
+
+After verifying the approved one-line change and immutable source branch,
+the default-branch handoff now dispatches the **canonical**
+`.github/workflows/ci.yml` itself, with workflow `ref: main` and inputs
+`expected_sha` and `source_branch`. Running the workflow definition from
+trusted `main` works even for old model-authored branches that predate
+new CI input declarations. All three jobs check out the candidate
+**by SHA**, with credentials not persisted, then fail closed unless the
+event came from `main`, the candidate SHA is well formed, the source
+branch belongs to the reserved Studio namespace, and
+`git rev-parse HEAD` matches the expected SHA. The reviewed branch tip
+is checked again before dispatch.
+
+Only successful canonical CI on the exact candidate SHA qualifies
+**application tests**; a successful API dispatch is not a successful CI
+run. The source PR stays a draft, is never auto-merged, and no Render
+deployment is implied. For legacy Studio PRs, the existing trusted `pull_request_target`
+bridge can also dispatch the canonical full CI after independently validating
+the PR's exact head and authorized patch. A metadata-only edit can invoke
+that bridge without changing model-authored source. Its CI dispatch uses
+`ref: main` and both immutable source inputs, just like the original
+review handoff. The two trusted dispatchers provide recovery if the PR
+was created before this workflow existed. A separate successful run
+and exact checked-out SHA must be confirmed; neither dispatcher marks
+a candidate verified merely by submitting an API request.
