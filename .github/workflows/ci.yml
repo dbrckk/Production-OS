@@ -23,7 +23,7 @@ permissions:
 # refresh on main must never cancel the deployed release's CI proof.
 # Pull-request updates still supersede older attempts for the same PR number.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || inputs.expected_sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
