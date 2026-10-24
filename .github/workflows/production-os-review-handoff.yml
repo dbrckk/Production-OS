@@ -27,6 +27,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import json
+          import ast
           import os
           import re
           import urllib.error
@@ -109,7 +110,8 @@ jobs:
           if (delta.get("status") not in {"ahead", "diverged"}
                   or not isinstance(files, list) or not 0 < len(files) < 300):
               raise SystemExit("Review handoff requires a bounded nonempty compare")
-          if len(files) != 1 or files[0].get("filename") != "src/production_os/worktree_contract.py" or files[0].get("status") != "modified":
+          approved_paths = {"src/production_os/worktree_contract.py", "src/production_os/github_work_state.py"}
+          if len(files) != 1 or files[0].get("filename") not in approved_paths or files[0].get("status") != "modified":
               raise SystemExit("Review handoff only accepts the vetted one-file worktree source fix")
 
           # A single named file is not sufficient: another generic engine
@@ -131,10 +133,19 @@ jobs:
               if line.startswith(("+", "-"))
               and not line.startswith(("+++", "---"))
           ]
-          if [line.replace("\'", '"') for line in source_edits] != [
+          expected_edits = [
               '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
               '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
-          ]:
+          ]
+          if changed["filename"] == "src/production_os/github_work_state.py":
+              expected_edits = [
+                  '-    states = [str(r.get("state", "")).upper() for r in reviews]',
+                  '+    states = list({(r.get("user") or {}).get("id") or id(r): str(r.get("state", "")).upper() for r in reviews if str(r.get("state", "")).upper() in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}}.values())',
+              ]
+          if (len(source_edits) != 2
+                  or any(actual[:5] != expected[:5] for actual, expected in zip(source_edits, expected_edits))
+                  or [ast.dump(ast.parse(line[1:].strip())) for line in source_edits]
+                  != [ast.dump(ast.parse(line[1:].strip())) for line in expected_edits]):
               raise SystemExit("Review handoff rejected a source edit outside the approved assignment")
 
           # Require the same exact branch head immediately before opening the
@@ -151,7 +162,7 @@ jobs:
           main_sha = (main_ref.get("object") or {}).get("sha")
           if not isinstance(main_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", main_sha):
               raise SystemExit("Review handoff could not pin current main")
-          source_path = "src/production_os/worktree_contract.py"
+          source_path = changed["filename"]
           blobs = []
           for revision in (main_sha, sha):
               source = request("GET", "/contents/" + source_path + "?ref=" + revision)
@@ -170,10 +181,16 @@ jobs:
           # policy blocks its GITHUB_TOKEN from creating pull requests. A
           # refused PR still fails this job; it must not silently claim
           # end-to-end autonomous delivery.
-          request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
-              "ref": branch,
-              "inputs": {"expected_sha": sha},
-          })
+          if source_path == "src/production_os/worktree_contract.py":
+              request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
+                  "ref": branch,
+                  "inputs": {"expected_sha": sha},
+              })
+          else:
+              request("POST", "/actions/workflows/production-os-review-state-qualification.yml/dispatches", {
+                  "ref": branch,
+                  "inputs": {"expected_sha": sha},
+              })
           print("Requested immutable source CI for " + sha, flush=True)
 
           owner = repo.split("/", 1)[0]
