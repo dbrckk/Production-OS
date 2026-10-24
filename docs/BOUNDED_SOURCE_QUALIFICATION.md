@@ -1,5 +1,27 @@
 # Bounded autonomous source qualification
 
+## Next applicable objective: chronological reviewer decisions
+
+The approved `production_os_latest_reviewer_state` task changes only the
+`states` assignment in `src/production_os/github_work_state.py::_review_state`.
+Current code retains a reviewer's old `CHANGES_REQUESTED` after their later
+`APPROVED`. The permitted assignment keeps each identified reviewer's latest
+meaningful decision in supplied chronological order, ignores comments/pending
+reviews, and preserves other reviewers' outstanding refusals. Missing reviewer
+identities remain separate. No CI, promotion policy or API code may change.
+
+Both trusted handoffs compare the proposed assignment's AST against the
+reviewed one-line policy. The model supplies the proposal; there is no local
+patch fallback. The new read-only review-state qualification workflow pins
+the reviewed commit before checkout and checks eleven chronological review
+scenarios, existing GitHub reconciliation tests, compilation and builds.
+The acceptance script fails on current production source. Its passing local
+fixture is acceptance evidence only, not an actual model execution.
+
+Infrastructure registration does not apply the source fix. A fresh hosted
+canary must publish the model edit, open a real draft PR and independently
+pass this workflow on the same SHA. Keep the resulting source PR unmerged.
+
 The completed pilot objective was Git branch validity in
 `src/production_os/worktree_contract.py::_slug`. Identifiers containing
 `..`, or a workflow slug ending in `.lock`, previously produced references

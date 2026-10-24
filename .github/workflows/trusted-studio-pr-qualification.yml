@@ -33,6 +33,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import json
+          import ast
           import os
           import re
           import urllib.error
@@ -105,7 +106,7 @@ jobs:
           changed = files[0]
           patch = changed.get("patch")
           if (
-              changed.get("filename") != "src/production_os/worktree_contract.py"
+              changed.get("filename") not in {"src/production_os/worktree_contract.py", "src/production_os/github_work_state.py"}
               or changed.get("status") != "modified"
               or type(changed.get("additions")) is not int
               or type(changed.get("deletions")) is not int
@@ -121,17 +122,28 @@ jobs:
               line for line in patch.splitlines()
               if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
           ]
-          if [line.replace("'", '"') for line in edits] != [
+          expected_edits = [
               '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
               '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
-          ]:
+          ]
+          workflow = "production-os-source-qualification.yml"
+          if changed["filename"] == "src/production_os/github_work_state.py":
+              workflow = "production-os-review-state-qualification.yml"
+              expected_edits = [
+                  '-    states = [str(r.get("state", "")).upper() for r in reviews]',
+                  '+    states = list({(r.get("user") or {}).get("id") or id(r): str(r.get("state", "")).upper() for r in reviews if str(r.get("state", "")).upper() in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}}.values())',
+              ]
+          if (len(edits) != 2
+                  or any(actual[:5] != expected[:5] for actual, expected in zip(edits, expected_edits))
+                  or [ast.dump(ast.parse(line[1:].strip())) for line in edits]
+                  != [ast.dump(ast.parse(line[1:].strip())) for line in expected_edits]):
               raise SystemExit("Source patch exceeds approved normalization change")
 
           # No PR creation here. This default-branch workflow only requests
           # the existing read-only qualification job at the vetted SHA.
           request(
               "POST",
-              "/actions/workflows/production-os-source-qualification.yml/dispatches",
+              "/actions/workflows/" + workflow + "/dispatches",
               {"ref": branch, "inputs": {"expected_sha": sha}},
           )
           print("Requested immutable source qualification for " + sha)
