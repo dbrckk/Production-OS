@@ -43,6 +43,7 @@ The content is organized as follows:
     ai-repo-map.yml
     ci.yml
     production-os-review-handoff.yml
+    production-os-review-state-qualification.yml
     production-os-source-qualification.yml
     semantic-refresh.yml
     trusted-studio-pr-qualification.yml
@@ -929,6 +930,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import json
+          import ast
           import os
           import re
           import urllib.error
@@ -1011,7 +1013,8 @@ jobs:
           if (delta.get("status") not in {"ahead", "diverged"}
                   or not isinstance(files, list) or not 0 < len(files) < 300):
               raise SystemExit("Review handoff requires a bounded nonempty compare")
-          if len(files) != 1 or files[0].get("filename") != "src/production_os/worktree_contract.py" or files[0].get("status") != "modified":
+          approved_paths = {"src/production_os/worktree_contract.py", "src/production_os/github_work_state.py"}
+          if len(files) != 1 or files[0].get("filename") not in approved_paths or files[0].get("status") != "modified":
               raise SystemExit("Review handoff only accepts the vetted one-file worktree source fix")
 
           # A single named file is not sufficient: another generic engine
@@ -1033,10 +1036,19 @@ jobs:
               if line.startswith(("+", "-"))
               and not line.startswith(("+++", "---"))
           ]
-          if [line.replace("\'", '"') for line in source_edits] != [
+          expected_edits = [
               '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
               '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
-          ]:
+          ]
+          if changed["filename"] == "src/production_os/github_work_state.py":
+              expected_edits = [
+                  '-    states = [str(r.get("state", "")).upper() for r in reviews]',
+                  '+    states = list({(r.get("user") or {}).get("id") or id(r): str(r.get("state", "")).upper() for r in reviews if str(r.get("state", "")).upper() in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}}.values())',
+              ]
+          if (len(source_edits) != 2
+                  or any(actual[:5] != expected[:5] for actual, expected in zip(source_edits, expected_edits))
+                  or [ast.dump(ast.parse(line[1:].strip())) for line in source_edits]
+                  != [ast.dump(ast.parse(line[1:].strip())) for line in expected_edits]):
               raise SystemExit("Review handoff rejected a source edit outside the approved assignment")
 
           # Require the same exact branch head immediately before opening the
@@ -1053,7 +1065,7 @@ jobs:
           main_sha = (main_ref.get("object") or {}).get("sha")
           if not isinstance(main_sha, str) or not re.fullmatch(r"[a-f0-9]{40}", main_sha):
               raise SystemExit("Review handoff could not pin current main")
-          source_path = "src/production_os/worktree_contract.py"
+          source_path = changed["filename"]
           blobs = []
           for revision in (main_sha, sha):
               source = request("GET", "/contents/" + source_path + "?ref=" + revision)
@@ -1072,10 +1084,16 @@ jobs:
           # policy blocks its GITHUB_TOKEN from creating pull requests. A
           # refused PR still fails this job; it must not silently claim
           # end-to-end autonomous delivery.
-          request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
-              "ref": branch,
-              "inputs": {"expected_sha": sha},
-          })
+          if source_path == "src/production_os/worktree_contract.py":
+              request("POST", "/actions/workflows/production-os-source-qualification.yml/dispatches", {
+                  "ref": branch,
+                  "inputs": {"expected_sha": sha},
+              })
+          else:
+              request("POST", "/actions/workflows/production-os-review-state-qualification.yml/dispatches", {
+                  "ref": branch,
+                  "inputs": {"expected_sha": sha},
+              })
           print("Requested immutable source CI for " + sha, flush=True)
 
           owner = repo.split("/", 1)[0]
@@ -1110,6 +1128,103 @@ jobs:
                   raise SystemExit("Review handoff did not receive a real PR number")
               print("Opened draft review: " + str(created.get("html_url") or ""))
           PY
+````
+
+## File: .github/workflows/production-os-review-state-qualification.yml
+````yaml
+name: Bounded review-state source qualification
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Reviewed immutable candidate commit SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: review-state-qualification-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Verify immutable handoff before checkout
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          DISPATCH_SHA: ${{ github.sha }}
+          DISPATCH_REF: ${{ github.ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          expected = os.environ['EXPECTED_SHA']
+          if not re.fullmatch(r'[0-9a-f]{40}', expected):
+              raise SystemExit('Qualification requires a valid immutable commit SHA')
+          if os.environ['REPOSITORY'] != 'dbrckk/Production-OS':
+              raise SystemExit('Qualification must run in the trusted repository')
+          if not re.fullmatch(r'refs/heads/studio/mp-[a-f0-9]{24}', os.environ['DISPATCH_REF']):
+              raise SystemExit('Qualification only accepts reviewed Studio source branches')
+          if os.environ['DISPATCH_SHA'] != expected:
+              raise SystemExit('Dispatch SHA differs from the independently reviewed commit')
+          print('Trusted source qualification pinned to ' + expected)
+          PY
+      - name: Checkout reviewed source at immutable SHA
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.expected_sha }}
+      - name: Verify checkout matches the reviewed commit
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          git status --porcelain
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Compile
+        run: python -W error::SyntaxWarning -m compileall -q src scripts
+      - name: Existing GitHub reconciliation checks
+        run: pytest -q tests/test_github_work_state.py tests/test_managed_github_reconciliation.py
+      - name: Verify chronological review decisions
+        run: |
+          python - <<'PY'
+          from production_os.github_work_state import _review_state
+          def event(reviewer, state):
+              return {'user': {'id': reviewer}, 'state': state}
+          cases = [
+              ([], None),
+              ([event(1, 'CHANGES_REQUESTED'), event(1, 'APPROVED')], 'approved'),
+              ([event(1, 'APPROVED'), event(1, 'CHANGES_REQUESTED')], 'changes-requested'),
+              ([event(1, 'CHANGES_REQUESTED'), event(2, 'APPROVED')], 'changes-requested'),
+              ([event(1, 'CHANGES_REQUESTED'), event(1, 'COMMENTED')], 'changes-requested'),
+              ([event(1, 'CHANGES_REQUESTED'), event(1, 'PENDING')], 'changes-requested'),
+              ([event(1, 'CHANGES_REQUESTED'), event(1, 'DISMISSED')], 'reviewed'),
+              ([event(1, 'CHANGES_REQUESTED'), event(2, 'CHANGES_REQUESTED'), event(1, 'APPROVED')], 'changes-requested'),
+              ([event(1, 'changes_requested'), event(1, 'approved')], 'approved'),
+              ([{'state': 'CHANGES_REQUESTED'}, {'state': 'APPROVED'}], 'changes-requested'),
+              ([event(None, 'CHANGES_REQUESTED'), event(None, 'APPROVED')], 'changes-requested'),
+          ]
+          for reviews, expected in cases:
+              original = repr(reviews)
+              actual = _review_state(reviews)
+              assert actual == expected, (reviews, expected, actual)
+              assert repr(reviews) == original, 'Review history was mutated'
+          print('PASS: eleven chronological review scenarios and unchanged input history')
+          PY
+      - name: Build distribution
+        run: python -m build
 ````
 
 ## File: .github/workflows/production-os-source-qualification.yml
@@ -1293,6 +1408,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import json
+          import ast
           import os
           import re
           import urllib.error
@@ -1365,7 +1481,7 @@ jobs:
           changed = files[0]
           patch = changed.get("patch")
           if (
-              changed.get("filename") != "src/production_os/worktree_contract.py"
+              changed.get("filename") not in {"src/production_os/worktree_contract.py", "src/production_os/github_work_state.py"}
               or changed.get("status") != "modified"
               or type(changed.get("additions")) is not int
               or type(changed.get("deletions")) is not int
@@ -1381,17 +1497,28 @@ jobs:
               line for line in patch.splitlines()
               if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
           ]
-          if [line.replace("'", '"') for line in edits] != [
+          expected_edits = [
               '-    text = re.sub(r"-+", "-", text).strip("-.").lower()',
               '+    text = re.sub(r"-+", "-", text).strip("-.").lower().replace(".", "-")',
-          ]:
+          ]
+          workflow = "production-os-source-qualification.yml"
+          if changed["filename"] == "src/production_os/github_work_state.py":
+              workflow = "production-os-review-state-qualification.yml"
+              expected_edits = [
+                  '-    states = [str(r.get("state", "")).upper() for r in reviews]',
+                  '+    states = list({(r.get("user") or {}).get("id") or id(r): str(r.get("state", "")).upper() for r in reviews if str(r.get("state", "")).upper() in {"APPROVED", "CHANGES_REQUESTED", "DISMISSED"}}.values())',
+              ]
+          if (len(edits) != 2
+                  or any(actual[:5] != expected[:5] for actual, expected in zip(edits, expected_edits))
+                  or [ast.dump(ast.parse(line[1:].strip())) for line in edits]
+                  != [ast.dump(ast.parse(line[1:].strip())) for line in expected_edits]):
               raise SystemExit("Source patch exceeds approved normalization change")
 
           # No PR creation here. This default-branch workflow only requests
           # the existing read-only qualification job at the vetted SHA.
           request(
               "POST",
-              "/actions/workflows/production-os-source-qualification.yml/dispatches",
+              "/actions/workflows/" + workflow + "/dispatches",
               {"ref": branch, "inputs": {"expected_sha": sha}},
           )
           print("Requested immutable source qualification for " + sha)

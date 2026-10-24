@@ -1,10 +1,12 @@
 # Change impact
 
-Base: 5ed475c4c779dd02b9d14fb484a5d437db3467d5
-Head: cef19f7402733cc15f506f002f60cf3c43510a85
+Base: 3a4bdda1f8174ca31d71a2cc5a393a12bb42434f
+Head: e73d9dfaae04f5a7d8402ec2ffcd185c50e5c99c
 
 ## Changed files
 - M .github/workflows/production-os-review-handoff.yml
+- A .github/workflows/production-os-review-state-qualification.yml
+- M .github/workflows/trusted-studio-pr-qualification.yml
 - M docs/BOUNDED_SOURCE_QUALIFICATION.md
 
 ## Affected areas

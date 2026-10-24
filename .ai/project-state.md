@@ -237,21 +237,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-23T17:41:16Z
+Generated: 2026-10-24T06:49:46Z
 
 ### Git
 - Branch: `main`
-- Head: `cef19f740273`
-- Commit date: 2026-10-23T13:41:05-04:00
-- Commit: fix: avoid duplicate source handoffs after squash merge (#303)
-- Tracked files: 578
+- Head: `e73d9dfaae04`
+- Commit date: 2026-10-24T02:49:35-04:00
+- Commit: feat: independently qualify bounded reviewer-state source repairs (#304)
+- Tracked files: 579
 
 ### Recently changed files
 - `.github/workflows/production-os-review-handoff.yml`
+- `.github/workflows/production-os-review-state-qualification.yml`
+- `.github/workflows/trusted-studio-pr-qualification.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `src/production_os/worktree_contract.py`
 - `.github/workflows/production-os-source-qualification.yml`
-- `.github/workflows/trusted-studio-pr-qualification.yml`
 - `tests/test_worktree_contract.py`
 
 ### Project signals
