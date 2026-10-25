@@ -94,6 +94,36 @@ def test_ci_state_passes_only_when_all_workflows_complete_successfully():
 
 
 def test_external_commit_statuses_fail_closed():
+    from dataclasses import replace
+    from unittest.mock import Mock
+    from production_os.github_work_state import fetch_github_work_state
+    client = Mock()
+    client.get_pull_request.return_value = {
+        "state": "open", "head": {"sha": "a" * 40},
+        "base": {"ref": "main", "sha": "b" * 40},
+    }
+    client.get_pull_request_reviews.return_value = []
+    client.get_pull_request_file_details.return_value = [{"filename": "src/app.py", "changes": 1, "patch": "+value = 1"}]
+    client.get_commit_workflow_runs.return_value = [{"name": "CI", "status": "completed", "conclusion": "success"}]
+    client.get_commit_statuses.return_value = []
+    client.get_branch_required_checks.return_value = ["security-scan"]
+    for status, conclusion, expected in (
+        ("completed", "failure", "failed"),
+        ("in_progress", None, "running"),
+        ("completed", "success", "passed"),
+        ("completed", None, "failed"),
+    ):
+        client.get_commit_check_runs.return_value = [{"name": "security-scan", "status": status, "conclusion": conclusion}]
+        observed = fetch_github_work_state(client, "o/a", pr_number=1)
+        assert observed.status_state == expected
+        assert observed.ready_for_promotion is (expected == "passed")
+        assert runtime_decision_from_github(observed) == ("retry" if expected == "failed" else "running")
+        assert runtime_decision_from_github(replace(observed, merged=True)) == {
+            "failed": "rollback", "running": "running", "passed": "promote",
+        }[expected]
+        client.get_commit_check_runs.assert_called_with("o/a", "a" * 40)
+    client.get_branch_required_checks.return_value = []
+    assert fetch_github_work_state(client, "o/a", pr_number=1).status_state is None
     assert _status_state([
         {"context":"circleci/validate","state":"success"},
         {"context":"circleci/smoke","state":"pending"},

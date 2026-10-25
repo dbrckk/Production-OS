@@ -225,13 +225,24 @@ def fetch_github_work_state(
             runs = client.get_commit_workflow_runs(repository, validation_sha)
             ci_state = _ci_state(runs)
             statuses = client.get_commit_statuses(repository, validation_sha)
-            status_state = _status_state(statuses)
             check_runs = client.get_commit_check_runs(repository, validation_sha)
             required = (
                 client.get_branch_required_checks(repository, base_ref)
                 if base_ref
                 else []
             )
+            # Presence alone is not proof: required checks from GitHub Apps
+            # can fail without a workflow run or a legacy commit status.
+            required_runs = [item for item in check_runs if isinstance(item, dict)
+                             and str(item.get("name") or "").strip() in (required or [])]
+            check_state = _ci_state(required_runs)
+            combined_statuses = list(statuses)
+            if check_state is not None:
+                combined_statuses.append({"state": {
+                    "passed": "success", "running": "pending",
+                    "failed": "failure", "unknown": "error",
+                }[check_state]})
+            status_state = _status_state(combined_statuses)
             required_checks_missing = _missing_required_checks(
                 required,
                 workflow_runs=runs,

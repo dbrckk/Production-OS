@@ -1,3 +1,8 @@
+# 2026-10-25 — respect required GitHub App check results
+
+- Confirmed that a required failed/pending GitHub App check was counted as present but its result was ignored,allowing ready_for_promotion when Actions passed. Fold required check outcomes into existing external status semantics;failure retries/rolls back,pending waits,unknown fails closed. Optional checks retain existing behavior.
+- Existing regression extended across actual fetch_github_work_state orchestration and runtime decisions;baseline fails None!=failed.38 targeted tests passed;6 real authenticated worker/server integrations passed3.920s. Full suite running;remote CI pending. No new test functions,source PR305 merge or inference/quota change.
+
 # 2026-10-22 — honor native startup cancellation before executor selection
 
 - Actual authenticated HTTP initial heartbeat requests cancellation;baseline fast native executor runs and completes despite that request,leaving cancellation unacknowledged. Corrected:zero executor starts,queue cancelled,cancel acknowledged,active0. Existing test also verifies no subprocess launch and retains cooperative mid-execution cancellation coverage.
