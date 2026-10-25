@@ -117,6 +117,20 @@ def test_workflow_retry_budget(tmp_path):
     )
     assert wf.get(created["id"])["status"]=="failed"
 
+    # A task in a cancelled workflow cannot be silently resurrected.
+    cancelled=wf.create(
+        name="cancelled-retry",
+        repository="o/a",
+        tasks=[WorkflowTaskSpec("build", "Build", {}, max_attempts=3)],
+    )
+    wf.cancel(cancelled["id"])
+    with pytest.raises(RuntimeError, match="cancelled workflow cannot retry"):
+        wf.retry_task(cancelled["id"], "build")
+    after=wf.get(cancelled["id"])
+    assert after["status"]=="cancelled"
+    assert after["tasks"][0]["status"]=="cancelled"
+    assert after["tasks"][0]["attempts"]==0
+
 
 
 @pytest.mark.parametrize("raw_status", ["capacity_exhausted", " Capacity_Exhausted "])
