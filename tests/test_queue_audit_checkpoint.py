@@ -93,6 +93,33 @@ def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path):
     assert source.exists()
 
 
+def test_dead_letter_retry_atomic_publication_rejects_racing_target(tmp_path, monkeypatch):
+    import json
+    from production_os import queue_maintenance
+
+    dead = tmp_path / "dead"
+    queue = tmp_path / "queue"
+    dead.mkdir()
+    (dead / "one.json").write_text(
+        '{"idempotency_key":"one"}', encoding="utf-8",
+    )
+    real_link = queue_maintenance.os.link
+
+    def concurrent_publish(source, target, **kwargs):
+        # Simulate a second publisher winning after the preflight check.
+        target.write_text('{"another":"worker"}', encoding="utf-8")
+        return real_link(source, target, **kwargs)
+
+    monkeypatch.setattr(queue_maintenance.os, "link", concurrent_publish)
+    rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+    assert rows[0]["action"] == "dead-letter-queue-conflict"
+    assert json.loads((queue / "one.retry1.json").read_text()) == {
+        "another": "worker",
+    }
+    assert (dead / "one.json").exists()
+    assert not list(queue.glob("*.tmp"))
+
+
 def test_signed_audit_checkpoint(tmp_path):
     journal=ExecutionJournal(tmp_path/"audit.jsonl")
     journal.append({"event":"x"})
