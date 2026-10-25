@@ -1,12 +1,38 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .atomic_io import atomic_write_json
 from .claims import ClaimStore
+
+
+
+def _publish_retry_exclusive(target: Path, payload: dict) -> bool:
+    """Publish a fully written retry only if no queue entry has that name.
+
+    Linking a temporary file within the same directory is atomic and refuses
+    concurrent targets, unlike os.replace() used by ordinary atomic writes.
+    """
+    fd, temporary = tempfile.mkstemp(
+        prefix=target.name + ".", suffix=".tmp", dir=str(target.parent),
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, ensure_ascii=False)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            os.link(temporary, target, follow_symlinks=False)
+        except FileExistsError:
+            return False
+        return True
+    finally:
+        os.unlink(temporary)
 
 
 def compact_queue(
@@ -128,7 +154,14 @@ def retry_dead_letters(
         payload["delivery_attempt"] = attempt
         payload["worker_id"] = None
         payload["redelivered_at"] = datetime.now(timezone.utc).isoformat()
-        atomic_write_json(target, payload)
+        if not _publish_retry_exclusive(target, payload):
+            actions.append({
+                "key": key,
+                "action": "dead-letter-queue-conflict",
+                "attempt": attempt,
+                "path": str(source),
+            })
+            continue
         source.unlink(missing_ok=True)
         actions.append({
             "key": key,
