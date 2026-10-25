@@ -1,14 +1,14 @@
 # CI status
 
-Summary: 6 success / 0 failure / 1 active
+Summary: 5 success / 0 failure / 1 active
 
-- CI: in_progress / pending (4bc38201)
+- CI: in_progress / pending (aef78849)
+- Trusted Studio PR qualification handoff: completed / skipped (bbfe15da)
+- CI: completed / success (bbfe15da)
+- CI: completed / success (2d7bab79)
+- CI: completed / success (4bc38201)
 - Trusted Studio PR qualification handoff: completed / skipped (09db0865)
 - CI: completed / success (09db0865)
 - CI: completed / success (bd3e819d)
-- CI: completed / success (3857d63f)
-- CI: completed / success (27295c65)
-- CI: completed / success (ebbaaeeb)
-- Bounded review-state source qualification: completed / success (f2477fc6)
 
 > Generated summary only; inspect GitHub Actions for full logs when needed.

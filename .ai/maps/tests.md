@@ -8654,7 +8654,14 @@ def test_unstructured_quota_word_does_not_override_worker_status(tmp_path)
 ⋮----
 def test_operator_may_relaunch_budget_blocked_task_with_spare_attempts(tmp_path)
 ⋮----
+failed=wf.get(created["id"])["tasks"][0]
+⋮----
 resumed=wf.retry_task(created["id"],"build")
+⋮----
+context=resumed["payload"]["handoff"]["retry_context"]
+⋮----
+# Manual recovery must retain evidence, never restart without its cause.
+retained=wf.get(created["id"])["tasks"][0]
 ⋮----
 def test_downstream_job_receives_bounded_upstream_context(tmp_path)
 ⋮----

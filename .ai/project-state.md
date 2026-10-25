@@ -237,23 +237,24 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-24T20:45:56Z
+Generated: 2026-10-25T12:40:23Z
 
 ### Git
 - Branch: `main`
-- Head: `4bc3820104f2`
-- Commit date: 2026-10-24T16:45:46-04:00
-- Commit: fix(actions): skip obsolete qualification events for closed Studio PRs
+- Head: `aef78849f81e`
+- Commit date: 2026-10-25T08:40:14-04:00
+- Commit: fix(workflow): preserve failure evidence across manual retries
 - Tracked files: 579
 
 ### Recently changed files
+- `src/production_os/workflow_engine.py`
+- `tests/test_workflow_engine.py`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
 - `tests/test_worktree_contract.py`
 - `tests/test_remote_worker_runner.py`
 - `.github/workflows/ci.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 - `.github/workflows/production-os-review-handoff.yml`
-- `.github/workflows/production-os-review-state-qualification.yml`
 
 ### Project signals
 - `pyproject.toml`
