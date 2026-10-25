@@ -200,10 +200,25 @@ def test_operator_may_relaunch_budget_blocked_task_with_spare_attempts(tmp_path)
     first=wf.dispatch_ready(created["id"])
     wf.record_result(
         created["id"], "build", succeeded=False,
-        result={"ai_dev_server_status":"capacity_exhausted"},
+        result={
+            "ai_dev_server_status": "capacity_exhausted",
+            "summary": "Free provider quota reached; resume only after capacity returns",
+            "evidence": {
+                "validation": {"status": "blocked"},
+                "next_stage": "preview",
+            },
+        },
     )
+    failed=wf.get(created["id"])["tasks"][0]
+    assert failed["status"]=="failed"
     resumed=wf.retry_task(created["id"],"build")
     assert resumed["key"]!=first[0]["key"]
+    context=resumed["payload"]["handoff"]["retry_context"]
+    assert context["summary"].startswith("Free provider quota reached")
+    assert context["validation"] == {"status": "blocked"}
+    # Manual recovery must retain evidence, never restart without its cause.
+    retained=wf.get(created["id"])["tasks"][0]
+    assert retained["result"]["summary"].startswith("Free provider quota reached")
     task=wf.get(created["id"])["tasks"][0]
     assert task["status"]=="queued"
     assert task["attempts"]==2

@@ -2078,7 +2078,7 @@ class WorkflowEngine:
                 self.backend,
                 """
                 UPDATE workflow_tasks
-                SET status='ready', result_json=NULL,
+                SET status='ready',
                     claimed_job_key=NULL, updated_at=?
                 WHERE workflow_id=? AND task_id=?
                   AND status IN ('cancelled','failed')
