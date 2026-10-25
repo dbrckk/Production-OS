@@ -2049,17 +2049,24 @@ class WorkflowEngine:
         source_revision: str | None = None,
         workflow_generation: int | None = None,
     ) -> dict:
-        workflow = self.assert_generation_current(
+        self.assert_generation_current(
             workflow_id,
             source_revision=source_revision,
             workflow_generation=workflow_generation,
         )
-        # A cancelled workflow is a terminal operator decision. A task-level
-        # retry must not silently resurrect the entire cancelled workflow.
-        if workflow["status"] == "cancelled":
-            raise RuntimeError("cancelled workflow cannot retry tasks")
         now = _now()
         with self.backend.transaction() as db:
+            # Check under the same transaction as the task update so
+            # concurrent workflow cancellation cannot be bypassed.
+            workflow_row = _execute(
+                db, self.backend,
+                "SELECT status FROM workflows WHERE id=?",
+                (workflow_id,),
+            ).fetchone()
+            if workflow_row is None:
+                raise KeyError(workflow_id)
+            if workflow_row["status"] == "cancelled":
+                raise RuntimeError("cancelled workflow cannot retry tasks")
             row = _execute(
                 db,
                 self.backend,
