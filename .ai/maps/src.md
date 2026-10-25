@@ -6591,9 +6591,15 @@ human_review_required = change_review.requires_human_review
 runs = client.get_commit_workflow_runs(repository, validation_sha)
 ci_state = _ci_state(runs)
 statuses = client.get_commit_statuses(repository, validation_sha)
-status_state = _status_state(statuses)
 check_runs = client.get_commit_check_runs(repository, validation_sha)
 required = (
+# Presence alone is not proof: required checks from GitHub Apps
+# can fail without a workflow run or a legacy commit status.
+required_runs = [item for item in check_runs if isinstance(item, dict)
+check_state = _ci_state(required_runs)
+combined_statuses = list(statuses)
+⋮----
+status_state = _status_state(combined_statuses)
 required_checks_missing = _missing_required_checks(
 ⋮----
 def runtime_decision_from_github(state: GitHubWorkState) -> str

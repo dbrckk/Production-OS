@@ -4713,6 +4713,10 @@ def test_ci_state_passes_only_when_all_workflows_complete_successfully()
 ⋮----
 def test_external_commit_statuses_fail_closed()
 ⋮----
+client = Mock()
+⋮----
+observed = fetch_github_work_state(client, "o/a", pr_number=1)
+⋮----
 def test_external_failed_status_retries()
 ⋮----
 def test_pending_external_status_remains_running()

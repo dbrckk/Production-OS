@@ -980,6 +980,42 @@
     },
     {
       "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/github_client.py"
+      ],
+      "dependents": [
+        "integration/godot4_relocated_import_smoke.py",
+        "integration/real_producer_bundle_smoke.py",
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/github_change_review.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "src/production_os/vault_auth.py",
+        "tests/test_asset_forge.py",
+        "tests/test_asset_forge_dispatch_probe.py",
+        "tests/test_components.py",
+        "tests/test_dynamic_agent_fanout.py",
+        "tests/test_github_client_pr_files.py",
+        "tests/test_github_client_put_file.py",
+        "tests/test_github_work_state.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_persistent_agent_runtime.py",
+        "tests/test_rekor_consistency_client.py",
+        "tests/test_release42_idempotent_launch_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 25,
+      "out_degree": 2,
+      "path": "tests/test_github_automerge.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/atomic_io.py",
         "src/production_os/locks.py"
       ],
@@ -1012,41 +1048,6 @@
       "in_degree": 24,
       "out_degree": 2,
       "path": "src/production_os/approvals.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/github_client.py"
-      ],
-      "dependents": [
-        "integration/godot4_relocated_import_smoke.py",
-        "integration/real_producer_bundle_smoke.py",
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/github_change_review.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/remote_worker_runner.py",
-        "src/production_os/vault_auth.py",
-        "tests/test_asset_forge.py",
-        "tests/test_asset_forge_dispatch_probe.py",
-        "tests/test_components.py",
-        "tests/test_dynamic_agent_fanout.py",
-        "tests/test_github_client_pr_files.py",
-        "tests/test_github_client_put_file.py",
-        "tests/test_native_browser_worker_e2e.py",
-        "tests/test_persistent_agent_runtime.py",
-        "tests/test_rekor_consistency_client.py",
-        "tests/test_release42_idempotent_launch_e2e.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_remote_worker.py",
-        "tests/test_remote_worker_runner.py"
-      ],
-      "in_degree": 24,
-      "out_degree": 2,
-      "path": "tests/test_github_automerge.py"
     },
     {
       "dependencies": [
@@ -2115,7 +2116,7 @@
       "path": "tests/test_dashboard_launch_ux.py"
     }
   ],
-  "edge_count": 1839,
+  "edge_count": 1840,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 347,
   "schema_version": 1

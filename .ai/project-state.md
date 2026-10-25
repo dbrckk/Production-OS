@@ -242,16 +242,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-25T12:40:23Z
+Generated: 2026-10-25T18:43:37Z
 
 ### Git
 - Branch: `main`
-- Head: `aef78849f81e`
-- Commit date: 2026-10-25T08:40:14-04:00
-- Commit: fix(workflow): preserve failure evidence across manual retries
+- Head: `bb4d39d2470d`
+- Commit date: 2026-10-25T14:43:28-04:00
+- Commit: fix: honor mandatory GitHub App check outcomes before promotion (#311)
 - Tracked files: 579
 
 ### Recently changed files
+- `src/production_os/github_work_state.py`
+- `tests/test_github_work_state.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_workflow_engine.py`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
@@ -259,7 +261,6 @@ Generated: 2026-10-25T12:40:23Z
 - `tests/test_remote_worker_runner.py`
 - `.github/workflows/ci.yml`
 - `docs/BOUNDED_SOURCE_QUALIFICATION.md`
-- `.github/workflows/production-os-review-handoff.yml`
 
 ### Project signals
 - `pyproject.toml`
