@@ -39,6 +39,60 @@ def test_retry_dead_letter(tmp_path):
     assert rows[0]["action"]=="requeued"
 
 
+def test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts(tmp_path):
+    import json
+
+    dead = tmp_path / "dead"
+    queue = tmp_path / "queue"
+    dead.mkdir()
+    cases = {
+        "traversal": {"idempotency_key": "../outside"},
+        "absolute": {"idempotency_key": "/tmp/unsafe"},
+        "invalid": {"idempotency_key": "safe", "delivery_attempt": "not-a-number"},
+        "negative": {"idempotency_key": "safe2", "delivery_attempt": -3},
+        "nondict": ["unexpected", "payload"],
+    }
+    for name, payload in cases.items():
+        (dead / f"{name}.json").write_text(json.dumps(payload), encoding="utf-8")
+
+    rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+    assert len(list(dead.glob("*.json"))) == len(cases)
+    assert not list(queue.iterdir())
+    assert {row["action"] for row in rows} == {
+        "dead-letter-invalid-key", "dead-letter-invalid-attempt",
+    }
+    assert not (tmp_path / "outside.retry1.json").exists()
+
+
+def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path):
+    import json
+
+    dead = tmp_path / "dead"
+    queue = tmp_path / "queue"
+    dead.mkdir()
+    queue.mkdir()
+    source = dead / "k1.json"
+    source.write_text(json.dumps({"idempotency_key": "k1"}), encoding="utf-8")
+    target = queue / "k1.retry1.json"
+    target.write_text('{"existing":"do not overwrite"}', encoding="utf-8")
+
+    rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+    assert rows[0]["action"] == "dead-letter-queue-conflict"
+    assert json.loads(target.read_text(encoding="utf-8")) == {
+        "existing": "do not overwrite",
+    }
+    assert source.exists()
+
+    target.unlink()
+    outside = tmp_path / "outside.json"
+    outside.write_text('{"intact":true}', encoding="utf-8")
+    target.symlink_to(outside)
+    rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+    assert rows[0]["action"] == "dead-letter-queue-conflict"
+    assert outside.read_text(encoding="utf-8") == '{"intact":true}'
+    assert source.exists()
+
+
 def test_signed_audit_checkpoint(tmp_path):
     journal=ExecutionJournal(tmp_path/"audit.jsonl")
     journal.append({"event":"x"})
