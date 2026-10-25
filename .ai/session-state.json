@@ -1,5 +1,13 @@
 {
   "schema_version": 1,
+  "required_check_result": {
+    "date": "2026-10-25",
+    "branch": "fix/required-check-result",
+    "issue": "Required GitHub App check result ignored when workflows pass and no legacy commit status exists",
+    "fix": "Fold required check-run outcomes into external status state so failed/running/unknown results block promotion and drive retry/rollback",
+    "evidence": "Baseline existing regression fails None!=failed;38 targeted tests pass;6 actual worker/server integrations pass3.920s;full suite running",
+    "scope": "Required checks only;no optional-check policy change,new test function or source305 merge"
+  },
   "updated_at": "2026-10-24T06:42:35+00:00",
   "objective": "Qualify verifiable Production-OS autonomy: authenticated control plane, genuine worker model-authored code change on a public authorized repository, exact-commit draft PR and independently passing target CI; then harden reproducibility and sustained zero-cost capacity.",
   "branch": "feat/review-state-source-qualification",
