@@ -38,29 +38,62 @@ def _publish_retry_exclusive(target: Path, payload: dict) -> bool:
 
 
 
-def _archive_completed_exclusive(source: Path, target: Path) -> bool:
-    """Copy to a temporary archive file, then atomically publish if absent.
-
-    Keep the original queued file until its archived bytes are durable and
-    publicly visible. A hard link is created *within* the archive filesystem,
-    so an archive located on another filesystem is also supported.
-    """
-    fd, temporary = tempfile.mkstemp(
-        prefix=target.name + ".", suffix=".tmp", dir=str(target.parent),
-    )
+def _same_queue_source(source: Path, original_stat: os.stat_result) -> bool:
+    """Check that a queue path still names the regular inode we validated."""
     try:
-        with os.fdopen(fd, "wb") as output, source.open("rb") as original:
-            shutil.copyfileobj(original, output)
-            output.flush()
-            os.fsync(output.fileno())
-        try:
-            os.link(temporary, target, follow_symlinks=False)
-        except FileExistsError:
+        current = source.lstat()
+    except OSError:
+        return False
+    return (
+        stat.S_ISREG(current.st_mode)
+        and current.st_dev == original_stat.st_dev
+        and current.st_ino == original_stat.st_ino
+    )
+
+
+def _archive_completed_exclusive(
+    source: Path, target: Path, *, original_stat: os.stat_result,
+) -> bool:
+    """Archive only the same regular inode that held the completed task.
+
+    Reopening a validated queue path with Path.open() would follow a symlink
+    introduced between JSON validation and archiving. Reopen without following
+    symlinks and verify device/inode identity before copying or removing it.
+    """
+    try:
+        source_fd = os.open(
+            source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError:
+        return False
+    with os.fdopen(source_fd, "rb") as original:
+        reopened = os.fstat(original.fileno())
+        if not stat.S_ISREG(reopened.st_mode) or (
+            reopened.st_dev, reopened.st_ino
+        ) != (original_stat.st_dev, original_stat.st_ino):
             return False
-        source.unlink()
-        return True
-    finally:
-        os.unlink(temporary)
+        fd, temporary = tempfile.mkstemp(
+            prefix=target.name + ".", suffix=".tmp", dir=str(target.parent),
+        )
+        try:
+            with os.fdopen(fd, "wb") as output:
+                shutil.copyfileobj(original, output)
+                output.flush()
+                os.fsync(output.fileno())
+            if not _same_queue_source(source, original_stat):
+                return False
+            try:
+                os.link(temporary, target, follow_symlinks=False)
+            except FileExistsError:
+                return False
+            # Do not unlink a replacement file or symlink. On a late swap,
+            # preserve the archive for review and report incomplete cleanup.
+            if not _same_queue_source(source, original_stat):
+                return False
+            source.unlink()
+            return True
+        finally:
+            os.unlink(temporary)
 
 
 def compact_queue(
@@ -85,7 +118,8 @@ def compact_queue(
         try:
             fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
             with os.fdopen(fd, "r", encoding="utf-8") as handle:
-                if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                original_stat = os.fstat(handle.fileno())
+                if not stat.S_ISREG(original_stat.st_mode):
                     continue
                 payload = json.load(handle)
         except (OSError, ValueError, UnicodeError):
@@ -99,7 +133,9 @@ def compact_queue(
 
         if archive is not None:
             target = archive / source.name
-            if not _archive_completed_exclusive(source, target):
+            if not _archive_completed_exclusive(
+                source, target, original_stat=original_stat,
+            ):
                 actions.append({
                     "key": key,
                     "action": "archive-conflict",
@@ -112,6 +148,13 @@ def compact_queue(
                 "path": str(target),
             })
         else:
+            if not _same_queue_source(source, original_stat):
+                actions.append({
+                    "key": key,
+                    "action": "source-changed",
+                    "path": str(source),
+                })
+                continue
             source.unlink(missing_ok=True)
             actions.append({
                 "key": key,
