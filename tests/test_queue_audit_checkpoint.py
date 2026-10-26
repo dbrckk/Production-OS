@@ -102,6 +102,21 @@ def test_compact_skips_symlinked_queue_rows(tmp_path):
     assert outside.exists()
     assert (queue / "link.json").is_symlink()
 
+    # The compactor must not even open the symlinked path. Its target can
+    # contain sensitive data and must remain unread by this queue operation.
+    from pathlib import Path
+    from unittest.mock import patch
+
+    original_read_text = Path.read_text
+
+    def reject_link_reads(path, *args, **kwargs):
+        if path == queue / "link.json":
+            raise AssertionError("symlink was read before validation")
+        return original_read_text(path, *args, **kwargs)
+
+    with patch.object(Path, "read_text", reject_link_reads):
+        assert compact_queue(queue_dir=queue, claims=claims) == []
+
 
 def test_retry_dead_letter(tmp_path):
     dead=tmp_path/"dead"
