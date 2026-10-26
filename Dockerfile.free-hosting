@@ -1,0 +1,26 @@
+# Deployment of the existing Python control-plane on a free web instance.
+# Keep the standard Dockerfile unchanged for local/worker builds.
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8787
+
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates git \
+    && rm -rf /var/lib/apt/lists/*
+COPY pyproject.toml README.md LICENSE ./
+COPY src ./src
+COPY scripts/render-start.py ./scripts/render-start.py
+
+RUN python -m pip install --no-cache-dir ".[postgres]" \
+    && useradd --create-home --uid 10001 productionos
+
+USER productionos
+EXPOSE 8787
+
+# The existing production startup rejects missing DATABASE_URL, worker
+# and operator tokens. It hashes tokens into a /tmp auth file (mode 0600).
+# It never silently starts with an ephemeral SQLite database.
+CMD ["python", "-u", "scripts/render-start.py"]
