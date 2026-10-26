@@ -242,13 +242,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-26T08:57:08Z
+Generated: 2026-10-26T09:17:05Z
 
 ### Git
 - Branch: `main`
-- Head: `90319c6eba86`
-- Commit date: 2026-10-26T04:56:59-04:00
-- Commit: fix(queue): preserve dead letters on unsafe retries and queue conflicts
+- Head: `676de8d9ef54`
+- Commit date: 2026-10-26T05:16:55-04:00
+- Commit: fix(queue): avoid overwriting completed task archives
 - Tracked files: 579
 
 ### Recently changed files
@@ -260,7 +260,6 @@ Generated: 2026-10-26T08:57:08Z
 - `tests/test_workflow_engine.py`
 - `.github/workflows/trusted-studio-pr-qualification.yml`
 - `tests/test_worktree_contract.py`
-- `tests/test_remote_worker_runner.py`
 
 ### Project signals
 - `pyproject.toml`

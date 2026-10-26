@@ -8419,12 +8419,23 @@ def _publish_retry_exclusive(target: Path, payload: dict) -> bool
     concurrent targets, unlike os.replace() used by ordinary atomic writes.
     """
 ⋮----
+def _archive_completed_exclusive(source: Path, target: Path) -> bool
+⋮----
+"""Copy to a temporary archive file, then atomically publish if absent.
+
+    Keep the original queued file until its archived bytes are durable and
+    publicly visible. A hard link is created *within* the archive filesystem,
+    so an archive located on another filesystem is also supported.
+    """
+⋮----
 queue = Path(queue_dir)
 archive = Path(archive_dir) if archive_dir else None
 ⋮----
 actions: list[dict] = []
 ⋮----
 payload = json.loads(source.read_text(encoding="utf-8"))
+⋮----
+# Malformed and symlinked queue rows are never safe to compact.
 ⋮----
 key = str(payload.get("idempotency_key", ""))
 claim = claims.claims.get(key)

@@ -10986,12 +10986,23 @@ def _publish_retry_exclusive(target: Path, payload: dict) -> bool
     concurrent targets, unlike os.replace() used by ordinary atomic writes.
     """
 ⋮----
+def _archive_completed_exclusive(source: Path, target: Path) -> bool
+⋮----
+"""Copy to a temporary archive file, then atomically publish if absent.
+
+    Keep the original queued file until its archived bytes are durable and
+    publicly visible. A hard link is created *within* the archive filesystem,
+    so an archive located on another filesystem is also supported.
+    """
+⋮----
 queue = Path(queue_dir)
 archive = Path(archive_dir) if archive_dir else None
 ⋮----
 actions: list[dict] = []
 ⋮----
 payload = json.loads(source.read_text(encoding="utf-8"))
+⋮----
+# Malformed and symlinked queue rows are never safe to compact.
 ⋮----
 key = str(payload.get("idempotency_key", ""))
 claim = claims.claims.get(key)
@@ -19476,6 +19487,29 @@ queue=tmp_path/"queue"
 ⋮----
 rows=compact_queue(queue_dir=queue,claims=claims)
 ⋮----
+def test_compact_archive_preserves_existing_entry_and_source(tmp_path)
+⋮----
+claims = ClaimStore(tmp_path / "claims.json")
+⋮----
+queue = tmp_path / "queue"
+archive = tmp_path / "archive"
+⋮----
+source = queue / "k1.w.json"
+⋮----
+target = archive / source.name
+⋮----
+actions = compact_queue(queue_dir=queue, archive_dir=archive, claims=claims)
+⋮----
+def test_compact_archive_rejects_racing_target_and_malformed_rows(tmp_path, monkeypatch)
+⋮----
+original_link = queue_maintenance.os.link
+⋮----
+def collision_after_preflight(temp, target, **kwargs)
+⋮----
+def test_compact_skips_symlinked_queue_rows(tmp_path)
+⋮----
+outside = tmp_path / "outside.json"
+⋮----
 def test_retry_dead_letter(tmp_path)
 ⋮----
 dead=tmp_path/"dead"
@@ -19485,7 +19519,6 @@ rows=retry_dead_letters(
 def test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts(tmp_path)
 ⋮----
 dead = tmp_path / "dead"
-queue = tmp_path / "queue"
 ⋮----
 cases = {
 ⋮----
@@ -19496,8 +19529,6 @@ def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path)
 source = dead / "k1.json"
 ⋮----
 target = queue / "k1.retry1.json"
-⋮----
-outside = tmp_path / "outside.json"
 ⋮----
 def test_dead_letter_retry_atomic_publication_rejects_racing_target(tmp_path, monkeypatch)
 ⋮----

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "bb4d39d2470d40c7e76b2b77680e530c882e1fa3",
-  "head": "90319c6eba864b43a56212b168cedb37bcb58051",
+  "base": "90319c6eba864b43a56212b168cedb37bcb58051",
+  "head": "676de8d9ef543ecb112f2745c0caa2bf85fc766c",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -580,19 +580,25 @@
       "name": "_publish_retry_exclusive",
       "kind": "function",
       "file": "src/production_os/queue_maintenance.py",
-      "line": 14
+      "line": 15
+    },
+    {
+      "name": "_archive_completed_exclusive",
+      "kind": "function",
+      "file": "src/production_os/queue_maintenance.py",
+      "line": 40
     },
     {
       "name": "compact_queue",
       "kind": "function",
       "file": "src/production_os/queue_maintenance.py",
-      "line": 38
+      "line": 65
     },
     {
       "name": "retry_dead_letters",
       "kind": "function",
       "file": "src/production_os/queue_maintenance.py",
-      "line": 82
+      "line": 118
     },
     {
       "name": "test_compact_completed_queue",
@@ -601,40 +607,64 @@
       "line": 10
     },
     {
+      "name": "test_compact_archive_preserves_existing_entry_and_source",
+      "kind": "function",
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "line": 27
+    },
+    {
+      "name": "test_compact_archive_rejects_racing_target_and_malformed_rows",
+      "kind": "function",
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "line": 58
+    },
+    {
+      "name": "collision_after_preflight",
+      "kind": "function",
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "line": 75
+    },
+    {
+      "name": "test_compact_skips_symlinked_queue_rows",
+      "kind": "function",
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "line": 91
+    },
+    {
       "name": "test_retry_dead_letter",
       "kind": "function",
       "file": "tests/test_queue_audit_checkpoint.py",
-      "line": 26
+      "line": 106
     },
     {
       "name": "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts",
       "kind": "function",
       "file": "tests/test_queue_audit_checkpoint.py",
-      "line": 42
+      "line": 122
     },
     {
       "name": "test_retry_dead_letter_preserves_existing_queue_targets",
       "kind": "function",
       "file": "tests/test_queue_audit_checkpoint.py",
-      "line": 67
+      "line": 147
     },
     {
       "name": "test_dead_letter_retry_atomic_publication_rejects_racing_target",
       "kind": "function",
       "file": "tests/test_queue_audit_checkpoint.py",
-      "line": 96
+      "line": 176
     },
     {
       "name": "concurrent_publish",
       "kind": "function",
       "file": "tests/test_queue_audit_checkpoint.py",
-      "line": 108
+      "line": 188
     },
     {
       "name": "test_signed_audit_checkpoint",
       "kind": "function",
       "file": "tests/test_queue_audit_checkpoint.py",
-      "line": 123
+      "line": 203
     }
   ],
   "selected_tests": [

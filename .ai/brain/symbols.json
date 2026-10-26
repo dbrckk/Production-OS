@@ -6977,21 +6977,28 @@
       "language": "python",
       "kind": "function",
       "name": "_publish_retry_exclusive",
-      "line": 14
+      "line": 15
+    },
+    {
+      "file": "src/production_os/queue_maintenance.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_archive_completed_exclusive",
+      "line": 40
     },
     {
       "file": "src/production_os/queue_maintenance.py",
       "language": "python",
       "kind": "function",
       "name": "compact_queue",
-      "line": 38
+      "line": 65
     },
     {
       "file": "src/production_os/queue_maintenance.py",
       "language": "python",
       "kind": "function",
       "name": "retry_dead_letters",
-      "line": 82
+      "line": 118
     },
     {
       "file": "src/production_os/rate_limit.py",
@@ -19191,43 +19198,71 @@
       "file": "tests/test_queue_audit_checkpoint.py",
       "language": "python",
       "kind": "function",
+      "name": "test_compact_archive_preserves_existing_entry_and_source",
+      "line": 27
+    },
+    {
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_compact_archive_rejects_racing_target_and_malformed_rows",
+      "line": 58
+    },
+    {
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "language": "python",
+      "kind": "function",
+      "name": "collision_after_preflight",
+      "line": 75
+    },
+    {
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_compact_skips_symlinked_queue_rows",
+      "line": 91
+    },
+    {
+      "file": "tests/test_queue_audit_checkpoint.py",
+      "language": "python",
+      "kind": "function",
       "name": "test_retry_dead_letter",
-      "line": 26
+      "line": 106
     },
     {
       "file": "tests/test_queue_audit_checkpoint.py",
       "language": "python",
       "kind": "function",
       "name": "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts",
-      "line": 42
+      "line": 122
     },
     {
       "file": "tests/test_queue_audit_checkpoint.py",
       "language": "python",
       "kind": "function",
       "name": "test_retry_dead_letter_preserves_existing_queue_targets",
-      "line": 67
+      "line": 147
     },
     {
       "file": "tests/test_queue_audit_checkpoint.py",
       "language": "python",
       "kind": "function",
       "name": "test_dead_letter_retry_atomic_publication_rejects_racing_target",
-      "line": 96
+      "line": 176
     },
     {
       "file": "tests/test_queue_audit_checkpoint.py",
       "language": "python",
       "kind": "function",
       "name": "concurrent_publish",
-      "line": 108
+      "line": 188
     },
     {
       "file": "tests/test_queue_audit_checkpoint.py",
       "language": "python",
       "kind": "function",
       "name": "test_signed_audit_checkpoint",
-      "line": 123
+      "line": 203
     },
     {
       "file": "tests/test_reconciliation_dispatch.py",

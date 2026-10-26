@@ -8,8 +8,17 @@
     "_publish_retry_exclusive": {
       "source": {
         "file": "src/production_os/queue_maintenance.py",
-        "start": 14,
-        "end": 35
+        "start": 15,
+        "end": 36
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_archive_completed_exclusive": {
+      "source": {
+        "file": "src/production_os/queue_maintenance.py",
+        "start": 40,
+        "end": 62
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -17,8 +26,8 @@
     "compact_queue": {
       "source": {
         "file": "src/production_os/queue_maintenance.py",
-        "start": 38,
-        "end": 79
+        "start": 65,
+        "end": 115
       },
       "symbol_dependencies": [
         {
@@ -32,6 +41,18 @@
             }
           ],
           "relation": "imported_module"
+        },
+        {
+          "symbol": "_archive_completed_exclusive",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         },
         {
           "symbol": "claim",
@@ -58,13 +79,13 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 4
     },
     "retry_dead_letters": {
       "source": {
         "file": "src/production_os/queue_maintenance.py",
-        "start": 82,
-        "end": 173
+        "start": 118,
+        "end": 209
       },
       "symbol_dependencies": [
         {
@@ -72,7 +93,7 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 14,
+              "line": 15,
               "kind": "function",
               "language": "python"
             }
@@ -130,7 +151,383 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 38,
+              "line": 65,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_compact_archive_preserves_existing_entry_and_source": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 27,
+        "end": 55
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "compact_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 65,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_compact_archive_rejects_racing_target_and_malformed_rows": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 58,
+        "end": 88
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "collision_after_preflight",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 75,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "compact_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 65,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "collision_after_preflight": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 75,
+        "end": 195
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "compact_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 65,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "concurrent_publish",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 188,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "retry_dead_letters",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 118,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_compact_skips_symlinked_queue_rows",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 91,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_dead_letter_retry_atomic_publication_rejects_racing_target",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 176,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_retry_dead_letter",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 106,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_retry_dead_letter_preserves_existing_queue_targets",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 147,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 122,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 12
+    },
+    "test_compact_skips_symlinked_queue_rows": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 91,
+        "end": 103
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "compact_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 65,
               "kind": "function",
               "language": "python"
             }
@@ -155,8 +552,8 @@
     "test_retry_dead_letter": {
       "source": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "start": 26,
-        "end": 39
+        "start": 106,
+        "end": 119
       },
       "symbol_dependencies": [
         {
@@ -164,7 +561,7 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 82,
+              "line": 118,
               "kind": "function",
               "language": "python"
             }
@@ -177,8 +574,8 @@
     "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts": {
       "source": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "start": 42,
-        "end": 64
+        "start": 122,
+        "end": 144
       },
       "symbol_dependencies": [
         {
@@ -186,7 +583,7 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 82,
+              "line": 118,
               "kind": "function",
               "language": "python"
             }
@@ -199,8 +596,8 @@
     "test_retry_dead_letter_preserves_existing_queue_targets": {
       "source": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "start": 67,
-        "end": 93
+        "start": 147,
+        "end": 173
       },
       "symbol_dependencies": [
         {
@@ -208,7 +605,7 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 82,
+              "line": 118,
               "kind": "function",
               "language": "python"
             }
@@ -221,8 +618,8 @@
     "test_dead_letter_retry_atomic_publication_rejects_racing_target": {
       "source": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "start": 96,
-        "end": 120
+        "start": 176,
+        "end": 200
       },
       "symbol_dependencies": [
         {
@@ -230,7 +627,7 @@
           "definitions": [
             {
               "file": "tests/test_queue_audit_checkpoint.py",
-              "line": 108,
+              "line": 188,
               "kind": "function",
               "language": "python"
             }
@@ -242,7 +639,7 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 82,
+              "line": 118,
               "kind": "function",
               "language": "python"
             }
@@ -255,8 +652,8 @@
     "concurrent_publish": {
       "source": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "start": 108,
-        "end": 228
+        "start": 188,
+        "end": 308
       },
       "symbol_dependencies": [
         {
@@ -300,7 +697,7 @@
           "definitions": [
             {
               "file": "src/production_os/queue_maintenance.py",
-              "line": 82,
+              "line": 118,
               "kind": "function",
               "language": "python"
             }
@@ -312,7 +709,7 @@
           "definitions": [
             {
               "file": "tests/test_queue_audit_checkpoint.py",
-              "line": 123,
+              "line": 203,
               "kind": "function",
               "language": "python"
             }
@@ -337,8 +734,8 @@
     "test_signed_audit_checkpoint": {
       "source": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "start": 123,
-        "end": 128
+        "start": 203,
+        "end": 208
       },
       "symbol_dependencies": [
         {
