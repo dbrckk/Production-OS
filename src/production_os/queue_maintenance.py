@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -130,18 +131,28 @@ def retry_dead_letters(
         return actions
 
     for source in sorted(dead.glob("*.json")):
-        # A symlinked dead letter may point outside the spool. Never read or
-        # republish the target's contents as a new worker job.
-        if source.is_symlink() or not source.is_file():
+        # Open without following symlinks. An lstat/is_symlink check alone
+        # races with a replacement of the directory entry before read_text.
+        try:
+            flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+            fd = os.open(source, flags)
+            with os.fdopen(fd, "r", encoding="utf-8") as handle:
+                if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                    actions.append({
+                        "key": "",
+                        "action": "dead-letter-unsafe-source",
+                        "path": str(source),
+                    })
+                    continue
+                payload = json.load(handle)
+        except OSError:
             actions.append({
                 "key": "",
                 "action": "dead-letter-unsafe-source",
                 "path": str(source),
             })
             continue
-        try:
-            payload = json.loads(source.read_text(encoding="utf-8"))
-        except Exception:
+        except (ValueError, UnicodeError):
             continue
 
         # Dead letters are untrusted persisted data. Never derive a path
