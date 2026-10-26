@@ -11000,9 +11000,12 @@ archive = Path(archive_dir) if archive_dir else None
 ⋮----
 actions: list[dict] = []
 ⋮----
-payload = json.loads(source.read_text(encoding="utf-8"))
+# Validate the opened descriptor, not a potentially stale path check:
+# symlink substitution between is_symlink() and read_text() is unsafe.
 ⋮----
-# Malformed and symlinked queue rows are never safe to compact.
+fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+⋮----
+payload = json.load(handle)
 ⋮----
 key = str(payload.get("idempotency_key", ""))
 claim = claims.claims.get(key)
@@ -11016,8 +11019,6 @@ dead = Path(dead_letter_dir)
 ⋮----
 flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
 fd = os.open(source, flags)
-⋮----
-payload = json.load(handle)
 ⋮----
 # Dead letters are untrusted persisted data. Never derive a path
 # from a key that can escape the queue directory or overwrite a
@@ -19522,6 +19523,23 @@ def test_compact_skips_symlinked_queue_rows(tmp_path)
 ⋮----
 outside = tmp_path / "outside.json"
 ⋮----
+# The compactor must not even open the symlinked path. Its target can
+# contain sensitive data and must remain unread by this queue operation.
+⋮----
+original_read_text = Path.read_text
+⋮----
+def reject_link_reads(path, *args, **kwargs)
+⋮----
+def test_compact_queue_rejects_symlink_swapped_during_open(tmp_path, monkeypatch)
+⋮----
+source = queue / "job.json"
+⋮----
+outside = tmp_path / "private.json"
+⋮----
+original_open = queue_maintenance.os.open
+⋮----
+def swap_source(path, flags, *args, **kwargs)
+⋮----
 def test_retry_dead_letter(tmp_path)
 ⋮----
 dead=tmp_path/"dead"
@@ -19547,8 +19565,6 @@ actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
 def test_retry_dead_letter_does_not_follow_symlink_replacement_race(tmp_path, monkeypatch)
 ⋮----
 source = dead / "job.json"
-⋮----
-original_open = queue_maintenance.os.open
 ⋮----
 def replace_before_open(path, flags, *args, **kwargs)
 ⋮----

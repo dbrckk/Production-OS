@@ -21,7 +21,7 @@
         },
         {
           "file": "src/production_os/queue_maintenance.py",
-          "line": 224,
+          "line": 229,
           "preview": "if not _publish_retry_exclusive(target, payload):",
           "definition_candidate": false
         }
@@ -44,7 +44,7 @@
         },
         {
           "file": "src/production_os/queue_maintenance.py",
-          "line": 97,
+          "line": 102,
           "preview": "if not _archive_completed_exclusive(source, target):",
           "definition_candidate": false
         }
@@ -112,14 +112,26 @@
           "line": 101,
           "preview": "assert compact_queue(queue_dir=queue, claims=claims) == []",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 118,
+          "preview": "assert compact_queue(queue_dir=queue, claims=claims) == []",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 146,
+          "preview": "assert compact_queue(queue_dir=queue, claims=claims) == []",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 9
+      "occurrence_count": 11
     },
     "retry_dead_letters": {
       "definition": {
         "file": "src/production_os/queue_maintenance.py",
-        "line": 119,
+        "line": 124,
         "kind": "function",
         "language": "python"
       },
@@ -138,7 +150,7 @@
         },
         {
           "file": "src/production_os/queue_maintenance.py",
-          "line": 119,
+          "line": 124,
           "preview": "def retry_dead_letters(",
           "definition_candidate": true
         },
@@ -150,43 +162,43 @@
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 114,
+          "line": 159,
           "preview": "rows=retry_dead_letters(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 140,
+          "line": 185,
           "preview": "rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 161,
+          "line": 206,
           "preview": "actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 192,
+          "line": 237,
           "preview": "actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 211,
+          "line": 256,
           "preview": "rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 222,
+          "line": 267,
           "preview": "rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 246,
+          "line": 291,
           "preview": "rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)",
           "definition_candidate": false
         }
@@ -284,24 +296,30 @@
       ],
       "occurrence_count": 1
     },
-    "test_retry_dead_letter": {
+    "reject_link_reads": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 106,
+        "line": 112,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 106,
-          "preview": "def test_retry_dead_letter(tmp_path):",
+          "line": 112,
+          "preview": "def reject_link_reads(path, *args, **kwargs):",
           "definition_candidate": true
+        },
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 117,
+          "preview": "with patch.object(Path, \"read_text\", reject_link_reads):",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 2
     },
-    "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts": {
+    "test_compact_queue_rejects_symlink_swapped_during_open": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
         "line": 122,
@@ -312,6 +330,63 @@
         {
           "file": "tests/test_queue_audit_checkpoint.py",
           "line": 122,
+          "preview": "def test_compact_queue_rejects_symlink_swapped_during_open(tmp_path, monkeypatch):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "swap_source": {
+      "definition": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "line": 139,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 139,
+          "preview": "def swap_source(path, flags, *args, **kwargs):",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 145,
+          "preview": "monkeypatch.setattr(queue_maintenance.os, \"open\", swap_source)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "test_retry_dead_letter": {
+      "definition": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "line": 151,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 151,
+          "preview": "def test_retry_dead_letter(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts": {
+      "definition": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "line": 167,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_queue_audit_checkpoint.py",
+          "line": 167,
           "preview": "def test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts(tmp_path):",
           "definition_candidate": true
         }
@@ -321,14 +396,14 @@
     "test_retry_dead_letter_skips_symlinked_external_payload": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 149,
+        "line": 194,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 149,
+          "line": 194,
           "preview": "def test_retry_dead_letter_skips_symlinked_external_payload(tmp_path):",
           "definition_candidate": true
         }
@@ -338,14 +413,14 @@
     "test_retry_dead_letter_does_not_follow_symlink_replacement_race": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 172,
+        "line": 217,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 172,
+          "line": 217,
           "preview": "def test_retry_dead_letter_does_not_follow_symlink_replacement_race(tmp_path, monkeypatch):",
           "definition_candidate": true
         }
@@ -355,20 +430,20 @@
     "replace_before_open": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 185,
+        "line": 230,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 185,
+          "line": 230,
           "preview": "def replace_before_open(path, flags, *args, **kwargs):",
           "definition_candidate": true
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 191,
+          "line": 236,
           "preview": "monkeypatch.setattr(queue_maintenance.os, \"open\", replace_before_open)",
           "definition_candidate": false
         }
@@ -378,14 +453,14 @@
     "test_retry_dead_letter_preserves_existing_queue_targets": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 199,
+        "line": 244,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 199,
+          "line": 244,
           "preview": "def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path):",
           "definition_candidate": true
         }
@@ -395,14 +470,14 @@
     "test_dead_letter_retry_atomic_publication_rejects_racing_target": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 228,
+        "line": 273,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 228,
+          "line": 273,
           "preview": "def test_dead_letter_retry_atomic_publication_rejects_racing_target(tmp_path, monkeypatch):",
           "definition_candidate": true
         }
@@ -412,20 +487,20 @@
     "concurrent_publish": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 240,
+        "line": 285,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 240,
+          "line": 285,
           "preview": "def concurrent_publish(source, target, **kwargs):",
           "definition_candidate": true
         },
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 245,
+          "line": 290,
           "preview": "monkeypatch.setattr(queue_maintenance.os, \"link\", concurrent_publish)",
           "definition_candidate": false
         }
@@ -435,14 +510,14 @@
     "test_signed_audit_checkpoint": {
       "definition": {
         "file": "tests/test_queue_audit_checkpoint.py",
-        "line": 255,
+        "line": 300,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_queue_audit_checkpoint.py",
-          "line": 255,
+          "line": 300,
           "preview": "def test_signed_audit_checkpoint(tmp_path):",
           "definition_candidate": true
         }

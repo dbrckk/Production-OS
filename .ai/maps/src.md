@@ -8433,9 +8433,12 @@ archive = Path(archive_dir) if archive_dir else None
 ⋮----
 actions: list[dict] = []
 ⋮----
-payload = json.loads(source.read_text(encoding="utf-8"))
+# Validate the opened descriptor, not a potentially stale path check:
+# symlink substitution between is_symlink() and read_text() is unsafe.
 ⋮----
-# Malformed and symlinked queue rows are never safe to compact.
+fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+⋮----
+payload = json.load(handle)
 ⋮----
 key = str(payload.get("idempotency_key", ""))
 claim = claims.claims.get(key)
@@ -8449,8 +8452,6 @@ dead = Path(dead_letter_dir)
 ⋮----
 flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
 fd = os.open(source, flags)
-⋮----
-payload = json.load(handle)
 ⋮----
 # Dead letters are untrusted persisted data. Never derive a path
 # from a key that can escape the queue directory or overwrite a

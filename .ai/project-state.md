@@ -242,20 +242,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-26T16:06:01Z
+Generated: 2026-10-26T16:39:15Z
 
 ### Git
 - Branch: `main`
-- Head: `78f21008924b`
-- Commit date: 2026-10-26T12:05:51-04:00
-- Commit: fix(queue): prevent symlink swap when recovering dead letters
+- Head: `31ecbeacfcc7`
+- Commit date: 2026-10-26T12:39:04-04:00
+- Commit: fix(queue): safely read completed queue files without symlink races
 - Tracked files: 579
 
 ### Recently changed files
 - `src/production_os/queue_maintenance.py`
 - `tests/test_queue_audit_checkpoint.py`
-- `src/production_os/github_work_state.py`
-- `tests/test_github_work_state.py`
 
 ### Project signals
 - `pyproject.toml`

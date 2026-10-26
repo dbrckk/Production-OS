@@ -1,7 +1,7 @@
 # Change impact
 
-Base: 08bf95fe023796626d33cb924b1c055ac104001a
-Head: 78f21008924ba84a75e5ced6b37cd80d44afd7b1
+Base: ce49213bb85c433c4545478a3622c8b5d0441b40
+Head: 31ecbeacfcc77c50346c68ecb1706efd830a0ae6
 
 ## Changed files
 - M src/production_os/queue_maintenance.py
