@@ -5849,6 +5849,23 @@ original_open = queue_maintenance.os.open
 ⋮----
 def swap_source(path, flags, *args, **kwargs)
 ⋮----
+# Reproduce a swap *after* the completed JSON was safely validated,
+# but just before the archiver's second access to the queue path.
+⋮----
+original_archive = queue_maintenance._archive_completed_exclusive
+⋮----
+def swap_before_archive(source_path, target_path, **kwargs)
+⋮----
+actions = compact_queue(
+⋮----
+# The delete-only path must also preserve a swapped queue entry.
+⋮----
+original_identity_check = queue_maintenance._same_queue_source
+⋮----
+def swap_before_delete(source_path, original_stat)
+⋮----
+actions = compact_queue(queue_dir=queue, claims=claims)
+⋮----
 def test_retry_dead_letter(tmp_path)
 ⋮----
 dead=tmp_path/"dead"

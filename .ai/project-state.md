@@ -242,13 +242,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-26T16:39:15Z
+Generated: 2026-10-26T17:40:35Z
 
 ### Git
 - Branch: `main`
-- Head: `31ecbeacfcc7`
-- Commit date: 2026-10-26T12:39:04-04:00
-- Commit: fix(queue): safely read completed queue files without symlink races
+- Head: `4c1fe89efff0`
+- Commit date: 2026-10-26T13:40:24-04:00
+- Commit: fix(queue): prevent completed-task swap between validation and archival (#318)
 - Tracked files: 579
 
 ### Recently changed files

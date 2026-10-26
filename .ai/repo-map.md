@@ -10986,14 +10986,25 @@ def _publish_retry_exclusive(target: Path, payload: dict) -> bool
     concurrent targets, unlike os.replace() used by ordinary atomic writes.
     """
 ⋮----
-def _archive_completed_exclusive(source: Path, target: Path) -> bool
+def _same_queue_source(source: Path, original_stat: os.stat_result) -> bool
 ⋮----
-"""Copy to a temporary archive file, then atomically publish if absent.
+"""Check that a queue path still names the regular inode we validated."""
+⋮----
+current = source.lstat()
+⋮----
+"""Archive only the same regular inode that held the completed task.
 
-    Keep the original queued file until its archived bytes are durable and
-    publicly visible. A hard link is created *within* the archive filesystem,
-    so an archive located on another filesystem is also supported.
+    Reopening a validated queue path with Path.open() would follow a symlink
+    introduced between JSON validation and archiving. Reopen without following
+    symlinks and verify device/inode identity before copying or removing it.
     """
+⋮----
+source_fd = os.open(
+⋮----
+reopened = os.fstat(original.fileno())
+⋮----
+# Do not unlink a replacement file or symlink. On a late swap,
+# preserve the archive for review and report incomplete cleanup.
 ⋮----
 queue = Path(queue_dir)
 archive = Path(archive_dir) if archive_dir else None
@@ -11004,6 +11015,8 @@ actions: list[dict] = []
 # symlink substitution between is_symlink() and read_text() is unsafe.
 ⋮----
 fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+⋮----
+original_stat = os.fstat(handle.fileno())
 ⋮----
 payload = json.load(handle)
 ⋮----
@@ -19539,6 +19552,23 @@ outside = tmp_path / "private.json"
 original_open = queue_maintenance.os.open
 ⋮----
 def swap_source(path, flags, *args, **kwargs)
+⋮----
+# Reproduce a swap *after* the completed JSON was safely validated,
+# but just before the archiver's second access to the queue path.
+⋮----
+original_archive = queue_maintenance._archive_completed_exclusive
+⋮----
+def swap_before_archive(source_path, target_path, **kwargs)
+⋮----
+actions = compact_queue(
+⋮----
+# The delete-only path must also preserve a swapped queue entry.
+⋮----
+original_identity_check = queue_maintenance._same_queue_source
+⋮----
+def swap_before_delete(source_path, original_stat)
+⋮----
+actions = compact_queue(queue_dir=queue, claims=claims)
 ⋮----
 def test_retry_dead_letter(tmp_path)
 ⋮----
