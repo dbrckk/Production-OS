@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -79,13 +80,15 @@ def compact_queue(
         return actions
 
     for source in sorted(queue.glob("*.json")):
-        # Reject symlinks before opening them: queued files must not cause
-        # reads outside the queue, even if their contents are malformed.
-        if source.is_symlink() or not source.is_file():
-            continue
+        # Validate the opened descriptor, not a potentially stale path check:
+        # symlink substitution between is_symlink() and read_text() is unsafe.
         try:
-            payload = json.loads(source.read_text(encoding="utf-8"))
-        except Exception:
+            fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+            with os.fdopen(fd, "r", encoding="utf-8") as handle:
+                if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                    continue
+                payload = json.load(handle)
+        except (OSError, ValueError, UnicodeError):
             continue
         if not isinstance(payload, dict):
             continue
