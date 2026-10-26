@@ -80,12 +80,17 @@ def compact_queue(
         return actions
 
     for source in sorted(queue.glob("*.json")):
+        # Validate the opened descriptor, not a potentially stale path check:
+        # symlink substitution between is_symlink() and read_text() is unsafe.
         try:
-            payload = json.loads(source.read_text(encoding="utf-8"))
-        except Exception:
+            fd = os.open(source, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+            with os.fdopen(fd, "r", encoding="utf-8") as handle:
+                if not stat.S_ISREG(os.fstat(handle.fileno()).st_mode):
+                    continue
+                payload = json.load(handle)
+        except (OSError, ValueError, UnicodeError):
             continue
-        # Malformed and symlinked queue rows are never safe to compact.
-        if not isinstance(payload, dict) or source.is_symlink():
+        if not isinstance(payload, dict):
             continue
         key = str(payload.get("idempotency_key", ""))
         claim = claims.claims.get(key)

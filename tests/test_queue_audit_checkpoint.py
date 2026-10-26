@@ -102,6 +102,51 @@ def test_compact_skips_symlinked_queue_rows(tmp_path):
     assert outside.exists()
     assert (queue / "link.json").is_symlink()
 
+    # The compactor must not even open the symlinked path. Its target can
+    # contain sensitive data and must remain unread by this queue operation.
+    from pathlib import Path
+    from unittest.mock import patch
+
+    original_read_text = Path.read_text
+
+    def reject_link_reads(path, *args, **kwargs):
+        if path == queue / "link.json":
+            raise AssertionError("symlink was read before validation")
+        return original_read_text(path, *args, **kwargs)
+
+    with patch.object(Path, "read_text", reject_link_reads):
+        assert compact_queue(queue_dir=queue, claims=claims) == []
+
+
+
+def test_compact_queue_rejects_symlink_swapped_during_open(tmp_path, monkeypatch):
+    import os
+    from production_os import queue_maintenance
+
+    claims = ClaimStore(tmp_path / "claims.json")
+    claims.claim(key="k1", worker_id="w", repository="o/a", task="t")
+    claims.ack("k1", "w")
+    claims.complete("k1", "w")
+
+    queue = tmp_path / "queue"
+    queue.mkdir()
+    source = queue / "job.json"
+    source.write_text('{"idempotency_key":"k1"}', encoding="utf-8")
+    outside = tmp_path / "private.json"
+    outside.write_text('{"idempotency_key":"k1"}', encoding="utf-8")
+    original_open = queue_maintenance.os.open
+
+    def swap_source(path, flags, *args, **kwargs):
+        if os.fspath(path) == os.fspath(source):
+            source.unlink()
+            source.symlink_to(outside)
+        return original_open(path, flags, *args, **kwargs)
+
+    monkeypatch.setattr(queue_maintenance.os, "open", swap_source)
+    assert compact_queue(queue_dir=queue, claims=claims) == []
+    assert source.is_symlink()
+    assert outside.exists()
+
 
 def test_retry_dead_letter(tmp_path):
     dead=tmp_path/"dead"
