@@ -5854,6 +5854,14 @@ link = dead / "external.json"
 ⋮----
 actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
 ⋮----
+def test_retry_dead_letter_does_not_follow_symlink_replacement_race(tmp_path, monkeypatch)
+⋮----
+source = dead / "job.json"
+⋮----
+original_open = queue_maintenance.os.open
+⋮----
+def replace_before_open(path, flags, *args, **kwargs)
+⋮----
 def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path)
 ⋮----
 source = dead / "k1.json"

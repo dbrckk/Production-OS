@@ -8444,8 +8444,13 @@ target = archive / source.name
 ⋮----
 dead = Path(dead_letter_dir)
 ⋮----
-# A symlinked dead letter may point outside the spool. Never read or
-# republish the target's contents as a new worker job.
+# Open without following symlinks. An lstat/is_symlink check alone
+# races with a replacement of the directory entry before read_text.
+⋮----
+flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+fd = os.open(source, flags)
+⋮----
+payload = json.load(handle)
 ⋮----
 # Dead letters are untrusted persisted data. Never derive a path
 # from a key that can escape the queue directory or overwrite a

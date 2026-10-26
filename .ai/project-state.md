@@ -242,13 +242,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-26T09:40:42Z
+Generated: 2026-10-26T16:06:01Z
 
 ### Git
 - Branch: `main`
-- Head: `d1a58d43ccfb`
-- Commit date: 2026-10-26T05:40:31-04:00
-- Commit: fix(queue): reject unsafe dead-letter sources and invalid retry counters
+- Head: `78f21008924b`
+- Commit date: 2026-10-26T12:05:51-04:00
+- Commit: fix(queue): prevent symlink swap when recovering dead letters
 - Tracked files: 579
 
 ### Recently changed files
@@ -256,8 +256,6 @@ Generated: 2026-10-26T09:40:42Z
 - `tests/test_queue_audit_checkpoint.py`
 - `src/production_os/github_work_state.py`
 - `tests/test_github_work_state.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_workflow_engine.py`
 
 ### Project signals
 - `pyproject.toml`
