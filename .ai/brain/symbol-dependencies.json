@@ -5,193 +5,28 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "GitHubWorkState": {
+    "_publish_retry_exclusive": {
       "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 11,
-        "end": 53
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 93,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "to_dict": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 32,
-        "end": 152
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_ci_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 69,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_missing_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_promotion_readiness",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 130,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_review_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 56,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_status_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 87,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 93,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 341,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "_review_state": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 56,
-        "end": 66
+        "file": "src/production_os/queue_maintenance.py",
+        "start": 14,
+        "end": 35
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_ci_state": {
+    "compact_queue": {
       "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 69,
-        "end": 84
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_status_state": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 87,
-        "end": 97
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_missing_required_checks": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 100,
-        "end": 127
+        "file": "src/production_os/queue_maintenance.py",
+        "start": 38,
+        "end": 79
       },
       "symbol_dependencies": [
         {
-          "symbol": "workflow_runs",
+          "symbol": "ClaimStore",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 341,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_promotion_readiness": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 130,
-        "end": 158
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "fetch_github_work_state": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 161,
-        "end": 284
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
+              "file": "src/production_os/claims.py",
+              "line": 27,
               "kind": "class",
               "language": "python"
             }
@@ -199,95 +34,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "GitHubClient",
+          "symbol": "claim",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "GitHubWorkState",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 11,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_ci_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 69,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_missing_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_promotion_readiness",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 130,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_review_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 56,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_status_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 87,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 456,
+              "file": "src/production_os/claims.py",
+              "line": 57,
               "kind": "function",
               "language": "python"
             }
@@ -295,119 +46,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "get_commit_check_runs",
+          "symbol": "load",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 631,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get_commit_statuses",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 619,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get_commit_workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 607,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 488,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 495,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 502,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 93,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "review_changed_paths",
-          "definitions": [
-            {
-              "file": "src/production_os/github_change_review.py",
-              "line": 130,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "review_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_change_review.py",
-              "line": 238,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 341,
+              "file": "src/production_os/claims.py",
+              "line": 44,
               "kind": "function",
               "language": "python"
             }
@@ -415,22 +58,22 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 19
+      "dependency_count": 3
     },
-    "runtime_decision_from_github": {
+    "retry_dead_letters": {
       "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 287,
-        "end": 302
+        "file": "src/production_os/queue_maintenance.py",
+        "start": 82,
+        "end": 173
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubWorkState",
+          "symbol": "_publish_retry_exclusive",
           "definitions": [
             {
-              "file": "src/production_os/github_work_state.py",
-              "line": 11,
-              "kind": "class",
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 14,
+              "kind": "function",
               "language": "python"
             }
           ],
@@ -439,41 +82,31 @@
       ],
       "dependency_count": 1
     },
-    "state": {
+    "test_compact_completed_queue": {
       "source": {
-        "file": "tests/test_github_work_state.py",
+        "file": "tests/test_queue_audit_checkpoint.py",
         "start": 10,
-        "end": 33
+        "end": 23
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubWorkState",
+          "symbol": "ClaimStore",
           "definitions": [
             {
-              "file": "src/production_os/github_work_state.py",
-              "line": 11,
+              "file": "src/production_os/claims.py",
+              "line": 27,
               "kind": "class",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_merged_pr_promotes_only_after_post_merge_validation_passes": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 36,
-        "end": 44
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "runtime_decision_from_github",
+          "symbol": "ack",
           "definitions": [
             {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
+              "file": "src/production_os/claims.py",
+              "line": 88,
               "kind": "function",
               "language": "python"
             }
@@ -481,33 +114,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "state",
+          "symbol": "claim",
           "definitions": [
             {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_merged_pr_rolls_back_when_post_merge_ci_fails": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 47,
-        "end": 55
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
+              "file": "src/production_os/claims.py",
+              "line": 57,
               "kind": "function",
               "language": "python"
             }
@@ -515,33 +126,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "state",
+          "symbol": "compact_queue",
           "definitions": [
             {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_merged_pr_waits_while_post_merge_validation_is_running": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 58,
-        "end": 66
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 38,
               "kind": "function",
               "language": "python"
             }
@@ -549,101 +138,33 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "state",
+          "symbol": "complete",
           "definitions": [
             {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_failed_ci_retries": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 69,
-        "end": 70
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
+              "file": "src/production_os/claims.py",
+              "line": 99,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 5
     },
-    "test_closed_unmerged_pr_replans": {
+    "test_retry_dead_letter": {
       "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 73,
-        "end": 74
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 26,
+        "end": 39
       },
       "symbol_dependencies": [
         {
-          "symbol": "runtime_decision_from_github",
+          "symbol": "retry_dead_letters",
           "definitions": [
             {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_ci_state_does_not_pass_while_any_workflow_is_running": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 77,
-        "end": 82
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_ci_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 69,
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 82,
               "kind": "function",
               "language": "python"
             }
@@ -653,19 +174,41 @@
       ],
       "dependency_count": 1
     },
-    "test_ci_state_passes_only_when_all_workflows_complete_successfully": {
+    "test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts": {
       "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 85,
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 42,
+        "end": 64
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "retry_dead_letters",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 82,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_retry_dead_letter_preserves_existing_queue_targets": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 67,
         "end": 93
       },
       "symbol_dependencies": [
         {
-          "symbol": "_ci_state",
+          "symbol": "retry_dead_letters",
           "definitions": [
             {
-              "file": "src/production_os/github_work_state.py",
-              "line": 69,
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 82,
               "kind": "function",
               "language": "python"
             }
@@ -675,253 +218,179 @@
       ],
       "dependency_count": 1
     },
-    "test_external_commit_statuses_fail_closed": {
+    "test_dead_letter_retry_atomic_publication_rejects_racing_target": {
       "source": {
-        "file": "tests/test_github_work_state.py",
+        "file": "tests/test_queue_audit_checkpoint.py",
         "start": 96,
-        "end": 138
+        "end": 120
       },
       "symbol_dependencies": [
         {
-          "symbol": "_status_state",
+          "symbol": "concurrent_publish",
           "definitions": [
             {
-              "file": "src/production_os/github_work_state.py",
-              "line": 87,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 161,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 108,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "retry_dead_letters",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 82,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "concurrent_publish": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 108,
+        "end": 228
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionJournal",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "create_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_checkpoint.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "retry_dead_letters",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 82,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_signed_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "tests/test_queue_audit_checkpoint.py",
+              "line": 123,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "verify_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_checkpoint.py",
+              "line": 49,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "test_signed_audit_checkpoint": {
+      "source": {
+        "file": "tests/test_queue_audit_checkpoint.py",
+        "start": 123,
+        "end": 128
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionJournal",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "create_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_checkpoint.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "verify_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_checkpoint.py",
+              "line": 49,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         }
       ],
       "dependency_count": 4
-    },
-    "test_external_failed_status_retries": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 141,
-        "end": 144
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_pending_external_status_remains_running": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 147,
-        "end": 150
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 287,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_promotion_readiness_requires_open_non_draft_green_pr": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 153,
-        "end": 187
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_promotion_readiness",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 130,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_missing_required_checks_detects_absent_contexts_across_sources": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 190,
-        "end": 197
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_missing_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_github_work_state.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_unknown_branch_protection_check_set_blocks_promotion": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 200,
-        "end": 207
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_missing_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_promotion_readiness_blocks_when_required_check_is_missing": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 210,
-        "end": 223
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_promotion_readiness",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 130,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_promotion_readiness_blocks_sensitive_changes": {
-      "source": {
-        "file": "tests/test_github_work_state.py",
-        "start": 226,
-        "end": 239
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_promotion_readiness",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 130,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
     }
   }
 }

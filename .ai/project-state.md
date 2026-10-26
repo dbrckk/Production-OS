@@ -242,16 +242,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-25T18:43:37Z
+Generated: 2026-10-26T08:57:08Z
 
 ### Git
 - Branch: `main`
-- Head: `bb4d39d2470d`
-- Commit date: 2026-10-25T14:43:28-04:00
-- Commit: fix: honor mandatory GitHub App check outcomes before promotion (#311)
+- Head: `90319c6eba86`
+- Commit date: 2026-10-26T04:56:59-04:00
+- Commit: fix(queue): preserve dead letters on unsafe retries and queue conflicts
 - Tracked files: 579
 
 ### Recently changed files
+- `src/production_os/queue_maintenance.py`
+- `tests/test_queue_audit_checkpoint.py`
 - `src/production_os/github_work_state.py`
 - `tests/test_github_work_state.py`
 - `src/production_os/workflow_engine.py`
@@ -259,8 +261,6 @@ Generated: 2026-10-25T18:43:37Z
 - `.github/workflows/trusted-studio-pr-qualification.yml`
 - `tests/test_worktree_contract.py`
 - `tests/test_remote_worker_runner.py`
-- `.github/workflows/ci.yml`
-- `docs/BOUNDED_SOURCE_QUALIFICATION.md`
 
 ### Project signals
 - `pyproject.toml`

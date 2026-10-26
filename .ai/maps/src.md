@@ -8411,6 +8411,14 @@ item=self.entries.get(repository) or {}
 
 ## File: production_os/queue_maintenance.py
 ```python
+def _publish_retry_exclusive(target: Path, payload: dict) -> bool
+⋮----
+"""Publish a fully written retry only if no queue entry has that name.
+
+    Linking a temporary file within the same directory is atomic and refuses
+    concurrent targets, unlike os.replace() used by ordinary atomic writes.
+    """
+⋮----
 queue = Path(queue_dir)
 archive = Path(archive_dir) if archive_dir else None
 ⋮----
@@ -8425,7 +8433,15 @@ target = archive / source.name
 ⋮----
 dead = Path(dead_letter_dir)
 ⋮----
-attempt = int(payload.get("delivery_attempt", 0)) + 1
+# Dead letters are untrusted persisted data. Never derive a path
+# from a key that can escape the queue directory or overwrite a
+# neighboring queue item. Malformed rows stay available for diagnosis.
+⋮----
+key = payload.get("idempotency_key")
+⋮----
+previous_attempt = int(payload.get("delivery_attempt", 0))
+⋮----
+attempt = previous_attempt + 1
 ⋮----
 target = queue / f"{key}.retry{attempt}.json"
 ```

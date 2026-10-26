@@ -5815,6 +5815,31 @@ dead=tmp_path/"dead"
 ⋮----
 rows=retry_dead_letters(
 ⋮----
+def test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts(tmp_path)
+⋮----
+dead = tmp_path / "dead"
+queue = tmp_path / "queue"
+⋮----
+cases = {
+⋮----
+rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+⋮----
+def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path)
+⋮----
+source = dead / "k1.json"
+⋮----
+target = queue / "k1.retry1.json"
+⋮----
+outside = tmp_path / "outside.json"
+⋮----
+def test_dead_letter_retry_atomic_publication_rejects_racing_target(tmp_path, monkeypatch)
+⋮----
+real_link = queue_maintenance.os.link
+⋮----
+def concurrent_publish(source, target, **kwargs)
+⋮----
+# Simulate a second publisher winning after the preflight check.
+⋮----
 def test_signed_audit_checkpoint(tmp_path)
 ⋮----
 journal=ExecutionJournal(tmp_path/"audit.jsonl")

@@ -1,18 +1,18 @@
 # Change impact
 
-Base: c652fc5f31a5acc951df38ed4b079627355ec9b0
-Head: bb4d39d2470d40c7e76b2b77680e530c882e1fa3
+Base: 8e62d125a991c3290c21ffff37f14380bda98f70
+Head: 90319c6eba864b43a56212b168cedb37bcb58051
 
 ## Changed files
-- M src/production_os/github_work_state.py
-- M tests/test_github_work_state.py
+- M src/production_os/queue_maintenance.py
+- M tests/test_queue_audit_checkpoint.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_github_work_state.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
