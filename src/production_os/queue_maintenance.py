@@ -1,11 +1,38 @@
 from __future__ import annotations
 
 import json
+import os
+import re
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .atomic_io import atomic_write_json
 from .claims import ClaimStore
+
+
+
+def _publish_retry_exclusive(target: Path, payload: dict) -> bool:
+    """Publish a fully written retry only if no queue entry has that name.
+
+    Linking a temporary file within the same directory is atomic and refuses
+    concurrent targets, unlike os.replace() used by ordinary atomic writes.
+    """
+    fd, temporary = tempfile.mkstemp(
+        prefix=target.name + ".", suffix=".tmp", dir=str(target.parent),
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, ensure_ascii=False)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            os.link(temporary, target, follow_symlinks=False)
+        except FileExistsError:
+            return False
+        return True
+    finally:
+        os.unlink(temporary)
 
 
 def compact_queue(
@@ -72,10 +99,38 @@ def retry_dead_letters(
         except Exception:
             continue
 
-        attempt = int(payload.get("delivery_attempt", 0)) + 1
-        key = str(payload.get("idempotency_key", ""))
-        if not key:
+        # Dead letters are untrusted persisted data. Never derive a path
+        # from a key that can escape the queue directory or overwrite a
+        # neighboring queue item. Malformed rows stay available for diagnosis.
+        if not isinstance(payload, dict):
             continue
+        key = payload.get("idempotency_key")
+        if not isinstance(key, str) or not re.fullmatch(
+            r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", key
+        ) or key in {".", ".."}:
+            actions.append({
+                "key": str(key)[:128],
+                "action": "dead-letter-invalid-key",
+                "path": str(source),
+            })
+            continue
+        try:
+            previous_attempt = int(payload.get("delivery_attempt", 0))
+        except (TypeError, ValueError):
+            actions.append({
+                "key": key,
+                "action": "dead-letter-invalid-attempt",
+                "path": str(source),
+            })
+            continue
+        if previous_attempt < 0:
+            actions.append({
+                "key": key,
+                "action": "dead-letter-invalid-attempt",
+                "path": str(source),
+            })
+            continue
+        attempt = previous_attempt + 1
 
         if attempt > max_attempts:
             actions.append({
@@ -86,11 +141,27 @@ def retry_dead_letters(
             })
             continue
 
+        target = queue / f"{key}.retry{attempt}.json"
+        if target.exists() or target.is_symlink():
+            actions.append({
+                "key": key,
+                "action": "dead-letter-queue-conflict",
+                "attempt": attempt,
+                "path": str(source),
+            })
+            continue
+
         payload["delivery_attempt"] = attempt
         payload["worker_id"] = None
         payload["redelivered_at"] = datetime.now(timezone.utc).isoformat()
-        target = queue / f"{key}.retry{attempt}.json"
-        atomic_write_json(target, payload)
+        if not _publish_retry_exclusive(target, payload):
+            actions.append({
+                "key": key,
+                "action": "dead-letter-queue-conflict",
+                "attempt": attempt,
+                "path": str(source),
+            })
+            continue
         source.unlink(missing_ok=True)
         actions.append({
             "key": key,
