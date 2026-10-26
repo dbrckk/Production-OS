@@ -48,7 +48,7 @@ def _archive_completed_exclusive(source: Path, target: Path) -> bool:
         prefix=target.name + ".", suffix=".tmp", dir=str(target.parent),
     )
     try:
-        with source.open("rb") as original, os.fdopen(fd, "wb") as output:
+        with os.fdopen(fd, "wb") as output, source.open("rb") as original:
             shutil.copyfileobj(original, output)
             output.flush()
             os.fsync(output.fileno())
