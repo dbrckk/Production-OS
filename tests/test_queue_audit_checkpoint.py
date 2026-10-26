@@ -23,6 +23,86 @@ def test_compact_completed_queue(tmp_path):
     assert rows[0]["action"]=="delete-completed"
 
 
+
+def test_compact_archive_preserves_existing_entry_and_source(tmp_path):
+    import json
+
+    claims = ClaimStore(tmp_path / "claims.json")
+    claims.claim(key="k1", worker_id="w", repository="o/a", task="t")
+    claims.ack("k1", "w")
+    claims.complete("k1", "w")
+    queue = tmp_path / "queue"
+    archive = tmp_path / "archive"
+    queue.mkdir()
+    archive.mkdir()
+    source = queue / "k1.w.json"
+    source.write_text('{"idempotency_key":"k1","data":"new"}', encoding="utf-8")
+    target = archive / source.name
+    target.write_text('{"data":"original archive"}', encoding="utf-8")
+
+    actions = compact_queue(queue_dir=queue, archive_dir=archive, claims=claims)
+    assert actions[0]["action"] == "archive-conflict"
+    assert source.exists()
+    assert json.loads(target.read_text(encoding="utf-8")) == {
+        "data": "original archive",
+    }
+    assert not list(archive.glob("*.tmp"))
+
+    target.unlink()
+    actions = compact_queue(queue_dir=queue, archive_dir=archive, claims=claims)
+    assert actions[0]["action"] == "archive-completed"
+    assert not source.exists()
+    assert json.loads(target.read_text(encoding="utf-8"))["data"] == "new"
+
+
+def test_compact_archive_rejects_racing_target_and_malformed_rows(tmp_path, monkeypatch):
+    from production_os import queue_maintenance
+
+    claims = ClaimStore(tmp_path / "claims.json")
+    claims.claim(key="k1", worker_id="w", repository="o/a", task="t")
+    claims.ack("k1", "w")
+    claims.complete("k1", "w")
+    queue = tmp_path / "queue"
+    archive = tmp_path / "archive"
+    queue.mkdir()
+    archive.mkdir()
+    source = queue / "k1.w.json"
+    source.write_text('{"idempotency_key":"k1"}', encoding="utf-8")
+    (queue / "malformed.json").write_text('["unexpected"]', encoding="utf-8")
+
+    original_link = queue_maintenance.os.link
+
+    def collision_after_preflight(temp, target, **kwargs):
+        target.write_text('{"winner":"another worker"}', encoding="utf-8")
+        return original_link(temp, target, **kwargs)
+
+    monkeypatch.setattr(queue_maintenance.os, "link", collision_after_preflight)
+    actions = compact_queue(queue_dir=queue, archive_dir=archive, claims=claims)
+    assert len(actions) == 1
+    assert actions[0]["action"] == "archive-conflict"
+    assert source.exists()
+    assert (queue / "malformed.json").exists()
+    assert (archive / source.name).read_text(encoding="utf-8") == (
+        '{"winner":"another worker"}'
+    )
+    assert not list(archive.glob("*.tmp"))
+
+
+def test_compact_skips_symlinked_queue_rows(tmp_path):
+    claims = ClaimStore(tmp_path / "claims.json")
+    claims.claim(key="k1", worker_id="w", repository="o/a", task="t")
+    claims.ack("k1", "w")
+    claims.complete("k1", "w")
+    queue = tmp_path / "queue"
+    queue.mkdir()
+    outside = tmp_path / "outside.json"
+    outside.write_text('{"idempotency_key":"k1"}', encoding="utf-8")
+    (queue / "link.json").symlink_to(outside)
+    assert compact_queue(queue_dir=queue, claims=claims) == []
+    assert outside.exists()
+    assert (queue / "link.json").is_symlink()
+
+
 def test_retry_dead_letter(tmp_path):
     dead=tmp_path/"dead"
     queue=tmp_path/"queue"
