@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,6 +36,32 @@ def _publish_retry_exclusive(target: Path, payload: dict) -> bool:
         os.unlink(temporary)
 
 
+
+def _archive_completed_exclusive(source: Path, target: Path) -> bool:
+    """Copy to a temporary archive file, then atomically publish if absent.
+
+    Keep the original queued file until its archived bytes are durable and
+    publicly visible. A hard link is created *within* the archive filesystem,
+    so an archive located on another filesystem is also supported.
+    """
+    fd, temporary = tempfile.mkstemp(
+        prefix=target.name + ".", suffix=".tmp", dir=str(target.parent),
+    )
+    try:
+        with os.fdopen(fd, "wb") as output, source.open("rb") as original:
+            shutil.copyfileobj(original, output)
+            output.flush()
+            os.fsync(output.fileno())
+        try:
+            os.link(temporary, target, follow_symlinks=False)
+        except FileExistsError:
+            return False
+        source.unlink()
+        return True
+    finally:
+        os.unlink(temporary)
+
+
 def compact_queue(
     *,
     queue_dir: str | Path,
@@ -56,6 +83,9 @@ def compact_queue(
             payload = json.loads(source.read_text(encoding="utf-8"))
         except Exception:
             continue
+        # Malformed and symlinked queue rows are never safe to compact.
+        if not isinstance(payload, dict) or source.is_symlink():
+            continue
         key = str(payload.get("idempotency_key", ""))
         claim = claims.claims.get(key)
         if claim is None or claim.status != "completed":
@@ -63,7 +93,13 @@ def compact_queue(
 
         if archive is not None:
             target = archive / source.name
-            source.replace(target)
+            if not _archive_completed_exclusive(source, target):
+                actions.append({
+                    "key": key,
+                    "action": "archive-conflict",
+                    "path": str(source),
+                })
+                continue
             actions.append({
                 "key": key,
                 "action": "archive-completed",
