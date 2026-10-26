@@ -8444,13 +8444,20 @@ target = archive / source.name
 ⋮----
 dead = Path(dead_letter_dir)
 ⋮----
+# A symlinked dead letter may point outside the spool. Never read or
+# republish the target's contents as a new worker job.
+⋮----
 # Dead letters are untrusted persisted data. Never derive a path
 # from a key that can escape the queue directory or overwrite a
 # neighboring queue item. Malformed rows stay available for diagnosis.
 ⋮----
 key = payload.get("idempotency_key")
 ⋮----
-previous_attempt = int(payload.get("delivery_attempt", 0))
+raw_attempt = payload.get("delivery_attempt", 0)
+# bool is an int subclass; floats silently truncate on int(...).
+# Neither represents a trustworthy integer delivery count.
+⋮----
+previous_attempt = int(raw_attempt)
 ⋮----
 attempt = previous_attempt + 1
 ⋮----

@@ -5846,6 +5846,14 @@ cases = {
 ⋮----
 rows = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
 ⋮----
+def test_retry_dead_letter_skips_symlinked_external_payload(tmp_path)
+⋮----
+outside = tmp_path / "external.json"
+⋮----
+link = dead / "external.json"
+⋮----
+actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+⋮----
 def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path)
 ⋮----
 source = dead / "k1.json"
