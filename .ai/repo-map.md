@@ -612,6 +612,30 @@ jobs:
           docker build -t production-os:ci .
           docker run --rm production-os:ci --help
 
+      - name: Free-hosting web container and real PostgreSQL readiness smoke
+        run: |
+          set -euo pipefail
+          docker build -f Dockerfile.free-hosting -t production-os-free-hosting:ci .
+          docker run --rm -d --network host \
+            --name production-os-free-hosting-ci \
+            -e DATABASE_URL="$PRODUCTION_OS_TEST_POSTGRES" \
+            -e PRODUCTION_OS_WORKER_TOKEN=ci-ephemeral-worker-not-a-secret \
+            -e PRODUCTION_OS_OPERATOR_TOKEN=ci-ephemeral-operator-not-a-secret \
+            -e PRODUCTION_OS_WORKER_ID=github-actions-worker \
+            production-os-free-hosting:ci
+          trap 'docker logs --tail 30 production-os-free-hosting-ci || true; docker stop production-os-free-hosting-ci >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 45); do
+            if curl --silent --show-error --fail --max-time 3 \
+              http://127.0.0.1:8787/readyz > /tmp/free-hosting-ready.json; then
+              break
+            fi
+            sleep 1
+          done
+          python -c 'import json; from pathlib import Path; data=json.loads(Path("/tmp/free-hosting-ready.json").read_text()); assert data["status"] == "ready" and data["database"] == "reachable", data'
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --max-time 5 http://127.0.0.1:8787/v1/workflows)
+          test "$status" = 401
+
       - name: Browser worker image smoke test
         run: |
           docker build -f Dockerfile.browser-worker -t production-os-browser:ci .

@@ -1,15 +1,17 @@
 # Change impact
 
-Base: 64c7f14faf1962fe6f057b217983870c706bc9aa
-Head: 4c1fe89efff06705a6256b2c2e3e8f12d951b5e6
+Base: 2df490e2fa10b29b0d588a20fce44bc9c76d71c5
+Head: 3021a4bef3ac522bf136c08e44975d94c5af576f
 
 ## Changed files
-- M src/production_os/queue_maintenance.py
-- M tests/test_queue_audit_checkpoint.py
+- M .github/workflows/ci.yml
+- A Dockerfile.free-hosting
+- A docs/free-hosting-migration.md
 
 ## Affected areas
-- src
-- tests
+- .github
+- (root)
+- docs
 
 ## Related test candidates
 - No direct filename-based test match detected.

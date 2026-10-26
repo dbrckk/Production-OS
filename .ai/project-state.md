@@ -242,16 +242,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-26T17:40:35Z
+Generated: 2026-10-26T20:20:49Z
 
 ### Git
 - Branch: `main`
-- Head: `4c1fe89efff0`
-- Commit date: 2026-10-26T13:40:24-04:00
-- Commit: fix(queue): prevent completed-task swap between validation and archival (#318)
-- Tracked files: 579
+- Head: `3021a4bef3ac`
+- Commit date: 2026-10-26T16:20:37-04:00
+- Commit: feat(deploy): portable free hosting for Production-OS (#319)
+- Tracked files: 581
 
 ### Recently changed files
+- `.github/workflows/ci.yml`
+- `Dockerfile.free-hosting`
+- `docs/free-hosting-migration.md`
 - `src/production_os/queue_maintenance.py`
 - `tests/test_queue_audit_checkpoint.py`
 
