@@ -79,12 +79,15 @@ def compact_queue(
         return actions
 
     for source in sorted(queue.glob("*.json")):
+        # Reject symlinks before opening them: queued files must not cause
+        # reads outside the queue, even if their contents are malformed.
+        if source.is_symlink() or not source.is_file():
+            continue
         try:
             payload = json.loads(source.read_text(encoding="utf-8"))
         except Exception:
             continue
-        # Malformed and symlinked queue rows are never safe to compact.
-        if not isinstance(payload, dict) or source.is_symlink():
+        if not isinstance(payload, dict):
             continue
         key = str(payload.get("idempotency_key", ""))
         claim = claims.claims.get(key)
