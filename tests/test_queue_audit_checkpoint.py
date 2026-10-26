@@ -130,6 +130,8 @@ def test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts(tmp_path):
         "absolute": {"idempotency_key": "/tmp/unsafe"},
         "invalid": {"idempotency_key": "safe", "delivery_attempt": "not-a-number"},
         "negative": {"idempotency_key": "safe2", "delivery_attempt": -3},
+        "boolean": {"idempotency_key": "safe3", "delivery_attempt": True},
+        "fractional": {"idempotency_key": "safe4", "delivery_attempt": 1.75},
         "nondict": ["unexpected", "payload"],
     }
     for name, payload in cases.items():
@@ -142,6 +144,29 @@ def test_retry_dead_letter_rejects_unsafe_keys_and_invalid_attempts(tmp_path):
         "dead-letter-invalid-key", "dead-letter-invalid-attempt",
     }
     assert not (tmp_path / "outside.retry1.json").exists()
+
+
+def test_retry_dead_letter_skips_symlinked_external_payload(tmp_path):
+    dead = tmp_path / "dead"
+    queue = tmp_path / "queue"
+    dead.mkdir()
+    outside = tmp_path / "external.json"
+    outside.write_text(
+        '{"idempotency_key":"external-job","delivery_attempt":0}',
+        encoding="utf-8",
+    )
+    link = dead / "external.json"
+    link.symlink_to(outside)
+
+    actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+    assert actions == [{
+        "key": "",
+        "action": "dead-letter-unsafe-source",
+        "path": str(link),
+    }]
+    assert link.is_symlink()
+    assert outside.exists()
+    assert not list(queue.iterdir())
 
 
 def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path):
