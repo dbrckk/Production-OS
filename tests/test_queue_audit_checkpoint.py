@@ -169,6 +169,33 @@ def test_retry_dead_letter_skips_symlinked_external_payload(tmp_path):
     assert not list(queue.iterdir())
 
 
+def test_retry_dead_letter_does_not_follow_symlink_replacement_race(tmp_path, monkeypatch):
+    import os
+    from production_os import queue_maintenance
+
+    dead = tmp_path / "dead"
+    queue = tmp_path / "queue"
+    dead.mkdir()
+    source = dead / "job.json"
+    source.write_text('{"idempotency_key":"job"}', encoding="utf-8")
+    outside = tmp_path / "outside.json"
+    outside.write_text('{"idempotency_key":"outside"}', encoding="utf-8")
+    original_open = queue_maintenance.os.open
+
+    def replace_before_open(path, flags, *args, **kwargs):
+        if os.fspath(path) == os.fspath(source):
+            source.unlink()
+            source.symlink_to(outside)
+        return original_open(path, flags, *args, **kwargs)
+
+    monkeypatch.setattr(queue_maintenance.os, "open", replace_before_open)
+    actions = retry_dead_letters(dead_letter_dir=dead, queue_dir=queue)
+    assert actions[0]["action"] == "dead-letter-unsafe-source"
+    assert source.is_symlink()
+    assert outside.exists()
+    assert not list(queue.iterdir())
+
+
 def test_retry_dead_letter_preserves_existing_queue_targets(tmp_path):
     import json
 
