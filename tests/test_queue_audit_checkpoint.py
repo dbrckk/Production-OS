@@ -147,6 +147,53 @@ def test_compact_queue_rejects_symlink_swapped_during_open(tmp_path, monkeypatch
     assert source.is_symlink()
     assert outside.exists()
 
+    # Reproduce a swap *after* the completed JSON was safely validated,
+    # but just before the archiver's second access to the queue path.
+    source.unlink()
+    source.write_text('{"idempotency_key":"k1"}', encoding="utf-8")
+    archive = tmp_path / "archive"
+    original_archive = queue_maintenance._archive_completed_exclusive
+
+    def swap_before_archive(source_path, target_path, **kwargs):
+        source_path.unlink()
+        source_path.symlink_to(outside)
+        return original_archive(source_path, target_path, **kwargs)
+
+    with monkeypatch.context() as patcher:
+        patcher.setattr(queue_maintenance.os, "open", original_open)
+        patcher.setattr(
+            queue_maintenance, "_archive_completed_exclusive",
+            swap_before_archive,
+        )
+        actions = compact_queue(
+            queue_dir=queue, archive_dir=archive, claims=claims,
+        )
+    assert actions[0]["action"] == "archive-conflict"
+    assert source.is_symlink()
+    assert outside.read_text(encoding="utf-8") == '{"idempotency_key":"k1"}'
+    assert not (archive / source.name).exists()
+
+    # The delete-only path must also preserve a swapped queue entry.
+    source.unlink()
+    source.write_text('{"idempotency_key":"k1"}', encoding="utf-8")
+    original_identity_check = queue_maintenance._same_queue_source
+
+    def swap_before_delete(source_path, original_stat):
+        source_path.unlink()
+        source_path.symlink_to(outside)
+        return original_identity_check(source_path, original_stat)
+
+    with monkeypatch.context() as patcher:
+        patcher.setattr(queue_maintenance.os, "open", original_open)
+        patcher.setattr(
+            queue_maintenance, "_same_queue_source",
+            swap_before_delete,
+        )
+        actions = compact_queue(queue_dir=queue, claims=claims)
+    assert actions[0]["action"] == "source-changed"
+    assert source.is_symlink()
+    assert outside.exists()
+
 
 def test_retry_dead_letter(tmp_path):
     dead=tmp_path/"dead"
