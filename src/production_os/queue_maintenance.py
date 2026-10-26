@@ -130,6 +130,15 @@ def retry_dead_letters(
         return actions
 
     for source in sorted(dead.glob("*.json")):
+        # A symlinked dead letter may point outside the spool. Never read or
+        # republish the target's contents as a new worker job.
+        if source.is_symlink() or not source.is_file():
+            actions.append({
+                "key": "",
+                "action": "dead-letter-unsafe-source",
+                "path": str(source),
+            })
+            continue
         try:
             payload = json.loads(source.read_text(encoding="utf-8"))
         except Exception:
@@ -150,8 +159,19 @@ def retry_dead_letters(
                 "path": str(source),
             })
             continue
+        raw_attempt = payload.get("delivery_attempt", 0)
+        # bool is an int subclass; floats silently truncate on int(...).
+        # Neither represents a trustworthy integer delivery count.
         try:
-            previous_attempt = int(payload.get("delivery_attempt", 0))
+            if isinstance(raw_attempt, bool) or not (
+                isinstance(raw_attempt, int)
+                or (
+                    isinstance(raw_attempt, str)
+                    and re.fullmatch(r"[0-9]+", raw_attempt)
+                )
+            ):
+                raise ValueError("invalid delivery attempt type")
+            previous_attempt = int(raw_attempt)
         except (TypeError, ValueError):
             actions.append({
                 "key": key,
