@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import sys
+import tempfile
 
 
 def _required(name: str) -> str:
@@ -55,17 +56,31 @@ def main() -> None:
     runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
     runtime_dir.mkdir(parents=True, exist_ok=True)
     auth_path = runtime_dir / "auth.json"
-    auth_path.write_text(
-        json.dumps(
-            _auth_payload(worker_token, operator_token, worker_name),
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
+    payload = json.dumps(
+        _auth_payload(worker_token, operator_token, worker_name),
+        separators=(",", ":"),
     )
+    # Publish the credential hashes through an atomic, owner-only file.
+    # Writing directly to auth.json first can follow an existing symlink
+    # and expose/truncate another file before chmod has run.
+    pending_path = None
     try:
-        auth_path.chmod(0o600)
-    except OSError:
-        pass
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=runtime_dir,
+            prefix=".auth-",
+            suffix=".tmp",
+            delete=False,
+        ) as pending:
+            pending_path = Path(pending.name)
+            pending.write(payload)
+            pending.flush()
+            os.fsync(pending.fileno())
+        os.replace(pending_path, auth_path)
+    finally:
+        if pending_path is not None:
+            pending_path.unlink(missing_ok=True)
 
     argv = [
         "production-os",
