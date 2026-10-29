@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from production_os.control_plane import ControlPlane
 from production_os.worker_wake import request_automatic_worker_wake
 
@@ -90,6 +92,55 @@ def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch):
         "cooldown_seconds":60,
     }
     assert calls == []
+
+    # Failed dispatches must also be bounded: an expired GitHub token or a
+    # sustained 403 must not spawn unbounded API requests per enqueued job.
+    failed = ControlPlane(str(tmp_path / "wake-failed-cooldown.sqlite"))
+    failed.dashboard_store.append_control_audit(
+        action="kick",
+        worker_id="automatic-launch",
+        requested_by="controller:auto",
+        outcome="failed",
+        error_code="GitHub API 403",
+    )
+    monkeypatch.setattr(
+        failed.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+    result = request_automatic_worker_wake(
+        workers=failed.workers,
+        dashboard_control=failed.dashboard_control,
+        store=failed.dashboard_store,
+        requested_by="controller:auto",
+    )
+    assert result == {"status":"cooldown", "cooldown_seconds":60}
+    assert calls == []
+
+    # The throttle is temporary, not a permanent disablement. After a
+    # cooldown, dispatch resumes automatically without operator intervention.
+    recovered = ControlPlane(str(tmp_path / "wake-recovered-cooldown.sqlite"))
+    recovered.dashboard_store.append_control_audit(
+        action="kick",
+        worker_id="automatic-launch",
+        requested_by="controller:auto",
+        outcome="failed",
+        error_code="GitHub API 403",
+        at=(datetime.now(timezone.utc) - timedelta(minutes=2)).isoformat(),
+    )
+    monkeypatch.setattr(
+        recovered.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+    result = request_automatic_worker_wake(
+        workers=recovered.workers,
+        dashboard_control=recovered.dashboard_control,
+        store=recovered.dashboard_store,
+        requested_by="controller:auto",
+    )
+    assert result == {"status":"dispatched"}
+    assert calls == ["automatic-launch"]
 
 
 def test_shared_wake_does_not_fail_durable_work_when_audit_write_fails(
