@@ -2768,6 +2768,13 @@ port = str(os.environ.get("PORT") or "8787").strip()
 runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
 ⋮----
 auth_path = runtime_dir / "auth.json"
+payload = json.dumps(
+# Publish the credential hashes through an atomic, owner-only file.
+# Writing directly to auth.json first can follow an existing symlink
+# and expose/truncate another file before chmod has run.
+pending_path = None
+⋮----
+pending_path = Path(pending.name)
 ⋮----
 argv = [
 ````
@@ -21341,9 +21348,14 @@ entries = {entry["role"]: entry for entry in payload["tokens"]}
 ⋮----
 def test_main_builds_control_plane_command_from_environment(self)
 ⋮----
-argv = execvp.call_args.args[1]
+# A leftover or attacker-created symlink must never cause the
+# startup to overwrite a different file with credential hashes.
+target = Path(td) / "unrelated-data.txt"
 ⋮----
 auth_path = Path(td) / "auth.json"
+⋮----
+argv = execvp.call_args.args[1]
+⋮----
 payload = json.loads(auth_path.read_text(encoding="utf-8"))
 ⋮----
 def test_invalid_port_fails_closed(self)

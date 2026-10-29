@@ -242,16 +242,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-29T09:39:58Z
+Generated: 2026-10-29T10:09:27Z
 
 ### Git
 - Branch: `main`
-- Head: `192cfc99c4d3`
-- Commit date: 2026-10-29T05:39:46-04:00
-- Commit: feat(render): reproducible Free Blueprint on existing Neon database (#320)
-- Tracked files: 584
+- Head: `06db86d882f0`
+- Commit date: 2026-10-29T06:09:16-04:00
+- Commit: fix(render): atomic owner-only authentication file on startup (#321)
+- Tracked files: 585
 
 ### Recently changed files
+- `scripts/render-start.py`
+- `tests/test_render_start.py`
 - `docs/free-hosting-migration.md`
 - `docs/render-free-deployment.md`
 - `render.yaml`

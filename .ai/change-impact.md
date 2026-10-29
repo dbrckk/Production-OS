@@ -1,17 +1,14 @@
 # Change impact
 
-Base: b9daae1ae000cbfe5300949961c156b3d5629f20
-Head: 192cfc99c4d33b247000ec9575c80a385f740f65
+Base: aad9be6c1ed078b6e474633788f8c85ce3a944b3
+Head: 06db86d882f0453562599ff03b83003406900538
 
 ## Changed files
-- M docs/free-hosting-migration.md
-- A docs/render-free-deployment.md
-- A render.yaml
-- M tests/test_controller_daemon_deployment.py
+- M scripts/render-start.py
+- M tests/test_render_start.py
 
 ## Affected areas
-- docs
-- (root)
+- scripts
 - tests
 
 ## Related test candidates

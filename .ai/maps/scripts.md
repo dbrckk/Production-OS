@@ -65,6 +65,13 @@ port = str(os.environ.get("PORT") or "8787").strip()
 runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
 ⋮----
 auth_path = runtime_dir / "auth.json"
+payload = json.dumps(
+# Publish the credential hashes through an atomic, owner-only file.
+# Writing directly to auth.json first can follow an existing symlink
+# and expose/truncate another file before chmod has run.
+pending_path = None
+⋮----
+pending_path = Path(pending.name)
 ⋮----
 argv = [
 ```

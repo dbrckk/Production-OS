@@ -7612,9 +7612,14 @@ entries = {entry["role"]: entry for entry in payload["tokens"]}
 ⋮----
 def test_main_builds_control_plane_command_from_environment(self)
 ⋮----
-argv = execvp.call_args.args[1]
+# A leftover or attacker-created symlink must never cause the
+# startup to overwrite a different file with credential hashes.
+target = Path(td) / "unrelated-data.txt"
 ⋮----
 auth_path = Path(td) / "auth.json"
+⋮----
+argv = execvp.call_args.args[1]
+⋮----
 payload = json.loads(auth_path.read_text(encoding="utf-8"))
 ⋮----
 def test_invalid_port_fails_closed(self)
