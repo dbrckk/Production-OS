@@ -36,7 +36,7 @@ jobs:
         python-version: ["3.11", "3.12"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           ref: ${{ inputs.expected_sha || github.sha }}
@@ -91,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           ref: ${{ inputs.expected_sha || github.sha }}
@@ -435,7 +435,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
           ref: ${{ inputs.expected_sha || github.sha }}
@@ -459,7 +459,7 @@ jobs:
       - name: Install Production-OS and original-image handling
         run: python -m pip install -e . "Pillow>=12.2,<13"
       - name: Checkout pinned Asset Forge source for local CLI
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: dbrckk/asset-forge
           ref: 7fd8875036b188eab3f3f0ce8ed47c025c5f33ec
