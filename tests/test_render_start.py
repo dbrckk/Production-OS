@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import stat
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -47,7 +48,20 @@ class RenderStartTests(unittest.TestCase):
             },
             clear=True,
         ), patch.object(MODULE.os, "execvp") as execvp:
+            # A leftover or attacker-created symlink must never cause the
+            # startup to overwrite a different file with credential hashes.
+            target = Path(td) / "unrelated-data.txt"
+            target.write_text("must-remain-unchanged", encoding="utf-8")
+            auth_path = Path(td) / "auth.json"
+            auth_path.symlink_to(target)
             MODULE.main()
+
+            self.assertEqual(
+                target.read_text(encoding="utf-8"), "must-remain-unchanged"
+            )
+            self.assertFalse(auth_path.is_symlink())
+            self.assertEqual(stat.S_IMODE(auth_path.stat().st_mode), 0o600)
+            self.assertEqual(list(Path(td).glob(".auth-*.tmp")), [])
 
             execvp.assert_called_once()
             argv = execvp.call_args.args[1]
