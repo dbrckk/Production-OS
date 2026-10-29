@@ -419,6 +419,7 @@ compose.worker.yaml
 compose.yaml
 pyproject.toml
 README.md
+render.yaml
 ````
 
 # Files
@@ -15204,6 +15205,12 @@ def test_controller_daemon_compose_service_is_resilient_and_persistent()
 payload = Path("compose.yaml").read_text(encoding="utf-8")
 ⋮----
 def test_controller_deployment_defaults_to_managed_execution()
+⋮----
+# Also constrain the active Render deployment: one $0 web service, the
+# existing persistent Neon database and explicit secret prompts. This
+# extends an existing deployment test rather than adding a new unit test.
+⋮----
+blueprint = Path("render.yaml").read_text(encoding="utf-8")
 ````
 
 ## File: tests/test_controller_daemon.py
@@ -28187,4 +28194,49 @@ PRODUCTION_OS_CONTROLLER_EXECUTION_MODE=legacy
 ```
 
 Managed and legacy execution are mutually exclusive. A managed launch failure never falls back to legacy dispatch in the same cycle. Stable autonomous project ids prevent duplicate projects, workflows, budget charges, and repository rate-limit charges across daemon cycles and controller restarts.
+````
+
+## File: render.yaml
+````yaml
+# Single free Render web service using the already existing Neon PostgreSQL.
+# The Render Blueprint requires the operator to provide the four secrets below
+# during setup. Never provision a new/empty database, paid resource, or disk.
+services:
+  - type: web
+    name: production-os-control-plane
+    runtime: docker
+    plan: free
+    region: frankfurt
+    repo: https://github.com/dbrckk/Production-OS
+    branch: main
+    dockerfilePath: ./Dockerfile.free-hosting
+    dockerContext: .
+    autoDeployTrigger: commit
+    healthCheckPath: /readyz
+    buildFilter:
+      paths:
+        - src/**
+        - scripts/render-start.py
+        - Dockerfile.free-hosting
+        - pyproject.toml
+        - render.yaml
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: PRODUCTION_OS_WORKER_TOKEN
+        sync: false
+      - key: PRODUCTION_OS_OPERATOR_TOKEN
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: PRODUCTION_OS_WORKER_ID
+        value: github-actions-worker
+      - key: PRODUCTION_OS_ACTIONS_REPOSITORY
+        value: dbrckk/ai-dev-server
+      - key: PRODUCTION_OS_ACTIONS_WORKFLOW
+        value: production-os-actions-worker.yml
+      - key: PRODUCTION_OS_ACTIONS_REF
+        value: main
+      - key: PORT
+        value: "8787"
 ````

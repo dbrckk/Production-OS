@@ -1,25 +1,49 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "4c1fe89efff06705a6256b2c2e3e8f12d951b5e6",
-  "head": "3021a4bef3ac522bf136c08e44975d94c5af576f",
+  "base": "3021a4bef3ac522bf136c08e44975d94c5af576f",
+  "head": "192cfc99c4d33b247000ec9575c80a385f740f65",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": ".github/workflows/ci.yml",
+      "path": "docs/free-hosting-migration.md",
       "status": "M"
     },
     {
-      "path": "Dockerfile.free-hosting",
+      "path": "docs/render-free-deployment.md",
       "status": "A"
     },
     {
-      "path": "docs/free-hosting-migration.md",
+      "path": "render.yaml",
       "status": "A"
+    },
+    {
+      "path": "tests/test_controller_daemon_deployment.py",
+      "status": "M"
     }
   ],
-  "changed_source_files": [],
-  "impacted_files": [],
-  "impacted_symbols": [],
-  "selected_tests": []
+  "changed_source_files": [
+    "tests/test_controller_daemon_deployment.py"
+  ],
+  "impacted_files": [
+    "tests/test_controller_daemon_deployment.py"
+  ],
+  "impacted_symbols": [
+    {
+      "name": "test_controller_daemon_compose_service_is_resilient_and_persistent",
+      "kind": "function",
+      "file": "tests/test_controller_daemon_deployment.py",
+      "line": 4
+    },
+    {
+      "name": "test_controller_deployment_defaults_to_managed_execution",
+      "kind": "function",
+      "file": "tests/test_controller_daemon_deployment.py",
+      "line": 22
+    }
+  ],
+  "selected_tests": [
+    "tests/test_controller_daemon.py",
+    "tests/test_controller_daemon_deployment.py"
+  ]
 }

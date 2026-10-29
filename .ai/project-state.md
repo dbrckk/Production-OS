@@ -242,19 +242,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-26T20:20:49Z
+Generated: 2026-10-29T09:39:58Z
 
 ### Git
 - Branch: `main`
-- Head: `3021a4bef3ac`
-- Commit date: 2026-10-26T16:20:37-04:00
-- Commit: feat(deploy): portable free hosting for Production-OS (#319)
-- Tracked files: 581
+- Head: `192cfc99c4d3`
+- Commit date: 2026-10-29T05:39:46-04:00
+- Commit: feat(render): reproducible Free Blueprint on existing Neon database (#320)
+- Tracked files: 584
 
 ### Recently changed files
+- `docs/free-hosting-migration.md`
+- `docs/render-free-deployment.md`
+- `render.yaml`
+- `tests/test_controller_daemon_deployment.py`
 - `.github/workflows/ci.yml`
 - `Dockerfile.free-hosting`
-- `docs/free-hosting-migration.md`
 - `src/production_os/queue_maintenance.py`
 - `tests/test_queue_audit_checkpoint.py`
 

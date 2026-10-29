@@ -1,17 +1,18 @@
 # Change impact
 
-Base: 2df490e2fa10b29b0d588a20fce44bc9c76d71c5
-Head: 3021a4bef3ac522bf136c08e44975d94c5af576f
+Base: b9daae1ae000cbfe5300949961c156b3d5629f20
+Head: 192cfc99c4d33b247000ec9575c80a385f740f65
 
 ## Changed files
-- M .github/workflows/ci.yml
-- A Dockerfile.free-hosting
-- A docs/free-hosting-migration.md
+- M docs/free-hosting-migration.md
+- A docs/render-free-deployment.md
+- A render.yaml
+- M tests/test_controller_daemon_deployment.py
 
 ## Affected areas
-- .github
-- (root)
 - docs
+- (root)
+- tests
 
 ## Related test candidates
 - No direct filename-based test match detected.

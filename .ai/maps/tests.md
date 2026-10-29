@@ -1476,6 +1476,12 @@ def test_controller_daemon_compose_service_is_resilient_and_persistent()
 payload = Path("compose.yaml").read_text(encoding="utf-8")
 ⋮----
 def test_controller_deployment_defaults_to_managed_execution()
+⋮----
+# Also constrain the active Render deployment: one $0 web service, the
+# existing persistent Neon database and explicit secret prompts. This
+# extends an existing deployment test rather than adding a new unit test.
+⋮----
+blueprint = Path("render.yaml").read_text(encoding="utf-8")
 ```
 
 ## File: test_controller_daemon.py
