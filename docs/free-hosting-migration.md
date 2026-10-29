@@ -1,4 +1,9 @@
-# Free hosting migration: Render -> Northflank (or Koyeb)
+# Archived fallback: Render -> Northflank (or Koyeb)
+
+**Inactive reference only.** The current hosting choice is **Render Free**.
+Use [Render free deployment](render-free-deployment.md) and `render.yaml`
+for this project's active configuration. Do not deploy an alternate provider
+while the Render-only decision remains in force.
 
 **Status: deployment-ready configuration, not a deployed migration.** The Render
 workspace was suspended on 2026-10-26 with the provider event
