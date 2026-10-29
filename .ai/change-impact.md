@@ -1,23 +1,19 @@
 # Change impact
 
-Base: 00e69b29afeec8d4f551f8f1b106f23dcc6d5554
-Head: 716aa3531b432aa8e2f5d88551fdf24f5f6b8052
+Base: 79b83f9b17a8bb1f63d56bb35317857213566cd3
+Head: e16d58805eca3c83f45f5873bc075a74c4ed9986
 
 ## Changed files
-- M docs/render-free-deployment.md
-- M scripts/render-start.py
-- M src/production_os/cli.py
-- M tests/test_cli.py
-- M tests/test_render_start.py
+- M src/production_os/worker_wake.py
+- M tests/test_dashboard_launch_ux.py
+- M tests/test_worker_wake.py
 
 ## Affected areas
-- docs
-- scripts
 - src
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
+- tests/test_worker_wake.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

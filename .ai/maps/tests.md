@@ -8467,6 +8467,14 @@ def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch)
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"))
 ⋮----
+# Failed dispatches must also be bounded: an expired GitHub token or a
+# sustained 403 must not spawn unbounded API requests per enqueued job.
+failed = ControlPlane(str(tmp_path / "wake-failed-cooldown.sqlite"))
+⋮----
+# The throttle is temporary, not a permanent disablement. After a
+# cooldown, dispatch resumes automatically without operator intervention.
+recovered = ControlPlane(str(tmp_path / "wake-recovered-cooldown.sqlite"))
+⋮----
 control = ControlPlane(str(tmp_path / "wake-audit.sqlite"))
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-capability-gap.sqlite"))

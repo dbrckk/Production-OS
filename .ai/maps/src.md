@@ -10837,6 +10837,9 @@ parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 ⋮----
 latest = store.latest_control_audit(
 ⋮----
+# A failed GitHub workflow dispatch can reflect a persistent permission
+# or quota problem. Apply the same durable cooldown to failures instead
+# of repeatedly invoking a broken external API for every queued task.
 requested_at = _parse_timestamp(latest.get("requested_at"))
 ⋮----
 age = (datetime.now(timezone.utc) - requested_at).total_seconds()

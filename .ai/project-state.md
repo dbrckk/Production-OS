@@ -242,16 +242,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-29T10:50:19Z
+Generated: 2026-10-29T11:00:12Z
 
 ### Git
 - Branch: `main`
-- Head: `716aa3531b43`
-- Commit date: 2026-10-29T06:50:09-04:00
-- Commit: fix(render): keep Neon DATABASE_URL secret out of process argv (#322)
+- Head: `e16d58805eca`
+- Commit date: 2026-10-29T07:00:02-04:00
+- Commit: fix(worker): enforce durable cooldown after failed automatic wake (#323)
 - Tracked files: 585
 
 ### Recently changed files
+- `src/production_os/worker_wake.py`
+- `tests/test_dashboard_launch_ux.py`
+- `tests/test_worker_wake.py`
 - `docs/render-free-deployment.md`
 - `scripts/render-start.py`
 - `src/production_os/cli.py`
@@ -262,8 +265,6 @@ Generated: 2026-10-29T10:50:19Z
 - `tests/test_controller_daemon_deployment.py`
 - `.github/workflows/ci.yml`
 - `Dockerfile.free-hosting`
-- `src/production_os/queue_maintenance.py`
-- `tests/test_queue_audit_checkpoint.py`
 
 ### Project signals
 - `pyproject.toml`

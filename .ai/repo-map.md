@@ -13436,6 +13436,9 @@ parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 ⋮----
 latest = store.latest_control_audit(
 ⋮----
+# A failed GitHub workflow dispatch can reflect a persistent permission
+# or quota problem. Apply the same durable cooldown to failures instead
+# of repeatedly invoking a broken external API for every queued task.
 requested_at = _parse_timestamp(latest.get("requested_at"))
 ⋮----
 age = (datetime.now(timezone.utc) - requested_at).total_seconds()
@@ -22210,6 +22213,14 @@ worker = control.workers.register("worker-a", ["python"], 1)
 def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch)
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"))
+⋮----
+# Failed dispatches must also be bounded: an expired GitHub token or a
+# sustained 403 must not spawn unbounded API requests per enqueued job.
+failed = ControlPlane(str(tmp_path / "wake-failed-cooldown.sqlite"))
+⋮----
+# The throttle is temporary, not a permanent disablement. After a
+# cooldown, dispatch resumes automatically without operator intervention.
+recovered = ControlPlane(str(tmp_path / "wake-recovered-cooldown.sqlite"))
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-audit.sqlite"))
 ⋮----
