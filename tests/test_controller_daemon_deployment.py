@@ -30,3 +30,45 @@ def test_controller_deployment_defaults_to_managed_execution():
     assert "${PRODUCTION_OS_CONTROLLER_EXECUTION_MODE:-managed}" in payload
     assert "--project-token-budget" in payload
     assert "${PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET:-12000}" in payload
+
+    # Also constrain the active Render deployment: one $0 web service, the
+    # existing persistent Neon database and explicit secret prompts. This
+    # extends an existing deployment test rather than adding a new unit test.
+    import re
+
+    blueprint = Path("render.yaml").read_text(encoding="utf-8")
+    assert re.findall(r"(?m)^  - type: web$", blueprint) == ["  - type: web"]
+    assert "    runtime: docker\n" in blueprint
+    assert "    plan: free\n" in blueprint
+    assert "    region: frankfurt\n" in blueprint
+    assert "    repo: https://github.com/dbrckk/Production-OS\n" in blueprint
+    assert "    branch: main\n" in blueprint
+    assert "    dockerfilePath: ./Dockerfile.free-hosting\n" in blueprint
+    assert Path("Dockerfile.free-hosting").is_file()
+    assert "    healthCheckPath: /readyz\n" in blueprint
+    assert "    autoDeployTrigger: commit\n" in blueprint
+    assert "databases:" not in blueprint
+    assert "disk:" not in blueprint
+    assert "type: cron" not in blueprint
+    assert "type: worker" not in blueprint
+    for name in (
+        "DATABASE_URL",
+        "PRODUCTION_OS_WORKER_TOKEN",
+        "PRODUCTION_OS_OPERATOR_TOKEN",
+        "GITHUB_TOKEN",
+    ):
+        assert (
+            "      - key: " + name + "\n"
+            "        sync: false\n"
+        ) in blueprint
+    assert "generateValue" not in blueprint
+    for name, value in (
+        ("PRODUCTION_OS_WORKER_ID", "github-actions-worker"),
+        ("PRODUCTION_OS_ACTIONS_REPOSITORY", "dbrckk/ai-dev-server"),
+        ("PRODUCTION_OS_ACTIONS_WORKFLOW", "production-os-actions-worker.yml"),
+        ("PRODUCTION_OS_ACTIONS_REF", "main"),
+    ):
+        assert (
+            "      - key: " + name + "\n"
+            "        value: " + value + "\n"
+        ) in blueprint
