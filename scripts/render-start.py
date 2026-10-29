@@ -85,8 +85,8 @@ def main() -> None:
     argv = [
         "production-os",
         "control-plane",
-        "--database",
-        database_url,
+        "--database-env",
+        "DATABASE_URL",
         "--auth-config",
         str(auth_path),
         "--host",

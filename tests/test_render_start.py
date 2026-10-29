@@ -66,7 +66,12 @@ class RenderStartTests(unittest.TestCase):
             execvp.assert_called_once()
             argv = execvp.call_args.args[1]
             self.assertEqual(argv[0:2], ["production-os", "control-plane"])
-            self.assertIn("postgresql://example/db", argv)
+            self.assertNotIn("postgresql://example/db", argv)
+            self.assertEqual(
+                argv[argv.index("--database-env") + 1],
+                "DATABASE_URL",
+            )
+            self.assertNotIn("--database", argv)
             self.assertIn("9999", argv)
             auth_path = Path(td) / "auth.json"
             payload = json.loads(auth_path.read_text(encoding="utf-8"))

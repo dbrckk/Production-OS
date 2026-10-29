@@ -451,7 +451,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     tokenhash.add_argument("--token", required=True)
 
     controlplane = sub.add_parser("control-plane", help="Run authenticated distributed control-plane API")
-    controlplane.add_argument("--database", required=True)
+    database_source = controlplane.add_mutually_exclusive_group(required=True)
+    database_source.add_argument("--database")
+    database_source.add_argument(
+        "--database-env",
+        metavar="ENV_VAR",
+        help="Read the database location from an environment variable, never argv",
+    )
     controlplane.add_argument("--auth-config", required=True)
     controlplane.add_argument("--host", default="127.0.0.1")
     controlplane.add_argument("--port", type=int, default=8787)
@@ -2107,8 +2113,17 @@ def _trusted_validation_keys_from_env(name: str) -> dict:
 
 
 def run_control_plane(args: argparse.Namespace) -> int:
+    database = args.database
+    if args.database_env is not None:
+        name = args.database_env
+        # Fail closed on a missing secret and never echo its contents.
+        if not name.isidentifier():
+            raise ValueError("invalid control-plane database environment variable name")
+        database = os.environ.get(name)
+        if not database or not database.strip():
+            raise ValueError("control-plane database environment variable is missing")
     serve_control_plane(
-        args.database,
+        database,
         args.auth_config,
         host=args.host,
         port=args.port,
