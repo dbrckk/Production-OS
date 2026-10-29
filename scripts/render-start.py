@@ -54,7 +54,12 @@ def main() -> None:
         raise SystemExit("PORT must be an integer between 1 and 65535")
 
     runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
-    runtime_dir.mkdir(parents=True, exist_ok=True)
+    # Reject a symlink before touching the directory: a redirected runtime
+    # location must not receive even hashed authentication material.
+    if runtime_dir.is_symlink():
+        raise SystemExit("PRODUCTION_OS_RUNTIME_DIR must not be a symlink")
+    runtime_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    runtime_dir.chmod(0o700)
     auth_path = runtime_dir / "auth.json"
     payload = json.dumps(
         _auth_payload(worker_token, operator_token, worker_name),
