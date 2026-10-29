@@ -41,8 +41,9 @@ def automatic_worker_wake_allowed(
     )
     if latest is None:
         return True
-    if str(latest.get("outcome") or "") == "failed":
-        return True
+    # A failed GitHub workflow dispatch can reflect a persistent permission
+    # or quota problem. Apply the same durable cooldown to failures instead
+    # of repeatedly invoking a broken external API for every queued task.
     requested_at = _parse_timestamp(latest.get("requested_at"))
     if requested_at is None:
         return True

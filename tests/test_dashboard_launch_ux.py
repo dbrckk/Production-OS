@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
+from datetime import datetime, timedelta, timezone
 import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
@@ -395,8 +396,19 @@ def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path):
         requested_by="operator:test",
         outcome="failed",
         error_code="github_dispatch_failed",
+        at=(datetime.now(timezone.utc) - timedelta(minutes=2)).isoformat(),
     )
+    # Failed wake attempts are retried automatically after the same durable
+    # cooldown as successful attempts, but not in immediate API bursts.
     assert control.automatic_worker_wake_allowed(cooldown_seconds=60) is True
+    control.dashboard_store.append_control_audit(
+        action="kick",
+        worker_id="automatic-launch",
+        requested_by="operator:test",
+        outcome="failed",
+        error_code="github_dispatch_failed",
+    )
+    assert control.automatic_worker_wake_allowed(cooldown_seconds=60) is False
 
 
 def test_dashboard_launch_survives_wake_audit_failure(
