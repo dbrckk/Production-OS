@@ -5029,6 +5029,7 @@ dbimport = sub.add_parser("db-import", help="Import legacy JSON state into SQLit
 tokenhash = sub.add_parser("token-hash", help="Hash an API bearer token for auth config")
 ⋮----
 controlplane = sub.add_parser("control-plane", help="Run authenticated distributed control-plane API")
+database_source = controlplane.add_mutually_exclusive_group(required=True)
 ⋮----
 remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
 ⋮----
@@ -5438,6 +5439,13 @@ raw = os.getenv(name, "").strip()
 payload = json.loads(raw)
 ⋮----
 def run_control_plane(args: argparse.Namespace) -> int
+⋮----
+database = args.database
+⋮----
+name = args.database_env
+# Fail closed on a missing secret and never echo its contents.
+⋮----
+database = os.environ.get(name)
 ⋮----
 def run_remote_worker_poll(args: argparse.Namespace) -> int
 ⋮----
@@ -14913,74 +14921,6 @@ def test_asset_production_platform_classification()
 def test_asset_production_capabilities_are_reusable_cross_profile()
 ⋮----
 pairs = {(item.source, item.target, item.capability) for item in opportunities}
-````
-
-## File: tests/test_cli.py
-````python
-def test_control_plane_builder_trust_options_are_registered()
-⋮----
-args = _parse_args([
-⋮----
-def test_builder_trust_options_are_scoped_to_control_plane()
-⋮----
-def test_trust_status_parser_accepts_incident_filters()
-⋮----
-def test_trust_status_requires_database()
-⋮----
-def test_transparency_checkpoint_parser_accepts_rekor_publication_options()
-⋮----
-def test_transparency_checkpoint_verify_parser_accepts_rekor_receipt()
-⋮----
-def test_asset_forge_batch_parser_accepts_result_file()
-⋮----
-def test_asset_forge_batch_writes_visual_quality_failure_receipt()
-⋮----
-root = Path(td)
-spec = root / "batch.json"
-receipt = root / "receipt.json"
-⋮----
-rc = run_asset_forge_batch(args)
-⋮----
-payload = json.loads(receipt.read_text())
-⋮----
-def test_asset_forge_batch_writes_success_receipt()
-⋮----
-expected = {
-⋮----
-def test_restore_activate_parser_requires_explicit_activation_fields()
-⋮----
-backup_dir = tmp_path / "backups"
-⋮----
-database = tmp_path / "production.sqlite"
-backend = SQLiteBackend(database)
-backup = create_verified_sqlite_backup(backend)
-staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
-⋮----
-lock = SQLiteDatabaseProcessLock(str(database))
-⋮----
-rc = run_restore_activate(args)
-⋮----
-payload = json.loads(capsys.readouterr().err)
-⋮----
-def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys)
-⋮----
-installed = {}
-restored = []
-old_handlers = {
-⋮----
-def fake_signal(signum, handler)
-⋮----
-runners = []
-⋮----
-class FakeRunner
-⋮----
-def __init__(self, *_args, **_kwargs)
-⋮----
-def request_stop(self)
-⋮----
-def run(self, **_kwargs)
-⋮----
-class FakeClient
 ````
 
 ## File: tests/test_compatibility_validation.py

@@ -242,20 +242,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-29T10:09:27Z
+Generated: 2026-10-29T10:50:19Z
 
 ### Git
 - Branch: `main`
-- Head: `06db86d882f0`
-- Commit date: 2026-10-29T06:09:16-04:00
-- Commit: fix(render): atomic owner-only authentication file on startup (#321)
+- Head: `716aa3531b43`
+- Commit date: 2026-10-29T06:50:09-04:00
+- Commit: fix(render): keep Neon DATABASE_URL secret out of process argv (#322)
 - Tracked files: 585
 
 ### Recently changed files
+- `docs/render-free-deployment.md`
 - `scripts/render-start.py`
+- `src/production_os/cli.py`
+- `tests/test_cli.py`
 - `tests/test_render_start.py`
 - `docs/free-hosting-migration.md`
-- `docs/render-free-deployment.md`
 - `render.yaml`
 - `tests/test_controller_daemon_deployment.py`
 - `.github/workflows/ci.yml`

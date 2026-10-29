@@ -2430,6 +2430,7 @@ dbimport = sub.add_parser("db-import", help="Import legacy JSON state into SQLit
 tokenhash = sub.add_parser("token-hash", help="Hash an API bearer token for auth config")
 ⋮----
 controlplane = sub.add_parser("control-plane", help="Run authenticated distributed control-plane API")
+database_source = controlplane.add_mutually_exclusive_group(required=True)
 ⋮----
 remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
 ⋮----
@@ -2839,6 +2840,13 @@ raw = os.getenv(name, "").strip()
 payload = json.loads(raw)
 ⋮----
 def run_control_plane(args: argparse.Namespace) -> int
+⋮----
+database = args.database
+⋮----
+name = args.database_env
+# Fail closed on a missing secret and never echo its contents.
+⋮----
+database = os.environ.get(name)
 ⋮----
 def run_remote_worker_poll(args: argparse.Namespace) -> int
 ⋮----

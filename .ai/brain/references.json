@@ -966,13 +966,13 @@
         },
         {
           "file": "src/production_os/cli.py",
-          "line": 3128,
+          "line": 3143,
           "preview": "def main(argv: list[str] | None = None) -> int:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/cli.py",
-          "line": 3284,
+          "line": 3299,
           "preview": "raise SystemExit(main())",
           "definition_candidate": false
         },
@@ -1104,13 +1104,13 @@
         },
         {
           "file": "tests/test_cli.py",
-          "line": 224,
+          "line": 263,
           "preview": "from production_os.cli import main",
           "definition_candidate": false
         },
         {
           "file": "tests/test_cli.py",
-          "line": 228,
+          "line": 267,
           "preview": "main([",
           "definition_candidate": false
         },
@@ -1296,13 +1296,13 @@
         },
         {
           "file": "tests/test_render_start.py",
-          "line": 92,
+          "line": 97,
           "preview": "MODULE.main()",
           "definition_candidate": false
         },
         {
           "file": "tests/test_render_start.py",
-          "line": 96,
+          "line": 101,
           "preview": "unittest.main()",
           "definition_candidate": false
         },
@@ -1363,73 +1363,2539 @@
       ],
       "occurrence_count": 106
     },
-    "RenderStartTests": {
+    "_parse_args": {
       "definition": {
-        "file": "tests/test_render_start.py",
-        "line": 20,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_render_start.py",
-          "line": 20,
-          "preview": "class RenderStartTests(unittest.TestCase):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_auth_payload_hashes_tokens_without_storing_plaintext": {
-      "definition": {
-        "file": "tests/test_render_start.py",
-        "line": 21,
+        "file": "src/production_os/cli.py",
+        "line": 112,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_render_start.py",
-          "line": 21,
-          "preview": "def test_auth_payload_hashes_tokens_without_storing_plaintext(self):",
+          "file": "src/production_os/cli.py",
+          "line": 112,
+          "preview": "def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:",
           "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_main_builds_control_plane_command_from_environment": {
-      "definition": {
-        "file": "tests/test_render_start.py",
-        "line": 38,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+        },
         {
-          "file": "tests/test_render_start.py",
+          "file": "src/production_os/cli.py",
+          "line": 3144,
+          "preview": "args = _parse_args(argv)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_agent_benchmark.py",
+          "line": 302,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_agent_benchmark.py",
+          "line": 304,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 7,
+          "preview": "from production_os.cli import _parse_args, run_asset_forge_batch",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 130,
+          "preview": "args = _parse_args([\"asset-forge-batch\", \"--probe\"])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 190,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 192,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_loop.py",
+          "line": 271,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_loop.py",
+          "line": 273,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 11,
+          "preview": "_parse_args,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 23,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 49,
+          "preview": "env_args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 68,
+          "preview": "invalid = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 76,
+          "preview": "_parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 87,
+          "preview": "_parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 97,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 114,
+          "preview": "_parse_args([\"trust-status\"])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 120,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 138,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 154,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 171,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 197,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 220,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 243,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 282,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_daemon.py",
+          "line": 6,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_daemon.py",
+          "line": 111,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 11,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 48,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 62,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 77,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 199,
+          "preview": "from production_os.cli import _handoff, _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 201,
+          "preview": "scan_args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 249,
+          "preview": "no_feeds = _parse_args([\"scan\", \"--owner\", \"dbrckk\", \"--no-star-list\", \"--json\"])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 166,
+          "preview": "from production_os.cli import _parse_args, _repository_root_map",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 168,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 246,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 248,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_persistent_agent_runtime.py",
+          "line": 126,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_persistent_agent_runtime.py",
+          "line": 128,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_regression_bisect.py",
+          "line": 131,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_regression_bisect.py",
+          "line": 133,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_witness_quorum_cli.py",
+          "line": 34,
+          "preview": "args = cli._parse_args(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release21_offline_restore_e2e.py",
+          "line": 6,
+          "preview": "from production_os.cli import _parse_args, run_restore_activate",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release21_offline_restore_e2e.py",
           "line": 38,
-          "preview": "def test_main_builds_control_plane_command_from_environment(self):",
-          "definition_candidate": true
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 15,
+          "preview": "from production_os.cli import _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1099,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1110,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1128,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1148,
+          "preview": "args = _parse_args([",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 51
     },
-    "test_invalid_port_fails_closed": {
+    "_rank_actions": {
       "definition": {
-        "file": "tests/test_render_start.py",
-        "line": 80,
+        "file": "src/production_os/cli.py",
+        "line": 938,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_render_start.py",
-          "line": 80,
-          "preview": "def test_invalid_port_fails_closed(self):",
+          "file": "src/production_os/cli.py",
+          "line": 938,
+          "preview": "def _rank_actions(assessments: Iterable[RepoAssessment]) -> list[ActionCandidate]:",
           "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1162,
+          "preview": "actions = _rank_actions(assessments)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 69,
+          "preview": "def _rank_actions(assessments):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 374,
+          "preview": "actions = _rank_actions(assessments)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 235,
+          "preview": "patch(\"production_os.cli._rank_actions\", return_value=[action]),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 252,
+          "preview": "patch(\"production_os.cli._rank_actions\", return_value=[action]),",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 6
+    },
+    "_external_refs_for_action": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 943,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 943,
+          "preview": "def _external_refs_for_action(action: ActionCandidate, catalog: dict | None) -> list[dict]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1032,
+          "preview": "\"external_reference_candidates\": _external_refs_for_action(action, catalog),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_handoff": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 960,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 960,
+          "preview": "def _handoff(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1200,
+          "preview": "payload = _handoff(actions[0], reuse, catalog, websites) if actions else {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 199,
+          "preview": "from production_os.cli import _handoff, _parse_args",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 218,
+          "preview": "handoff = _handoff(action, [], catalog, websites)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "_print_human": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1067,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1067,
+          "preview": "def _print_human(assessments, actions, regressions, reuse, catalog_loaded: bool) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1259,
+          "preview": "_print_human(assessments, actions, regressions, reuse, bool(catalog))",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_scan": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1117,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1117,
+          "preview": "def run_scan(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3146,
+          "preview": "return run_scan(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 231,
+          "preview": "from production_os.cli import run_scan",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 239,
+          "preview": "assert run_scan(scan_args) == 0",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 255,
+          "preview": "assert run_scan(no_feeds) == 0",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "run_validation_results": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1264,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1264,
+          "preview": "def run_validation_results(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3148,
+          "preview": "return run_validation_results(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_execution_feedback": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1296,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1296,
+          "preview": "def run_execution_feedback(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3150,
+          "preview": "return run_execution_feedback(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_trends": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1333,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1333,
+          "preview": "def run_trends(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3152,
+          "preview": "return run_trends(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_heartbeat": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1346,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1346,
+          "preview": "def run_heartbeat(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3154,
+          "preview": "return run_heartbeat(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_reconcile": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1361,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1361,
+          "preview": "def run_reconcile(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3156,
+          "preview": "return run_reconcile(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_dispatch": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1371,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1371,
+          "preview": "def run_dispatch(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3158,
+          "preview": "return run_dispatch(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release_postgres.py",
+          "line": 11,
+          "preview": "from production_os.cli import run_db_init, run_dispatch",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release_postgres.py",
+          "line": 114,
+          "preview": "assert run_dispatch(Namespace(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "_write_asset_result": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1450,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1450,
+          "preview": "def _write_asset_result(path_value: str | None, payload: dict) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1502,
+          "preview": "_write_asset_result(args.result_file, failure)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1532,
+          "preview": "_write_asset_result(args.result_file, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1547,
+          "preview": "_write_asset_result(args.result_file, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1570,
+          "preview": "_write_asset_result(args.result_file, failure)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1573,
+          "preview": "_write_asset_result(args.result_file, result)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "_asset_failure_result": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1461,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1461,
+          "preview": "def _asset_failure_result(exc: Exception) -> dict:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1500,
+          "preview": "failure = _asset_failure_result(exc)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1568,
+          "preview": "failure = _asset_failure_result(exc)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "run_asset_forge_dispatch": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1472,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1472,
+          "preview": "def run_asset_forge_dispatch(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3160,
+          "preview": "return run_asset_forge_dispatch(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_asset_forge_batch": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1537,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1537,
+          "preview": "def run_asset_forge_batch(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3162,
+          "preview": "return run_asset_forge_batch(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 7,
+          "preview": "from production_os.cli import _parse_args, run_asset_forge_batch",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 146,
+          "preview": "assert run_asset_forge_batch(args) == 0",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 155,
+          "preview": "assert run_asset_forge_batch(args) == 1",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 12,
+          "preview": "run_asset_forge_batch,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 181,
+          "preview": "rc = run_asset_forge_batch(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 213,
+          "preview": "rc = run_asset_forge_batch(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 8
+    },
+    "run_github_reconcile": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1578,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1578,
+          "preview": "def run_github_reconcile(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3164,
+          "preview": "return run_github_reconcile(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_controller_command": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1632,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1632,
+          "preview": "def run_controller_command(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3166,
+          "preview": "return run_controller_command(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_request_stop": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1666,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1666,
+          "preview": "def _request_stop(_signum, _frame):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1672,
+          "preview": "_request_stop,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2268,
+          "preview": "def _request_stop(_signum, _frame):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2274,
+          "preview": "_request_stop,",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "run_worker_register": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1700,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1700,
+          "preview": "def run_worker_register(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3170,
+          "preview": "return run_worker_register(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_worker_heartbeat": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1714,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1714,
+          "preview": "def run_worker_heartbeat(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3172,
+          "preview": "return run_worker_heartbeat(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_worker_list": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1724,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1724,
+          "preview": "def run_worker_list(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3174,
+          "preview": "return run_worker_list(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_job_claim": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1737,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1737,
+          "preview": "def run_job_claim(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3176,
+          "preview": "return run_job_claim(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_job_ack": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1764,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1764,
+          "preview": "def run_job_ack(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3178,
+          "preview": "return run_job_ack(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_job_complete": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1774,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1774,
+          "preview": "def run_job_complete(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3180,
+          "preview": "return run_job_complete(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_delivery_recover": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1797,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1797,
+          "preview": "def run_delivery_recover(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3182,
+          "preview": "return run_delivery_recover(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_preempt_request": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1816,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1816,
+          "preview": "def run_preempt_request(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3184,
+          "preview": "return run_preempt_request(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_preempt_checkpoint": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1826,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1826,
+          "preview": "def run_preempt_checkpoint(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3186,
+          "preview": "return run_preempt_checkpoint(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_emergency_stop": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1845,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1845,
+          "preview": "def run_emergency_stop(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3188,
+          "preview": "return run_emergency_stop(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_emergency_resume": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1851,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1851,
+          "preview": "def run_emergency_resume(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3190,
+          "preview": "return run_emergency_resume(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_audit_verify": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1857,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1857,
+          "preview": "def run_audit_verify(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3192,
+          "preview": "return run_audit_verify(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_backup": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1863,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1863,
+          "preview": "def run_backup(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3194,
+          "preview": "return run_backup(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_restore": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1869,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1869,
+          "preview": "def run_restore(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3196,
+          "preview": "return run_restore(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_restore_activate": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1875,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1875,
+          "preview": "def run_restore_activate(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3198,
+          "preview": "return run_restore_activate(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 15,
+          "preview": "run_restore_activate,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 253,
+          "preview": "rc = run_restore_activate(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release21_offline_restore_e2e.py",
+          "line": 6,
+          "preview": "from production_os.cli import _parse_args, run_restore_activate",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release21_offline_restore_e2e.py",
+          "line": 44,
+          "preview": "assert run_restore_activate(args) == 0",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "run_approve": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1905,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1905,
+          "preview": "def run_approve(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3200,
+          "preview": "return run_approve(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_revoke": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1920,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1920,
+          "preview": "def run_revoke(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3202,
+          "preview": "return run_revoke(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_migrate_state": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1935,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1935,
+          "preview": "def run_migrate_state(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3204,
+          "preview": "return run_migrate_state(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_migrate_many": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1942,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1942,
+          "preview": "def run_migrate_many(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3206,
+          "preview": "return run_migrate_many(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_queue_compact": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1951,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1951,
+          "preview": "def run_queue_compact(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3208,
+          "preview": "return run_queue_compact(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_dead_letter_retry": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1965,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1965,
+          "preview": "def run_dead_letter_retry(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3210,
+          "preview": "return run_dead_letter_retry(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_audit_checkpoint_create": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1978,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1978,
+          "preview": "def run_audit_checkpoint_create(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3212,
+          "preview": "return run_audit_checkpoint_create(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_audit_checkpoint_verify": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1988,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1988,
+          "preview": "def run_audit_checkpoint_verify(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3214,
+          "preview": "return run_audit_checkpoint_verify(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_quarantine": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 1998,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1998,
+          "preview": "def run_quarantine(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3216,
+          "preview": "return run_quarantine(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_unquarantine": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2009,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2009,
+          "preview": "def run_unquarantine(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3218,
+          "preview": "return run_unquarantine(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_budget_record": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2020,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2020,
+          "preview": "def run_budget_record(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3220,
+          "preview": "return run_budget_record(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_policy_validate": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2039,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2039,
+          "preview": "def run_policy_validate(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3222,
+          "preview": "return run_policy_validate(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_policy_check": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2049,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2049,
+          "preview": "def run_policy_check(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3224,
+          "preview": "return run_policy_check(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_db_init": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2063,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2063,
+          "preview": "def run_db_init(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3226,
+          "preview": "return run_db_init(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release_postgres.py",
+          "line": 11,
+          "preview": "from production_os.cli import run_db_init, run_dispatch",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release_postgres.py",
+          "line": 110,
+          "preview": "assert run_db_init(Namespace(database=backend.dsn)) == 0",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "run_db_import": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2079,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2079,
+          "preview": "def run_db_import(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3228,
+          "preview": "return run_db_import(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_token_hash": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2091,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2091,
+          "preview": "def run_token_hash(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3230,
+          "preview": "return run_token_hash(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_trusted_validation_keys_from_env": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2099,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2099,
+          "preview": "def _trusted_validation_keys_from_env(name: str) -> dict:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2133,
+          "preview": "trusted_validation_secrets=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2139,
+          "preview": "trusted_validation_public_keys=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2179,
+          "preview": "trusted_builders=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2182,
+          "preview": "trusted_builder_keys=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2659,
+          "preview": "trusted_validation_secrets=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2663,
+          "preview": "trusted_validation_public_keys=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2683,
+          "preview": "trusted_builders=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2686,
+          "preview": "trusted_builder_keys=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2784,
+          "preview": "validator_keys=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2787,
+          "preview": "builder_keys=_trusted_validation_keys_from_env(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 11
+    },
+    "run_control_plane": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2115,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2115,
+          "preview": "def run_control_plane(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3232,
+          "preview": "return run_control_plane(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 13,
+          "preview": "run_control_plane,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 58,
+          "preview": "assert run_control_plane(env_args) == 0",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 65,
+          "preview": "run_control_plane(env_args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 73,
+          "preview": "run_control_plane(invalid)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "run_remote_worker_poll": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2191,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2191,
+          "preview": "def run_remote_worker_poll(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3234,
+          "preview": "return run_remote_worker_poll(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_repository_root_map": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2212,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2212,
+          "preview": "def _repository_root_map(values: list[str]) -> dict[str, str]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2262,
+          "preview": "repository_roots=_repository_root_map(args.repository_root),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 166,
+          "preview": "from production_os.cli import _parse_args, _repository_root_map",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 178,
+          "preview": "assert _repository_root_map(args.repository_root) == {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 186,
+          "preview": "from production_os.cli import _repository_root_map",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 189,
+          "preview": "_repository_root_map([\"missing-path\"])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 191,
+          "preview": "_repository_root_map([",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 7
+    },
+    "run_remote_worker_run": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2240,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2240,
+          "preview": "def run_remote_worker_run(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3236,
+          "preview": "return run_remote_worker_run(args)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 14,
+          "preview": "run_remote_worker_run,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 337,
+          "preview": "assert run_remote_worker_run(args) == 0",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "_browser_storage_state": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2294,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2294,
+          "preview": "def _browser_storage_state(args: argparse.Namespace) -> str | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2336,
+          "preview": "storage_state_path=_browser_storage_state(args),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2355,
+          "preview": "storage_state_path=_browser_storage_state(args),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 213,
+          "preview": "from production_os.cli import _browser_storage_state",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 221,
+          "preview": "assert _browser_storage_state(args) == (",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 229,
+          "preview": "from production_os.cli import _browser_storage_state",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 237,
+          "preview": "assert _browser_storage_state(args) == \"/tmp/custom-state.json\"",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 7
+    },
+    "_browser_session_state": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2306,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2306,
+          "preview": "def _browser_session_state(args: argparse.Namespace) -> str | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2337,
+          "preview": "session_state_path=_browser_session_state(args),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2356,
+          "preview": "session_state_path=_browser_session_state(args),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 324,
+          "preview": "from production_os.cli import _browser_session_state",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 332,
+          "preview": "assert _browser_session_state(args) == (",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "_browser_checkpoint_state": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2318,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2318,
+          "preview": "def _browser_checkpoint_state(args: argparse.Namespace) -> str | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2338,
+          "preview": "checkpoint_path=_browser_checkpoint_state(args),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2357,
+          "preview": "checkpoint_path=_browser_checkpoint_state(args),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 417,
+          "preview": "from production_os.cli import _browser_checkpoint_state",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 425,
+          "preview": "assert _browser_checkpoint_state(args) == (",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "run_browser_plan": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2330,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2330,
+          "preview": "def run_browser_plan(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3238,
+          "preview": "return run_browser_plan(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_browser_loop_command": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2345,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2345,
+          "preview": "def run_browser_loop_command(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3240,
+          "preview": "return run_browser_loop_command(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_agent_benchmark": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2372,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2372,
+          "preview": "def run_agent_benchmark(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3242,
+          "preview": "return run_agent_benchmark(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_regression_bisect_command": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2388,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2388,
+          "preview": "def run_regression_bisect_command(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3244,
+          "preview": "return run_regression_bisect_command(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_workflow_engine": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2401,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2401,
+          "preview": "def _workflow_engine(database: str) -> WorkflowEngine:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2408,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2431,
+          "preview": "workflow = _workflow_engine(args.database).get(args.workflow_id)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2440,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2451,
+          "preview": "payload = _workflow_engine(args.database).critical_path(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2459,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2534,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2553,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2570,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2614,
+          "preview": "workflow = _workflow_engine(args.database).cancel(args.workflow_id)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2623,
+          "preview": "artifact = _workflow_engine(args.database).add_artifact(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2655,
+          "preview": "engine = _workflow_engine(database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2709,
+          "preview": "engine=_workflow_engine(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2993,
+          "preview": "engine = _workflow_engine(args.database)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 14
+    },
+    "run_workflow_create": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2406,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2406,
+          "preview": "def run_workflow_create(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3246,
+          "preview": "return run_workflow_create(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_status": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2430,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2430,
+          "preview": "def run_workflow_status(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3248,
+          "preview": "return run_workflow_status(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_dispatch": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2439,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2439,
+          "preview": "def run_workflow_dispatch(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3250,
+          "preview": "return run_workflow_dispatch(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_critical_path": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2450,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2450,
+          "preview": "def run_workflow_critical_path(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3252,
+          "preview": "return run_workflow_critical_path(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_eta": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2458,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2458,
+          "preview": "def run_workflow_eta(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3254,
+          "preview": "return run_workflow_eta(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_stragglers": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2470,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2470,
+          "preview": "def run_stragglers(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3256,
+          "preview": "return run_stragglers(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_speculate_stragglers": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2488,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2488,
+          "preview": "def run_speculate_stragglers(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3258,
+          "preview": "return run_speculate_stragglers(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_impact": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2533,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2533,
+          "preview": "def run_workflow_impact(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3260,
+          "preview": "return run_workflow_impact(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_impact_pr": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2547,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2547,
+          "preview": "def run_workflow_impact_pr(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3262,
+          "preview": "return run_workflow_impact_pr(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_pr_refresh": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2569,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2569,
+          "preview": "def run_pr_refresh(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3264,
+          "preview": "return run_pr_refresh(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_workflow_cancel": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2613,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2613,
+          "preview": "def run_workflow_cancel(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3266,
+          "preview": "return run_workflow_cancel(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_artifact_add": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2622,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2622,
+          "preview": "def run_artifact_add(args: argparse.Namespace) -> int:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3268,
+          "preview": "return run_artifact_add(args)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_release_ledger": {
+      "definition": {
+        "file": "src/production_os/cli.py",
+        "line": 2648,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2648,
+          "preview": "def _release_ledger(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2748,
+          "preview": "ledger=_release_ledger(args.database)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3035,
+          "preview": "result = _release_ledger(args.database).record_incident_report(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3050,
+          "preview": "report = _release_ledger(args.database).incident_report(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3060,
+          "preview": "result = _release_ledger(args.database).trust_status(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3073,
+          "preview": "result = _release_ledger(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3096,
+          "preview": "release = _release_ledger(args.database).promote(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3126,
+          "preview": "release = _release_ledger(args.database).rollback(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state_cli.py",
+          "line": 50,
+          "preview": "monkeypatch.setattr(cli, \"_release_ledger\", lambda _: Ledger())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_witness_quorum_cli.py",
+          "line": 72,
+          "preview": "monkeypatch.setattr(cli, \"_release_ledger\", lambda _: Ledger())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_cli.py",
+          "line": 239,
+          "preview": "monkeypatch.setattr(cli, \"_release_ledger\", lambda database: Ledger())",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 11
     }
   }
 }

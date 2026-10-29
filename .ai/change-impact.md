@@ -1,18 +1,23 @@
 # Change impact
 
-Base: aad9be6c1ed078b6e474633788f8c85ce3a944b3
-Head: 06db86d882f0453562599ff03b83003406900538
+Base: 00e69b29afeec8d4f551f8f1b106f23dcc6d5554
+Head: 716aa3531b432aa8e2f5d88551fdf24f5f6b8052
 
 ## Changed files
+- M docs/render-free-deployment.md
 - M scripts/render-start.py
+- M src/production_os/cli.py
+- M tests/test_cli.py
 - M tests/test_render_start.py
 
 ## Affected areas
+- docs
 - scripts
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_cli.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
