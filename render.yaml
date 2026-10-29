@@ -12,7 +12,9 @@ services:
     dockerfilePath: ./Dockerfile.free-hosting
     dockerContext: .
     autoDeployTrigger: commit
-    healthCheckPath: /readyz
+    # Lightweight liveness avoids waking the free Neon compute on each
+    # frequent Render health probe. Workers still require DB-backed /readyz.
+    healthCheckPath: /healthz
     buildFilter:
       paths:
         - src/**

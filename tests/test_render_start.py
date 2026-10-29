@@ -116,5 +116,28 @@ class RenderStartTests(unittest.TestCase):
                 MODULE.main()
 
 
+        # The free Render service must fail closed before creating any auth
+        # file if an ephemeral SQLite path or shared operator token is set.
+        with tempfile.TemporaryDirectory() as td:
+            base = {
+                "DATABASE_URL": "postgresql://example/db",
+                "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
+                "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "PRODUCTION_OS_RUNTIME_DIR": td,
+            }
+            for change, expected in (
+                ({"DATABASE_URL": "/tmp/production.db"}, "PostgreSQL connection URL"),
+                ({"DATABASE_URL": "sqlite:///tmp/production.db"}, "PostgreSQL connection URL"),
+                ({"PRODUCTION_OS_OPERATOR_TOKEN": "worker-secret"}, "must be distinct"),
+            ):
+                with self.subTest(change=change), patch.dict(
+                    os.environ, {**base, **change}, clear=True
+                ), patch.object(MODULE.os, "execvp") as execvp:
+                    with self.assertRaisesRegex(SystemExit, expected):
+                        MODULE.main()
+                    execvp.assert_not_called()
+                    self.assertFalse((Path(td) / "auth.json").exists())
+
+
 if __name__ == "__main__":
     unittest.main()

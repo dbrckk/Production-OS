@@ -49,6 +49,14 @@ def main() -> None:
     if not worker_name:
         raise SystemExit("PRODUCTION_OS_WORKER_ID must not be empty")
     operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
+    # Duplicate secrets collapse the operator/worker role boundary. Refuse
+    # to start rather than choosing an arbitrary role for the same digest.
+    if worker_token == operator_token:
+        raise SystemExit("worker and operator tokens must be distinct")
+    # Render has no durable local disk. A SQLite pathname or an accidental
+    # empty host would silently fork the persistent production state.
+    if not database_url.startswith(("postgresql://", "postgres://")):
+        raise SystemExit("DATABASE_URL must be a PostgreSQL connection URL")
     port = str(os.environ.get("PORT") or "8787").strip()
     if not port.isdigit() or not (1 <= int(port) <= 65535):
         raise SystemExit("PORT must be an integer between 1 and 65535")
