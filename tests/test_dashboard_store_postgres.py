@@ -1,8 +1,11 @@
 from uuid import uuid4
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 import os
 
 import pytest
 
+from production_os.dashboard_store import DashboardStore
 from production_os.postgres_backend import PostgresBackend
 from production_os.dashboard_maintenance import storage_maintenance_snapshot
 
@@ -129,6 +132,34 @@ def test_postgres_schema_v19_has_managed_project_and_pairing_tables():
         "status","current_workflow_id","generation","created_by",
         "created_at","updated_at","reviewed_at","completed_at","completed_by",
     } <= managed_columns
+
+    # The durable worker wake lock must also serialize independent
+    # PostgreSQL transactions, not just SQLite's BEGIN IMMEDIATE.
+    store = DashboardStore(backend)
+    worker_id = "atomic-wake-" + uuid4().hex
+    barrier = Barrier(4)
+
+    def reserve(_index):
+        barrier.wait(timeout=10)
+        return store.reserve_automatic_worker_wake(
+            worker_id=worker_id,
+            requested_by="integration:postgres",
+            cooldown_seconds=60,
+        )
+
+    try:
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            receipts = list(pool.map(reserve, range(4)))
+        assert sum(receipt is not None for receipt in receipts) == 1
+        assert store.latest_control_audit(
+            action="kick", worker_id=worker_id,
+        )["outcome"] == "dispatching"
+    finally:
+        with backend.transaction() as db:
+            db.execute(
+                "DELETE FROM control_audit_events WHERE worker_id=%s",
+                (worker_id,),
+            )
 
 
 def test_dashboard_service_project_queries_work_on_postgres():
