@@ -61,6 +61,7 @@ class RenderStartTests(unittest.TestCase):
             )
             self.assertFalse(auth_path.is_symlink())
             self.assertEqual(stat.S_IMODE(auth_path.stat().st_mode), 0o600)
+            self.assertEqual(stat.S_IMODE(Path(td).stat().st_mode), 0o700)
             self.assertEqual(list(Path(td).glob(".auth-*.tmp")), [])
 
             execvp.assert_called_once()
@@ -83,6 +84,24 @@ class RenderStartTests(unittest.TestCase):
             self.assertEqual(entries["worker"]["name"], "custom-actions-worker")
 
     def test_invalid_port_fails_closed(self):
+        with tempfile.TemporaryDirectory() as td, patch.dict(
+            os.environ,
+            {
+                "DATABASE_URL": "postgresql://example/db",
+                "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
+                "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "PRODUCTION_OS_RUNTIME_DIR": str(Path(td) / "redirect"),
+                "PORT": "8787",
+            },
+            clear=True,
+        ), patch.object(MODULE.os, "execvp") as execvp:
+            redirect = Path(td) / "redirect"
+            redirect.symlink_to(Path(td), target_is_directory=True)
+            with self.assertRaisesRegex(SystemExit, "must not be a symlink"):
+                MODULE.main()
+            execvp.assert_not_called()
+            self.assertFalse((Path(td) / "auth.json").exists())
+
         with patch.dict(
             os.environ,
             {
