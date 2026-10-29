@@ -1,4 +1,5 @@
 import json
+import os
 import signal
 import tempfile
 from pathlib import Path
@@ -9,6 +10,7 @@ import pytest
 from production_os.cli import (
     _parse_args,
     run_asset_forge_batch,
+    run_control_plane,
     run_remote_worker_run,
     run_restore_activate,
 )
@@ -41,6 +43,43 @@ def test_control_plane_builder_trust_options_are_registered():
     assert args.trusted_builders_env == "TRUSTED_BUILDERS"
     assert args.trusted_builder_keys_env == "TRUSTED_BUILDER_KEYS"
     assert args.require_trusted_builder is True
+
+    # Execute the actual CLI control-plane boundary using the secret name,
+    # never the value in argv. Existing explicit --database remains supported.
+    env_args = _parse_args([
+        "control-plane",
+        "--database-env", "DATABASE_URL",
+        "--auth-config", "auth.json",
+    ])
+    secret_url = "postgresql://db_user:test_password@db.example/production_os"
+    with patch.dict(os.environ, {"DATABASE_URL": secret_url}), patch(
+        "production_os.cli.serve_control_plane"
+    ) as serve:
+        assert run_control_plane(env_args) == 0
+    assert serve.call_args.args[:2] == (secret_url, "auth.json")
+    assert secret_url not in str(env_args)
+    assert env_args.database is None
+
+    with patch.dict(os.environ, {"DATABASE_URL": ""}):
+        with pytest.raises(ValueError, match="database environment variable is missing"):
+            run_control_plane(env_args)
+    assert serve.call_count == 1
+
+    invalid = _parse_args([
+        "control-plane", "--database-env", "BAD-NAME",
+        "--auth-config", "auth.json",
+    ])
+    with pytest.raises(ValueError, match="invalid control-plane database"):
+        run_control_plane(invalid)
+
+    with pytest.raises(SystemExit) as conflict:
+        _parse_args([
+            "control-plane",
+            "--database", "local.sqlite",
+            "--database-env", "DATABASE_URL",
+            "--auth-config", "auth.json",
+        ])
+    assert conflict.value.code == 2
 
 
 def test_builder_trust_options_are_scoped_to_control_plane():
