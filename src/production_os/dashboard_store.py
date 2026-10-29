@@ -918,6 +918,70 @@ class DashboardStore:
                 (ident,),
             )
 
+    def reserve_automatic_worker_wake(
+        self,
+        *,
+        worker_id: str,
+        requested_by: str,
+        cooldown_seconds: int = 60,
+    ) -> dict | None:
+        """Atomically reserve one external worker wake within its cooldown.
+
+        SQLite's immediate transaction serializes writers. PostgreSQL uses a
+        transaction-scoped advisory lock per worker before reading the latest
+        audit row. Reserving *before* the external dispatch closes the race
+        between simultaneous dashboard/controller requests.
+        """
+        from datetime import timedelta
+
+        now = datetime.now(timezone.utc)
+        cutoff = now - timedelta(seconds=max(1, int(cooldown_seconds)))
+        ident = uuid4().hex
+        with self.backend.transaction() as db:
+            if _is_postgres(self.backend):
+                _execute(
+                    db,
+                    self.backend,
+                    "SELECT pg_advisory_xact_lock(hashtext(?))",
+                    ("production-os-automatic-wake:" + worker_id,),
+                ).fetchone()
+            latest = self._fetchone(
+                db,
+                """SELECT * FROM control_audit_events
+                   WHERE action=? AND worker_id=?
+                   ORDER BY requested_at DESC, id DESC LIMIT 1""",
+                ("kick", worker_id),
+            )
+            if latest is not None:
+                raw = latest.get("requested_at")
+                try:
+                    when = datetime.fromisoformat(
+                        str(raw).replace("Z", "+00:00")
+                    )
+                    if when.tzinfo is None:
+                        when = when.replace(tzinfo=timezone.utc)
+                except (TypeError, ValueError):
+                    when = None
+                if when is not None and when > cutoff:
+                    return None
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO control_audit_events(
+                    id, action, worker_id, job_key, requested_by,
+                    outcome, error_code, requested_at
+                ) VALUES(?,?,?,?,?,?,?,?)""",
+                (
+                    ident, "kick", worker_id, None, str(requested_by),
+                    "dispatching", None, now.isoformat(),
+                ),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM control_audit_events WHERE id=?",
+                (ident,),
+            )
+
     def update_control_audit(
         self,
         event_id: str,
