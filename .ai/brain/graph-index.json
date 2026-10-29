@@ -611,6 +611,7 @@
         "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_remediation_metrics.py",
         "tests/test_dashboard_retention_prune.py",
+        "tests/test_dashboard_store_postgres.py",
         "tests/test_dashboard_ui_v3.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_github_webhook.py",
@@ -626,7 +627,7 @@
         "tests/test_scoring.py",
         "tests/test_worker_wake.py"
       ],
-      "in_degree": 58,
+      "in_degree": 59,
       "out_degree": 2,
       "path": "tests/test_fairness.py"
     },
@@ -1346,6 +1347,33 @@
     },
     {
       "dependencies": [
+        "src/production_os/dashboard_security.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
+        "tests/test_agent_benchmark.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_control.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_github.py",
+        "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_store.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_model_router.py"
+      ],
+      "in_degree": 13,
+      "out_degree": 5,
+      "path": "src/production_os/dashboard_store.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/agent_runtime.py",
         "src/production_os/control_plane.py",
         "src/production_os/executor_worktree.py",
@@ -1422,32 +1450,6 @@
       "in_degree": 16,
       "out_degree": 1,
       "path": "src/production_os/signers.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/dashboard_security.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/dashboard_control.py",
-        "tests/test_agent_benchmark.py",
-        "tests/test_controller_managed_projects.py",
-        "tests/test_dashboard_control.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_github.py",
-        "tests/test_dashboard_incidents.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_store.py",
-        "tests/test_model_router.py"
-      ],
-      "in_degree": 12,
-      "out_degree": 5,
-      "path": "src/production_os/dashboard_store.py"
     },
     {
       "dependencies": [
@@ -2115,7 +2117,7 @@
       "path": "tests/test_dashboard_launch_ux.py"
     }
   ],
-  "edge_count": 1839,
+  "edge_count": 1842,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 348,
   "schema_version": 1

@@ -8024,6 +8024,27 @@ sessions = _execute(
 ⋮----
 bounded = max(1, min(200, int(limit)))
 ⋮----
+"""Atomically reserve one external worker wake within its cooldown.
+
+        SQLite's immediate transaction serializes writers. PostgreSQL uses a
+        transaction-scoped advisory lock per worker before reading the latest
+        audit row. Reserving *before* the external dispatch closes the race
+        between simultaneous dashboard/controller requests.
+        """
+⋮----
+now = datetime.now(timezone.utc)
+cutoff = now - timedelta(seconds=max(1, int(cooldown_seconds)))
+⋮----
+latest = self._fetchone(
+⋮----
+raw = latest.get("requested_at")
+⋮----
+when = datetime.fromisoformat(
+⋮----
+when = when.replace(tzinfo=timezone.utc)
+⋮----
+when = None
+⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
 def get_worker_control(self, worker_id: str) -> dict | None
@@ -13479,11 +13500,17 @@ capabilities = {
 ⋮----
 compatible = True
 ⋮----
+reservation = store.reserve_automatic_worker_wake(
+⋮----
+# The queue remains durable. Without a reservation we must not
+# dispatch: concurrent requests could otherwise bypass the throttle.
+⋮----
 wake = dashboard_control.kick_worker(worker_id)
 ⋮----
-# Waking a worker is a best-effort recovery path. Never turn an
-# already-created durable production into an HTTP/controller failure
-# merely because the auxiliary audit write could not be persisted.
+wake = {"status":"failed", "error":"wake_dispatch_failed"}
+⋮----
+# Never fail an already-enqueued production merely because reporting
+# fails. The durable dispatching reservation still bounds retries.
 ````
 
 ## File: src/production_os/workers.py
@@ -17319,6 +17346,16 @@ remediation_columns = {
 managed_tables = {row["table_name"] for row in cur.fetchall()}
 ⋮----
 managed_columns = {row["column_name"] for row in cur.fetchall()}
+⋮----
+# The durable worker wake lock must also serialize independent
+# PostgreSQL transactions, not just SQLite's BEGIN IMMEDIATE.
+store = DashboardStore(backend)
+worker_id = "atomic-wake-" + uuid4().hex
+barrier = Barrier(4)
+⋮----
+def reserve(_index)
+⋮----
+receipts = list(pool.map(reserve, range(4)))
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -22245,7 +22282,22 @@ failed = ControlPlane(str(tmp_path / "wake-failed-cooldown.sqlite"))
 # cooldown, dispatch resumes automatically without operator intervention.
 recovered = ControlPlane(str(tmp_path / "wake-recovered-cooldown.sqlite"))
 ⋮----
+# The read-check-dispatch path used to race on simultaneous HTTP
+# requests. Exercise the actual wake path against a shared SQLite DB:
+# the transaction must permit exactly one external dispatch.
+concurrent = ControlPlane(str(tmp_path / "wake-concurrent.sqlite"))
+triggered = []
+⋮----
+start = Barrier(4)
+⋮----
+def wake_once(_index)
+⋮----
+outcomes = list(pool.map(wake_once, range(4)))
+⋮----
 control = ControlPlane(str(tmp_path / "wake-audit.sqlite"))
+⋮----
+# If the durable reservation itself cannot be written, do not launch
+# an untracked worker. The already-queued job remains retriable.
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-capability-gap.sqlite"))
 ⋮----

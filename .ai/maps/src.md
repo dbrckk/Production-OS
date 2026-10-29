@@ -5414,6 +5414,27 @@ sessions = _execute(
 ⋮----
 bounded = max(1, min(200, int(limit)))
 ⋮----
+"""Atomically reserve one external worker wake within its cooldown.
+
+        SQLite's immediate transaction serializes writers. PostgreSQL uses a
+        transaction-scoped advisory lock per worker before reading the latest
+        audit row. Reserving *before* the external dispatch closes the race
+        between simultaneous dashboard/controller requests.
+        """
+⋮----
+now = datetime.now(timezone.utc)
+cutoff = now - timedelta(seconds=max(1, int(cooldown_seconds)))
+⋮----
+latest = self._fetchone(
+⋮----
+raw = latest.get("requested_at")
+⋮----
+when = datetime.fromisoformat(
+⋮----
+when = when.replace(tzinfo=timezone.utc)
+⋮----
+when = None
+⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
 def get_worker_control(self, worker_id: str) -> dict | None
@@ -10869,11 +10890,17 @@ capabilities = {
 ⋮----
 compatible = True
 ⋮----
+reservation = store.reserve_automatic_worker_wake(
+⋮----
+# The queue remains durable. Without a reservation we must not
+# dispatch: concurrent requests could otherwise bypass the throttle.
+⋮----
 wake = dashboard_control.kick_worker(worker_id)
 ⋮----
-# Waking a worker is a best-effort recovery path. Never turn an
-# already-created durable production into an HTTP/controller failure
-# merely because the auxiliary audit write could not be persisted.
+wake = {"status":"failed", "error":"wake_dispatch_failed"}
+⋮----
+# Never fail an already-enqueued production merely because reporting
+# fails. The durable dispatching reservation still bounds retries.
 ```
 
 ## File: production_os/workers.py

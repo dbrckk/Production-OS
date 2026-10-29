@@ -1,25 +1,22 @@
 # Change impact
 
-Base: 88acd5e3e541702402d228d7b585fce45a21541c
-Head: dc9cd3c6aee4cefb52c79d853b4ea03e1ea063d5
+Base: d90360bb425a19e213e40ec6984da14f4ba9ef2f
+Head: 588bce655effc282d463ff859fb66cbca9df7db0
 
 ## Changed files
-- M .github/workflows/ci.yml
-- M docs/render-free-deployment.md
-- M render.yaml
-- M scripts/render-start.py
-- M tests/test_controller_daemon_deployment.py
-- M tests/test_render_start.py
+- M src/production_os/dashboard_store.py
+- M src/production_os/worker_wake.py
+- M tests/test_dashboard_launch_ux.py
+- M tests/test_dashboard_store_postgres.py
+- M tests/test_worker_wake.py
 
 ## Affected areas
-- .github
-- docs
-- (root)
-- scripts
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_dashboard_store.py
+- tests/test_worker_wake.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
