@@ -145,22 +145,29 @@ def request_automatic_worker_wake(
     ):
         return {"status":"not_needed"}
 
-    if not automatic_worker_wake_allowed(
-        store,
-        cooldown_seconds=cooldown_seconds,
-        worker_id=worker_id,
-    ):
+    try:
+        reservation = store.reserve_automatic_worker_wake(
+            worker_id=worker_id,
+            requested_by=requested_by,
+            cooldown_seconds=cooldown_seconds,
+        )
+    except Exception:
+        # The queue remains durable. Without a reservation we must not
+        # dispatch: concurrent requests could otherwise bypass the throttle.
+        return {"status":"failed", "error":"wake_reservation_failed"}
+    if reservation is None:
         return {
             "status":"cooldown",
             "cooldown_seconds":int(cooldown_seconds),
         }
 
-    wake = dashboard_control.kick_worker(worker_id)
     try:
-        store.append_control_audit(
-            action="kick",
-            worker_id=worker_id,
-            requested_by=str(requested_by),
+        wake = dashboard_control.kick_worker(worker_id)
+    except Exception:
+        wake = {"status":"failed", "error":"wake_dispatch_failed"}
+    try:
+        store.update_control_audit(
+            reservation["id"],
             outcome=str(wake.get("status") or "failed"),
             error_code=(
                 str(wake.get("error"))
@@ -169,12 +176,7 @@ def request_automatic_worker_wake(
             ),
         )
     except Exception:
-        # Waking a worker is a best-effort recovery path. Never turn an
-        # already-created durable production into an HTTP/controller failure
-        # merely because the auxiliary audit write could not be persisted.
-        return {
-            **wake,
-            "audit_recorded":False,
-        }
-
+        # Never fail an already-enqueued production merely because reporting
+        # fails. The durable dispatching reservation still bounds retries.
+        return {**wake, "audit_recorded":False}
     return wake

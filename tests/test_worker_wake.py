@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 
 from production_os.control_plane import ControlPlane
 from production_os.worker_wake import request_automatic_worker_wake
@@ -142,6 +144,34 @@ def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch):
     assert result == {"status":"dispatched"}
     assert calls == ["automatic-launch"]
 
+    # The read-check-dispatch path used to race on simultaneous HTTP
+    # requests. Exercise the actual wake path against a shared SQLite DB:
+    # the transaction must permit exactly one external dispatch.
+    concurrent = ControlPlane(str(tmp_path / "wake-concurrent.sqlite"))
+    triggered = []
+    monkeypatch.setattr(
+        concurrent.dashboard_control,
+        "kick_worker",
+        lambda worker_id: triggered.append(worker_id) or {"status":"dispatched"},
+    )
+    start = Barrier(4)
+
+    def wake_once(_index):
+        start.wait(timeout=10)
+        return request_automatic_worker_wake(
+            workers=concurrent.workers,
+            dashboard_control=concurrent.dashboard_control,
+            store=concurrent.dashboard_store,
+            requested_by="controller:auto",
+        )
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        outcomes = list(pool.map(wake_once, range(4)))
+    assert [item["status"] for item in outcomes].count("dispatched") == 1
+    assert [item["status"] for item in outcomes].count("cooldown") == 3
+    assert triggered == ["automatic-launch"]
+    assert len(concurrent.dashboard_store.control_audit_events(limit=10)) == 1
+
 
 def test_shared_wake_does_not_fail_durable_work_when_audit_write_fails(
     tmp_path,
@@ -155,8 +185,8 @@ def test_shared_wake_does_not_fail_durable_work_when_audit_write_fails(
     )
     monkeypatch.setattr(
         control.dashboard_store,
-        "append_control_audit",
-        lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("audit unavailable")),
+        "update_control_audit",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("audit unavailable")),
     )
 
     result = request_automatic_worker_wake(
@@ -165,11 +195,25 @@ def test_shared_wake_does_not_fail_durable_work_when_audit_write_fails(
         store=control.dashboard_store,
         requested_by="controller:auto",
     )
+    assert result == {"status":"dispatched", "audit_recorded":False}
+    assert control.dashboard_store.latest_control_audit(
+        action="kick", worker_id="automatic-launch",
+    )["outcome"] == "dispatching"
 
-    assert result == {
-        "status":"dispatched",
-        "audit_recorded":False,
-    }
+    # If the durable reservation itself cannot be written, do not launch
+    # an untracked worker. The already-queued job remains retriable.
+    monkeypatch.setattr(
+        control.dashboard_store,
+        "reserve_automatic_worker_wake",
+        lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("database unavailable")),
+    )
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+    )
+    assert result == {"status":"failed", "error":"wake_reservation_failed"}
 
 
 
