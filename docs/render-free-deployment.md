@@ -18,6 +18,10 @@ execution tier. Prior free-host alternatives are archived as a fallback in
   workflows/jobs. A fresh empty PostgreSQL database **is not a migration**.
 - API: port **8787**, database-aware readiness **GET /readyz**, protected
   routes including **GET /v1/workflows**.
+- The Render startup reads `DATABASE_URL` from the environment using
+  `--database-env DATABASE_URL` rather than copying the PostgreSQL password
+  into the process argument list. Keep the variable as a secret in Render;
+  environment access still requires host-level access controls.
 - Old Render account: its free-tier service was suspended after
   `Free Tier Usage Exceeded`. A prior "live deploy" is not proof the service
   is reachable. Do not enable two live controllers against the same DB.
