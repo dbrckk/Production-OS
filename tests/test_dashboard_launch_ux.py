@@ -424,10 +424,12 @@ def test_dashboard_launch_survives_wake_audit_failure(
         "kick_worker",
         lambda _worker_id: {"status":"dispatched"},
     )
+    # After a durable wake reservation, failing to update its final outcome
+    # must not roll back the already-created production or repeat the wake.
     monkeypatch.setattr(
         control.dashboard_store,
-        "append_control_audit",
-        lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("audit unavailable")),
+        "update_control_audit",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("audit unavailable")),
     )
 
     server, thread, base = _server(control)
@@ -447,6 +449,9 @@ def test_dashboard_launch_survives_wake_audit_failure(
             "audit_recorded":False,
         }
         assert payload["project"]["status"] == "ACTIVE"
+        assert control.dashboard_store.latest_control_audit(
+            action="kick", worker_id="automatic-launch",
+        )["outcome"] == "dispatching"
     finally:
         server.shutdown()
         server.server_close()
