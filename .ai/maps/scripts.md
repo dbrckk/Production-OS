@@ -63,6 +63,8 @@ operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
 port = str(os.environ.get("PORT") or "8787").strip()
 ⋮----
 runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
+# Reject a symlink before touching the directory: a redirected runtime
+# location must not receive even hashed authentication material.
 ⋮----
 auth_path = runtime_dir / "auth.json"
 payload = json.dumps(

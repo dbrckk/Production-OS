@@ -7555,6 +7555,8 @@ argv = execvp.call_args.args[1]
 payload = json.loads(auth_path.read_text(encoding="utf-8"))
 ⋮----
 def test_invalid_port_fails_closed(self)
+⋮----
+redirect = Path(td) / "redirect"
 ```
 
 ## File: test_repository_cache.py

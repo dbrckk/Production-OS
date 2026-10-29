@@ -242,29 +242,27 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-29T11:00:12Z
+Generated: 2026-10-29T12:08:15Z
 
 ### Git
 - Branch: `main`
-- Head: `e16d58805eca`
-- Commit date: 2026-10-29T07:00:02-04:00
-- Commit: fix(worker): enforce durable cooldown after failed automatic wake (#323)
+- Head: `73d7bd0006c4`
+- Commit date: 2026-10-29T08:08:04-04:00
+- Commit: fix(render): isolate authentication runtime directory from other processes (#324)
 - Tracked files: 585
 
 ### Recently changed files
+- `scripts/render-start.py`
+- `tests/test_render_start.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_worker_wake.py`
 - `docs/render-free-deployment.md`
-- `scripts/render-start.py`
 - `src/production_os/cli.py`
 - `tests/test_cli.py`
-- `tests/test_render_start.py`
 - `docs/free-hosting-migration.md`
 - `render.yaml`
 - `tests/test_controller_daemon_deployment.py`
-- `.github/workflows/ci.yml`
-- `Dockerfile.free-hosting`
 
 ### Project signals
 - `pyproject.toml`

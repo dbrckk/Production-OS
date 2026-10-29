@@ -1,19 +1,18 @@
 # Change impact
 
-Base: 79b83f9b17a8bb1f63d56bb35317857213566cd3
-Head: e16d58805eca3c83f45f5873bc075a74c4ed9986
+Base: c61fa27f62d3780efed9b4b45883e71a963b1348
+Head: 73d7bd0006c4daedd88351bdc9494050991142ab
 
 ## Changed files
-- M src/production_os/worker_wake.py
-- M tests/test_dashboard_launch_ux.py
-- M tests/test_worker_wake.py
+- M scripts/render-start.py
+- M tests/test_render_start.py
 
 ## Affected areas
-- src
+- scripts
 - tests
 
 ## Related test candidates
-- tests/test_worker_wake.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
