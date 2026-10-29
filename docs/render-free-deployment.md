@@ -1,6 +1,11 @@
 # Render Free deployment for Production-OS (existing Neon database)
 
-This is the **active** hosting configuration. `render.yaml` creates exactly
+This is the **version-controlled Render Free Blueprint**, not evidence that
+any new service has been created. The operator's current decision is to
+**retain the existing Render account and service** until the free quota
+resets. Do not create a replacement account or service.
+
+If explicitly deployed, `render.yaml` creates exactly
 **one Render Free web service**. It does not create a database, a paid service,
 a persistent disk, a cron job or an extra worker. GitHub Actions remains the
 execution tier. Prior free-host alternatives are archived as a fallback in
@@ -16,19 +21,35 @@ execution tier. Prior free-host alternatives are archived as a fallback in
   **production_os**, branch **production**, region **Frankfurt**.
   Preserve the original database; it has application tables and historical
   workflows/jobs. A fresh empty PostgreSQL database **is not a migration**.
-- API: port **8787**, database-aware readiness **GET /readyz**, protected
-  routes including **GET /v1/workflows**.
+- API: port **8787**. Render's frequent health checks use the lightweight
+  **GET /healthz** endpoint (process liveness; no DB connection).
+  GitHub Actions workers and operational verification must still use
+  **GET /readyz** (real PostgreSQL `SELECT 1`), followed by authenticated
+  API checks. A healthy process does not mean an available database.
+  This separation reduces unnecessary Neon compute wake-ups and avoids
+  restarting the API for transient database failures.
+  Docs: https://render.com/docs/health-checks and
+  https://neon.com/docs/introduction/scale-to-zero
+  Protected routes include **GET /v1/workflows**.
+- Render startup **rejects SQLite paths and URI schemes other than
+  `postgresql://` and `postgres://`**; the free container's disk is ephemeral.
+  The worker and operator bearer tokens must also be different: reusing one
+  secret undermines role separation and stops boot immediately.
 - The Render startup reads `DATABASE_URL` from the environment using
   `--database-env DATABASE_URL` rather than copying the PostgreSQL password
   into the process argument list. Keep the variable as a secret in Render;
   environment access still requires host-level access controls.
-- Old Render account: its free-tier service was suspended after
+- Current Render account: its free-tier service was suspended after
   `Free Tier Usage Exceeded`. A prior "live deploy" is not proof the service
   is reachable. Do not enable two live controllers against the same DB.
 
-## Setup from the new Render account
+## Optional Blueprint recreation (requires explicit authorization)
 
-1. Open https://dashboard.render.com/blueprints in the intended Render
+**Do not perform these steps during the current quota wait.** Preserve the
+existing service and its original Render account. The following instructions
+apply only if a future deployment has been approved.
+
+1. Open https://dashboard.render.com/blueprints in the approved Render
    account, choose **New Blueprint** and connect the existing GitHub repo
    `dbrckk/Production-OS` on branch **main**.
 2. Keep the default Blueprint path **render.yaml**. Inspect the planned
@@ -53,9 +74,11 @@ execution tier. Prior free-host alternatives are archived as a fallback in
    to existing audited defaults. Allow the first deployment to finish.
    Retrieve its **actual Render-assigned HTTPS URL**; do not assume a
    particular service hostname.
-5. Verify **GET /readyz** returns HTTP 200 with `status: ready` and
-   `database: reachable`, and **GET /v1/workflows** without Authorization
-   returns HTTP 401. Health-only 200 on `/healthz` is not enough.
+5. Verify **GET /healthz** returns HTTP 200 with `status: healthy` without
+   querying PostgreSQL. Separately verify **GET /readyz** returns HTTP 200
+   with `status: ready` and `database: reachable`, and **GET /v1/workflows**
+   without Authorization returns HTTP 401. Health-only 200 on `/healthz`
+   is not evidence of operational readiness.
 6. Only after those checks, change **ai-dev-server -> Settings -> Secrets
    and variables -> Actions -> Variables -> PRODUCTION_OS_URL** to the
    actual, reachable new HTTPS base URL. The worker and canary workflows
@@ -81,11 +104,11 @@ ready to accept it. A missing/wrong token must result in authentication
 failure, never an anonymous API.
 
 If the Render ChatGPT connector reports `link_id must identify an eligible
-linked account`, the **connector is not usable** even if the Render dashboard
-has GitHub linked. Reconnect the **Render plugin to ChatGPT** using the new
-account; GitHub-to-Render authorization and ChatGPT-to-Render authorization
-are two separate connections. Do not claim a deploy succeeded until the
-service is listed in the intended Render workspace.
+linked account`, it cannot manage the user's workspace. The GitHub-to-Render
+link is independent of the ChatGPT-to-Render link. Do not claim a new deploy
+succeeded merely because CI passed or a Blueprint is present in GitHub;
+verify an actual accessible Render service first. During the current
+quota wait, do not reconnect or migrate accounts unnecessarily.
 
 ## Free-tier limits and operational expectations
 
