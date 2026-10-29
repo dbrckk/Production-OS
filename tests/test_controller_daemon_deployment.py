@@ -45,7 +45,15 @@ def test_controller_deployment_defaults_to_managed_execution():
     assert "    branch: main\n" in blueprint
     assert "    dockerfilePath: ./Dockerfile.free-hosting\n" in blueprint
     assert Path("Dockerfile.free-hosting").is_file()
-    # Cheap liveness must not query Neon on every Render probe. Workers\n    # retain a separate PostgreSQL-backed /readyz readiness check.\n    assert "    healthCheckPath: /healthz\n" in blueprint\n    assert "    healthCheckPath: /readyz\n" not in blueprint\n    control_plane = Path("src/production_os/control_plane.py").read_text(encoding="utf-8")\n    assert 'if parsed.path in {"/health", "/healthz"}:' in control_plane\n    assert 'if parsed.path == "/readyz":' in control_plane\n    assert 'db.execute("SELECT 1")' in control_plane\n    assert "    autoDeployTrigger: commit\n" in blueprint
+    # Cheap liveness must not query Neon on every Render probe.
+    # Retain separate PostgreSQL-backed /readyz for worker checks.
+    assert "    healthCheckPath: /healthz\n" in blueprint
+    assert "    healthCheckPath: /readyz\n" not in blueprint
+    control_plane = Path("src/production_os/control_plane.py").read_text(encoding="utf-8")
+    assert 'if parsed.path in {"/health", "/healthz"}:' in control_plane
+    assert 'if parsed.path == "/readyz":' in control_plane
+    assert 'db.execute("SELECT 1")' in control_plane
+    assert "    autoDeployTrigger: commit\n" in blueprint
     assert "databases:" not in blueprint
     assert "disk:" not in blueprint
     assert "type: cron" not in blueprint
