@@ -633,6 +633,9 @@ jobs:
             sleep 1
           done
           python -c 'import json; from pathlib import Path; data=json.loads(Path("/tmp/free-hosting-ready.json").read_text()); assert data["status"] == "ready" and data["database"] == "reachable", data'
+          curl --silent --show-error --fail --max-time 5 \
+            http://127.0.0.1:8787/healthz > /tmp/free-hosting-health.json
+          python -c 'import json; from pathlib import Path; data=json.loads(Path("/tmp/free-hosting-health.json").read_text()); assert data["status"] == "healthy", data'
           status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
             --max-time 5 http://127.0.0.1:8787/v1/workflows)
           test "$status" = 401
@@ -2763,6 +2766,12 @@ worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
 worker_name = str(
 ⋮----
 operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
+# Duplicate secrets collapse the operator/worker role boundary. Refuse
+# to start rather than choosing an arbitrary role for the same digest.
+⋮----
+# Render has no durable local disk. A SQLite pathname or an accidental
+# empty host would silently fork the persistent production state.
+⋮----
 port = str(os.environ.get("PORT") or "8787").strip()
 ⋮----
 runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
@@ -15163,6 +15172,11 @@ def test_controller_deployment_defaults_to_managed_execution()
 # extends an existing deployment test rather than adding a new unit test.
 ⋮----
 blueprint = Path("render.yaml").read_text(encoding="utf-8")
+⋮----
+# Cheap liveness must not query Neon on every Render probe.
+# Retain separate PostgreSQL-backed /readyz for worker checks.
+⋮----
+control_plane = Path("src/production_os/control_plane.py").read_text(encoding="utf-8")
 ````
 
 ## File: tests/test_controller_daemon.py
@@ -21306,6 +21320,11 @@ payload = json.loads(auth_path.read_text(encoding="utf-8"))
 def test_invalid_port_fails_closed(self)
 ⋮----
 redirect = Path(td) / "redirect"
+⋮----
+# The free Render service must fail closed before creating any auth
+# file if an ephemeral SQLite path or shared operator token is set.
+⋮----
+base = {
 ````
 
 ## File: tests/test_repository_cache.py
@@ -28179,7 +28198,9 @@ services:
     dockerfilePath: ./Dockerfile.free-hosting
     dockerContext: .
     autoDeployTrigger: commit
-    healthCheckPath: /readyz
+    # Lightweight liveness avoids waking the free Neon compute on each
+    # frequent Render health probe. Workers still require DB-backed /readyz.
+    healthCheckPath: /healthz
     buildFilter:
       paths:
         - src/**

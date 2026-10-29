@@ -1,13 +1,20 @@
 # Change impact
 
-Base: c61fa27f62d3780efed9b4b45883e71a963b1348
-Head: 73d7bd0006c4daedd88351bdc9494050991142ab
+Base: 88acd5e3e541702402d228d7b585fce45a21541c
+Head: dc9cd3c6aee4cefb52c79d853b4ea03e1ea063d5
 
 ## Changed files
+- M .github/workflows/ci.yml
+- M docs/render-free-deployment.md
+- M render.yaml
 - M scripts/render-start.py
+- M tests/test_controller_daemon_deployment.py
 - M tests/test_render_start.py
 
 ## Affected areas
+- .github
+- docs
+- (root)
 - scripts
 - tests
 

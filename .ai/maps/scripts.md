@@ -60,6 +60,12 @@ worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
 worker_name = str(
 ⋮----
 operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
+# Duplicate secrets collapse the operator/worker role boundary. Refuse
+# to start rather than choosing an arbitrary role for the same digest.
+⋮----
+# Render has no durable local disk. A SQLite pathname or an accidental
+# empty host would silently fork the persistent production state.
+⋮----
 port = str(os.environ.get("PORT") or "8787").strip()
 ⋮----
 runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")

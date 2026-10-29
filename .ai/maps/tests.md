@@ -1414,6 +1414,11 @@ def test_controller_deployment_defaults_to_managed_execution()
 # extends an existing deployment test rather than adding a new unit test.
 ⋮----
 blueprint = Path("render.yaml").read_text(encoding="utf-8")
+⋮----
+# Cheap liveness must not query Neon on every Render probe.
+# Retain separate PostgreSQL-backed /readyz for worker checks.
+⋮----
+control_plane = Path("src/production_os/control_plane.py").read_text(encoding="utf-8")
 ```
 
 ## File: test_controller_daemon.py
@@ -7557,6 +7562,11 @@ payload = json.loads(auth_path.read_text(encoding="utf-8"))
 def test_invalid_port_fails_closed(self)
 ⋮----
 redirect = Path(td) / "redirect"
+⋮----
+# The free Render service must fail closed before creating any auth
+# file if an ephemeral SQLite path or shared operator token is set.
+⋮----
+base = {
 ```
 
 ## File: test_repository_cache.py

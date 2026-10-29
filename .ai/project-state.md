@@ -242,27 +242,27 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-29T12:08:15Z
+Generated: 2026-10-29T12:23:40Z
 
 ### Git
 - Branch: `main`
-- Head: `73d7bd0006c4`
-- Commit date: 2026-10-29T08:08:04-04:00
-- Commit: fix(render): isolate authentication runtime directory from other processes (#324)
+- Head: `dc9cd3c6aee4`
+- Commit date: 2026-10-29T08:23:30-04:00
+- Commit: fix(render): spare Neon idle compute and fail closed on unsafe startup configuration (#325)
 - Tracked files: 585
 
 ### Recently changed files
+- `.github/workflows/ci.yml`
+- `docs/render-free-deployment.md`
+- `render.yaml`
 - `scripts/render-start.py`
+- `tests/test_controller_daemon_deployment.py`
 - `tests/test_render_start.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_worker_wake.py`
-- `docs/render-free-deployment.md`
 - `src/production_os/cli.py`
 - `tests/test_cli.py`
-- `docs/free-hosting-migration.md`
-- `render.yaml`
-- `tests/test_controller_daemon_deployment.py`
 
 ### Project signals
 - `pyproject.toml`
