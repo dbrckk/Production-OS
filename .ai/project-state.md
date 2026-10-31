@@ -242,17 +242,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-31T16:44:38Z
+Generated: 2026-10-31T16:56:54Z
 
 ### Git
 - Branch: `main`
-- Head: `3f3e654c844e`
-- Commit date: 2026-10-31T12:44:28-04:00
-- Commit: docs(render): record studycall12 as Production-OS primary host (#328)
+- Head: `e78834199e63`
+- Commit date: 2026-10-31T12:56:44-04:00
+- Commit: fix(render): fail closed on malformed Neon URLs (#327)
 - Tracked files: 585
 
 ### Recently changed files
 - `docs/render-free-deployment.md`
+- `scripts/render-start.py`
+- `tests/test_render_start.py`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_dashboard_launch_ux.py`
@@ -260,9 +262,7 @@ Generated: 2026-10-31T16:44:38Z
 - `tests/test_worker_wake.py`
 - `.github/workflows/ci.yml`
 - `render.yaml`
-- `scripts/render-start.py`
 - `tests/test_controller_daemon_deployment.py`
-- `tests/test_render_start.py`
 
 ### Project signals
 - `pyproject.toml`

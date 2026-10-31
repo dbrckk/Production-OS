@@ -63,8 +63,14 @@ operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
 # Duplicate secrets collapse the operator/worker role boundary. Refuse
 # to start rather than choosing an arbitrary role for the same digest.
 ⋮----
-# Render has no durable local disk. A SQLite pathname or an accidental
-# empty host would silently fork the persistent production state.
+# Render has no durable local disk. A hostless PostgreSQL URI may fall
+# back to a Unix socket or PGHOST; an omitted database may select a
+# default database. Neither is the existing persistent Neon store.
+database_url_error = (
+⋮----
+parsed_database_url = urlsplit(database_url)
+database_host = parsed_database_url.hostname
+database_port = parsed_database_url.port
 ⋮----
 port = str(os.environ.get("PORT") or "8787").strip()
 ⋮----

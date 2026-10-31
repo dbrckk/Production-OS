@@ -4,5 +4,1450 @@
   "scope": "symbols defined in changed source files",
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
-  "symbols": {}
+  "symbols": {
+    "_required": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 13,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "scripts/render-start.py",
+          "line": 13,
+          "preview": "def _required(name: str) -> str:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 45,
+          "preview": "database_url = _required(\"DATABASE_URL\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 46,
+          "preview": "worker_token = _required(\"PRODUCTION_OS_WORKER_TOKEN\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 52,
+          "preview": "operator_token = _required(\"PRODUCTION_OS_OPERATOR_TOKEN\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "_auth_payload": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 20,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "scripts/render-start.py",
+          "line": 20,
+          "preview": "def _auth_payload(",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 91,
+          "preview": "_auth_payload(worker_token, operator_token, worker_name),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 22,
+          "preview": "payload = MODULE._auth_payload(\"worker-secret\", \"operator-secret\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "digest": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 25,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "integration/godot4_relocated_import_smoke.py",
+          "line": 298,
+          "preview": "raise RuntimeError(\"Local companion digest mismatch\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/godot4_relocated_import_smoke.py",
+          "line": 406,
+          "preview": "raise RuntimeError(\"Single-asset Godot companion digest mismatch\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 25,
+          "preview": "def digest(value: str) -> str:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 33,
+          "preview": "\"sha256\": digest(worker_token),",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 38,
+          "preview": "\"sha256\": digest(operator_token),",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 54,
+          "preview": "# to start rather than choosing an arbitrary role for the same digest.",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 183,
+          "preview": "digest = hashlib.sha256(raw).hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 188,
+          "preview": "\"sha256\": digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 192,
+          "preview": "f\"{self._job_dir_name(job_key)}/{digest}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/api_auth.py",
+          "line": 51,
+          "preview": "digest = token_digest(token)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/api_auth.py",
+          "line": 54,
+          "preview": "if expected and hmac.compare_digest(digest, expected):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 340,
+          "preview": "digest = record.get(\"sha256\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 343,
+          "preview": "if not isinstance(digest, str) or len(digest) != 64:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 351,
+          "preview": "if hashlib.sha256(content).hexdigest() != digest:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 403,
+          "preview": "digest = hashlib.sha256(artifact.read_bytes()).hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 404,
+          "preview": "if digest != str(metadata.get(\"sha256\") or \"\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 476,
+          "preview": "digest = record.get(\"sha256\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 479,
+          "preview": "or not isinstance(digest, str)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 480,
+          "preview": "or re.fullmatch(r\"[0-9a-f]{64}\", digest) is None",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1591,
+          "preview": "digest = hashlib.sha256(artifact_path.read_bytes()).hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1592,
+          "preview": "if digest != str(row.get(\"sha256\") or \"\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1698,
+          "preview": "\"sha256\": digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 2125,
+          "preview": "digest = hashlib.sha256(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 2132,
+          "preview": "if digest != dependency[\"sha256\"]:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/backup.py",
+          "line": 13,
+          "preview": "digest = hashlib.sha256()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/backup.py",
+          "line": 16,
+          "preview": "digest.update(chunk)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/backup.py",
+          "line": 17,
+          "preview": "return digest.hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/browser_loop.py",
+          "line": 113,
+          "preview": "digest = hashlib.sha256(turn_id.encode(\"utf-8\")).hexdigest()[:16]",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/browser_loop.py",
+          "line": 116,
+          "preview": "f\"{base.stem}-turn-{digest}{base.suffix or '.json'}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1970,
+          "preview": "\"a SHA-256 hex digest\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller_leader.py",
+          "line": 89,
+          "preview": ").digest()[:8],",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 100,
+          "preview": "digest = str(data.get(\"sha256\") or \"\").lower()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 107,
+          "preview": "or len(digest) != 64",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 108,
+          "preview": "or any(ch not in \"0123456789abcdef\" for ch in digest)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 117,
+          "preview": "\"sha256\":digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 570,
+          "preview": "raise ValueError(\"expected_candidate_fingerprint must be a SHA-256 hex digest\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 778,
+          "preview": "digest = sha256()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 786,
+          "preview": "digest.update(chunk)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 787,
+          "preview": "actual_sha = digest.hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 891,
+          "preview": "digest = sha256()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 899,
+          "preview": "digest.update(chunk)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 908,
+          "preview": "\"sha256\":digest.hexdigest(),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 972,
+          "preview": "digest = sha256()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 980,
+          "preview": "digest.update(chunk)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 981,
+          "preview": "actual_sha = digest.hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 1224,
+          "preview": "digest = sha256()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 1232,
+          "preview": "digest.update(chunk)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 1239,
+          "preview": "\"sha256\":digest.hexdigest(),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/device_pairing.py",
+          "line": 123,
+          "preview": "digest = token_digest(value)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/device_pairing.py",
+          "line": 125,
+          "preview": "token_sha256=digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/device_pairing.py",
+          "line": 137,
+          "preview": "token_sha256=digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_checkpoint_state.py",
+          "line": 27,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/release_ledger.py",
+          "line": 1233,
+          "preview": "\"reason\":\"SLSA statement digest mismatch\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/release_ledger.py",
+          "line": 1308,
+          "preview": "\"reason\":\"transparency provenance digest mismatch\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/repository_cache.py",
+          "line": 97,
+          "preview": "digest = hashlib.sha256(repository.encode(\"utf-8\")).hexdigest()[:12]",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/repository_cache.py",
+          "line": 99,
+          "preview": "safe = f\"{owner}-{name}-{digest}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 24,
+          "preview": "digest = str(value or \"\").lower()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 26,
+          "preview": "len(digest) != 64",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 27,
+          "preview": "or any(ch not in \"0123456789abcdef\" for ch in digest)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 30,
+          "preview": "return digest",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 40,
+          "preview": "digest = _sha256_digest(metadata.get(\"artifact_sha256\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 51,
+          "preview": "\"digest\":{\"gitCommit\":str(source_revision)},",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 58,
+          "preview": "\"digest\":{\"sha256\":digest},",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 145,
+          "preview": "digest = dict(subjects[0].get(\"digest\") or {}).get(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 148,
+          "preview": "if digest != _sha256_digest(expected_sha256):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 75,
+          "preview": "return hashlib.sha256(b\"\\x00\" + body).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 79,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 151,
+          "preview": "raise TransparencyReceiptError(\"invalid Rekor checkpoint digest\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 256,
+          "preview": "key_hint = hashlib.sha256(der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 258,
+          "preview": "digest = hashlib.sha256(note_bytes).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 274,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 280,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 330,
+          "preview": "raise TransparencyReceiptError(\"checkpoint digest mismatch\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 33,
+          "preview": "digest = hashlib.sha256(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 39,
+          "preview": "f\"{_slug(task_id, limit=28)}-a{int(attempt)}-{digest}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worktree_contract.py",
+          "line": 41,
+          "preview": "workspace_key = f\"{_slug(task_id, limit=20)}-{digest}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 726,
+          "preview": "digest = hashlib.sha256(artifact_bytes).hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 739,
+          "preview": "\"sha256\": digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_device_pairing.py",
+          "line": 317,
+          "preview": "digest = token_digest(token)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_device_pairing.py",
+          "line": 326,
+          "preview": "(digest,),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_device_pairing.py",
+          "line": 338,
+          "preview": "(digest,),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state.py",
+          "line": 16,
+          "preview": "return hashlib.sha256(b\"\\x00\" + payload).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state.py",
+          "line": 20,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state_concurrency.py",
+          "line": 15,
+          "preview": "return hashlib.sha256(b\"\\x00\" + payload).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state_concurrency.py",
+          "line": 19,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint.py",
+          "line": 21,
+          "preview": "key_hint = hashlib.sha256(public_der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint.py",
+          "line": 38,
+          "preview": "digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint.py",
+          "line": 40,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint_receipt.py",
+          "line": 55,
+          "preview": "key_hint = hashlib.sha256(der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint_receipt.py",
+          "line": 56,
+          "preview": "digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint_receipt.py",
+          "line": 58,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_secure_release_e2e.py",
+          "line": 205,
+          "preview": "name=\"digest-test\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_supply_chain.py",
+          "line": 49,
+          "preview": "assert statement[\"subject\"][0][\"digest\"][\"sha256\"]==\"a\"*64",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_supply_chain.py",
+          "line": 53,
+          "preview": "assert dependency[\"digest\"][\"gitCommit\"]==\"abc123\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_supply_chain.py",
+          "line": 84,
+          "preview": "envelope[\"statement\"][\"subject\"][0][\"digest\"][\"sha256\"]=\"b\"*64",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_cli.py",
+          "line": 55,
+          "preview": "key_hint = hashlib.sha256(log_public_der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_cli.py",
+          "line": 56,
+          "preview": "note_digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 109,
+          "preview": "left_hash = hashlib.sha256(b\"\\x00\" + left).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 110,
+          "preview": "right_hash = hashlib.sha256(b\"\\x00\" + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 131,
+          "preview": "def _rekor_response(envelope, *, digest=None, log_id=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 137,
+          "preview": "if digest is not None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 138,
+          "preview": "proposed[\"spec\"][\"data\"][\"hash\"][\"value\"] = digest",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 186,
+          "preview": "key_hint = hashlib.sha256(public_der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 187,
+          "preview": "checkpoint_digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 238,
+          "preview": "match=\"checkpoint digest mismatch\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 241,
+          "preview": "_rekor_response(_envelope(), digest=\"0\" * 64),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 370,
+          "preview": "signer=lambda payload: b\"signed:\" + hashlib.sha256(payload).digest(),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 107
+    },
+    "main": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 44,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "integration/godot4_relocated_import_smoke.py",
+          "line": 142,
+          "preview": "def main() -> None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/godot4_relocated_import_smoke.py",
+          "line": 560,
+          "preview": "main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 32,
+          "preview": "def main() -> None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 471,
+          "preview": "raise RuntimeError(\"Remote single-asset attempted implicit main-branch delivery\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 489,
+          "preview": "# Batch callers previously bypassed the direct API's main-branch",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 493,
+          "preview": "for ref in (\"main\", \"refs/heads/main\", \"master\", \"refs/heads/master\", \"Main\", \"MASTER\", \"refs/heads/Main\", \"refs/heads/MASTER\", \"REFS/HEADS/Main\", \"Refs/Heads/MASTER\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 505,
+          "preview": "raise RuntimeError(\"Remote batch accepted implicit main-branch delivery\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 840,
+          "preview": "blocked_local_github = root / \"blocked-local-main-delivery\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 841,
+          "preview": "for default_branch in (\"main\", \"master\", \"refs/heads/main\", \"Main\", \"MASTER\", \"refs/heads/MAIN\", \"REFS/HEADS/MAIN\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 853,
+          "preview": "raise RuntimeError(\"Local single asset allowed direct GitHub main delivery\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 855,
+          "preview": "raise RuntimeError(\"Refused local main-branch delivery started generation\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1360,
+          "preview": "if misleading.get_branch_protection(\"dbrckk/consumer\", \"main\") is not None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1362,
+          "preview": "if misleading.get_branch_required_checks(\"dbrckk/consumer\", \"main\") is not None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1440,
+          "preview": "target_worktree=str(drift_consumer), target_ref=\"main\", client=None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1479,
+          "preview": "target_ref=\"main\", client=None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1507,
+          "preview": "target_ref=\"main\", client=None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1546,
+          "preview": "target_ref=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1590,
+          "preview": "target_worktree=str(worktree), target_ref=\"main\", client=None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1625,
+          "preview": "target_worktree=str(internal_root), target_ref=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1645,
+          "preview": "for forbidden_ref in (\"main\", \"master\", \"refs/heads/main\", \"Main\", \"MASTER\", \"refs/heads/MAIN\", \"REFS/HEADS/MAIN\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1839,
+          "preview": "target_worktree=str(consumer), target_ref=\"main\", client=None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1910,
+          "preview": "print(\"PASS: Local single-asset GitHub main/master delivery refused before generation\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1912,
+          "preview": "print(\"PASS: Implicit main-branch remote delivery refused before dispatch\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1913,
+          "preview": "print(\"PASS: Remote batch rejects main/master and missing destination before dispatch\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "integration/real_producer_bundle_smoke.py",
+          "line": 1928,
+          "preview": "main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 44,
+          "preview": "def main() -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 132,
+          "preview": "main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 198,
+          "preview": "\"\"\"Refuse main/master case variants at every repository write boundary.\"\"\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 199,
+          "preview": "return target_ref.casefold().removeprefix(\"refs/heads/\") in {\"main\", \"master\"}",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 794,
+          "preview": "if target_ref in {\"main\", \"refs/heads/main\"}",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 832,
+          "preview": "target_ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 836,
+          "preview": "ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1461,
+          "preview": "ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1834,
+          "preview": "target_ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1837,
+          "preview": "remote_ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 1875,
+          "preview": "# remote workflow if no destination exists or GitHub main is implicit.",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 2216,
+          "preview": "ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 202,
+          "preview": "assetforge.add_argument(\"--target-ref\", default=\"main\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 206,
+          "preview": "assetforge.add_argument(\"--ref\", default=\"main\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 225,
+          "preview": "assetforgebatch.add_argument(\"--target-ref\", default=\"main\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3143,
+          "preview": "def main(argv: list[str] | None = None) -> int:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 3299,
+          "preview": "raise SystemExit(main())",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 83,
+          "preview": "os.getenv(\"PRODUCTION_OS_ACTIONS_REF\") or \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 84,
+          "preview": ").strip() or \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 346,
+          "preview": "str(os.getenv(\"PRODUCTION_OS_ACTIONS_REF\") or \"main\").strip()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 347,
+          "preview": "or \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_control.py",
+          "line": 27,
+          "preview": "actions_ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_control.py",
+          "line": 167,
+          "preview": "# control/production-os-worker-kick.json on main. Use that",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_control.py",
+          "line": 176,
+          "preview": "and self.actions_ref == \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 81,
+          "preview": ".coop-stages{display:grid;gap:7px;margin-top:10px}.coop-stage{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--line);b",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 798,
+          "preview": "return {view:'https://github.com/'+repo+'/blob/main/'+encoded,raw:'https://raw.githubusercontent.com/'+repo+'/main/'+encoded};",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 2121,
+          "preview": "'<div class=\"coop-stage-main\"><div class=\"coop-stage-title\">'+esc(cooperativeStageLabel(task.task_id))+'</div>'+",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 157,
+          "preview": "branch: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 243,
+          "preview": "branch: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 282,
+          "preview": "ref: str = \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 830,
+          "preview": "default_branch = repo.get(\"default_branch\") or \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/models.py",
+          "line": 12,
+          "preview": "default_branch: str = \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/scoring.py",
+          "line": 98,
+          "preview": "[\"CI runs on pull requests and main\", \"Build/test failures block the workflow\", \"Workflow is reproducible\"],",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 32,
+          "preview": "{\"action\":\"extract_text\",\"selector\":\"main\",\"name\":\"result\"},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 309,
+          "preview": "{\"action\":\"extract_text\",\"selector\":\"main\",\"name\":\"result\"},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 346,
+          "preview": "{\"action\":\"extract_text\",\"selector\":\"main\",\"name\":\"result\"},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 361,
+          "preview": "{\"action\":\"extract_text\",\"selector\":\"main\",\"name\":\"result\"},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 439,
+          "preview": "{\"action\":\"extract_text\",\"selector\":\"main\",\"name\":\"result\"},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 263,
+          "preview": "from production_os.cli import main",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 267,
+          "preview": "main([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_daemon_deployment.py",
+          "line": 45,
+          "preview": "assert \"    branch: main\\n\" in blueprint",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_daemon_deployment.py",
+          "line": 76,
+          "preview": "(\"PRODUCTION_OS_ACTIONS_REF\", \"main\"),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 155,
+          "preview": "default_branch=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 599,
+          "preview": "ref=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 613,
+          "preview": "monkeypatch.setenv(\"PRODUCTION_OS_ACTIONS_REF\", \"main\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 626,
+          "preview": "\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_managed_projects.py",
+          "line": 673,
+          "preview": "ref=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control.py",
+          "line": 76,
+          "preview": "def dispatch_workflow(self, repository, workflow, *, ref=\"main\", inputs=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control.py",
+          "line": 91,
+          "preview": "actions_ref=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control.py",
+          "line": 98,
+          "preview": "\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 44,
+          "preview": "def dispatch_workflow(self, repository, workflow, *, ref=\"main\", inputs=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 231,
+          "preview": "control.dashboard_control.actions_ref = \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 243,
+          "preview": "\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_github.py",
+          "line": 20,
+          "preview": "return {\"default_branch\":\"main\"}",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 118,
+          "preview": "\"default_branch\":\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 125,
+          "preview": "\"default_branch\":\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 132,
+          "preview": "\"default_branch\":\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_repositories.py",
+          "line": 30,
+          "preview": "\"default_branch\": \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_repositories.py",
+          "line": 58,
+          "preview": "\"default_branch\": \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_repositories.py",
+          "line": 65,
+          "preview": "\"default_branch\": \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_store.py",
+          "line": 60,
+          "preview": "repo=store.save_repository_snapshot({\"id\":\"r1\",\"repository\":\"dbrckk/example\",\"default_branch\":\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 78,
+          "preview": "{\"Link\": '<https://api.github.com/repos/dbrckk/example/commits?sha=main&per_page=1&page=214>; rel=\"last\"'},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 80,
+          "preview": "assert client.default_branch_commit_count(\"dbrckk/example\", \"main\") == 214",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 86,
+          "preview": "assert client.default_branch_commit_count(\"dbrckk/example\", \"main\") == 1",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 88,
+          "preview": "assert client.default_branch_commit_count(\"dbrckk/example\", \"main\") == 0",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 28,
+          "preview": "branch=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 33,
+          "preview": "assert payload[\"branch\"] == \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 47,
+          "preview": "branch=\"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_work_state.py",
+          "line": 103,
+          "preview": "\"base\": {\"ref\": \"main\", \"sha\": \"b\" * 40},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 57,
+          "preview": "MODULE.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 101,
+          "preview": "MODULE.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 116,
+          "preview": "MODULE.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 145,
+          "preview": "MODULE.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 151,
+          "preview": "unittest.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_source_tree.py",
+          "line": 5,
+          "preview": "assert is_candidate_file(\"app/src/main/Foo.kt\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_source_tree.py",
+          "line": 12,
+          "preview": "assert path_priority(\"src/main.py\") < path_priority(\"docs/notes.md\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 68,
+          "preview": "assert '\"ref\": \"main\"' in handoff",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 83,
+          "preview": "assert full_ci.count('test \"$GITHUB_REF\" = \"refs/heads/main\"') == 3",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 86,
+          "preview": "# pull_request_target is evaluated using trusted main, unlike a stale",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 130,
+          "preview": "\"base\": {\"ref\": \"other\" if mode == \"wrong-base\" else \"main\"},",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 140,
+          "preview": "if \"/compare/main...\" in url:",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 163,
+          "preview": "\"ref\": \"main\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worktree_contract.py",
+          "line": 229,
+          "preview": "({\"DISPATCH_REF\": \"refs/heads/main\"}, False),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 108
+    },
+    "RenderStartTests": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 20,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 20,
+          "preview": "class RenderStartTests(unittest.TestCase):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_auth_payload_hashes_tokens_without_storing_plaintext": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 21,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 21,
+          "preview": "def test_auth_payload_hashes_tokens_without_storing_plaintext(self):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_main_builds_control_plane_command_from_environment": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 38,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 38,
+          "preview": "def test_main_builds_control_plane_command_from_environment(self):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_invalid_port_fails_closed": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 86,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 86,
+          "preview": "def test_invalid_port_fails_closed(self):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    }
+  }
 }
