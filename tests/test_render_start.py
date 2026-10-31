@@ -44,6 +44,7 @@ class RenderStartTests(unittest.TestCase):
                 "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
                 "PRODUCTION_OS_WORKER_ID": "custom-actions-worker",
                 "PORT": "9999",
+                "RENDER_SERVICE_ID": "srv-dbj1hiuc6qcc73b7afvg",
                 "PRODUCTION_OS_RUNTIME_DIR": td,
             },
             clear=True,
@@ -137,6 +138,9 @@ class RenderStartTests(unittest.TestCase):
                 ({"DATABASE_URL": "postgresql://[invalid/production_os"}, "explicit host and database"),
                 ({"DATABASE_URL": "postgresql://example/production_os#fragment"}, "explicit host and database"),
                 ({"PRODUCTION_OS_OPERATOR_TOKEN": "worker-secret"}, "must be distinct"),
+                ({"RENDER_SERVICE_ID": "srv-dancka740ujc73bgdddg"}, "retired Render"),
+                ({"RENDER_SERVICE_ID": "srv-dancjugae00c73earbe0"}, "retired Render"),
+                ({"RENDER_SERVICE_ID": "srv-dancfm3tqb8s73bek920"}, "retired Render"),
             ):
                 with self.subTest(change=change), patch.dict(
                     os.environ, {**base, **change}, clear=True
