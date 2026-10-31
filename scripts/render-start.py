@@ -41,7 +41,21 @@ def _auth_payload(
     }
 
 
+# The owner permanently relocated Production-OS to the studycall12 Render account.
+# These three manually created controllers share the same Neon database and must
+# never restart as concurrent writers after the original account's quota reset.
+# Render supplies RENDER_SERVICE_ID at runtime for both Docker and Python.
+_RETIRED_RENDER_SERVICE_IDS = frozenset({
+    "srv-dancka740ujc73bgdddg",  # production-os1
+    "srv-dancjugae00c73earbe0",  # Production-OS
+    "srv-dancfm3tqb8s73bek920",  # production-os
+})
+
+
 def main() -> None:
+    if str(os.environ.get("RENDER_SERVICE_ID") or "").strip() in _RETIRED_RENDER_SERVICE_IDS:
+        raise SystemExit("retired Render Production-OS service: use studycall12")
+
     database_url = _required("DATABASE_URL")
     worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
     worker_name = str(
