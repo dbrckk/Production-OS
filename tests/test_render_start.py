@@ -128,6 +128,14 @@ class RenderStartTests(unittest.TestCase):
             for change, expected in (
                 ({"DATABASE_URL": "/tmp/production.db"}, "PostgreSQL connection URL"),
                 ({"DATABASE_URL": "sqlite:///tmp/production.db"}, "PostgreSQL connection URL"),
+                ({"DATABASE_URL": "postgresql:///production_os"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://user@/production_os"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://example/"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://example"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://example:invalid/production_os"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://example:0/production_os"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://[invalid/production_os"}, "explicit host and database"),
+                ({"DATABASE_URL": "postgresql://example/production_os#fragment"}, "explicit host and database"),
                 ({"PRODUCTION_OS_OPERATOR_TOKEN": "worker-secret"}, "must be distinct"),
             ):
                 with self.subTest(change=change), patch.dict(
