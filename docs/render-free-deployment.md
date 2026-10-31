@@ -1,9 +1,30 @@
 # Render Free deployment for Production-OS (existing Neon database)
 
-This is the **version-controlled Render Free Blueprint**, not evidence that
-any new service has been created. The operator's current decision is to
-**retain the existing Render account and service** until the free quota
-resets. Do not create a replacement account or service.
+The operator designated the second Render account **studycall12@gmail.com**
+(workspace `My Workspace`) as the **permanent Production-OS host** on
+2026-10-31. The target Free service already exists:
+`production-os-control-plane` (`srv-dbj1hiuc6qcc73b7afvg`),
+https://production-os-control-plane.onrender.com. Its repository is
+`dbrckk/Production-OS`, branch `main`, region Frankfurt, using
+`Dockerfile.free-hosting`. A secure Neon `DATABASE_URL` was set from the
+existing `production-os` project, database `production_os`; no database
+was recreated.
+
+**Cutover is NOT complete or operationally qualified.** The initial Docker
+image built successfully on 2026-10-31, but the first deployment failed
+closed at startup because `PRODUCTION_OS_WORKER_TOKEN` was not yet present.
+`PRODUCTION_OS_OPERATOR_TOKEN` and `GITHUB_TOKEN` must also be provisioned
+on the new service before it can be activated. New-service auto-deploy is
+temporarily **off** to avoid wasting Free quota on repeated GitHub pushes
+before authentication and readiness are verified. This document records
+the target destination, not a successful switchover.
+
+The version-controlled `render.yaml` is a *future Blueprint template* and
+does not automatically update or configure the new manually created Render
+service. Never create a duplicate controller with the Blueprint. The old
+`production-os1` on the original account is billing-suspended; it is not
+the future destination and must not be allowed to run concurrently with the
+new controller on the same persistent database.
 
 If explicitly deployed, `render.yaml` creates exactly
 **one Render Free web service**. It does not create a database, a paid service,
@@ -39,15 +60,49 @@ execution tier. Prior free-host alternatives are archived as a fallback in
   `--database-env DATABASE_URL` rather than copying the PostgreSQL password
   into the process argument list. Keep the variable as a secret in Render;
   environment access still requires host-level access controls.
-- Current Render account: its free-tier service was suspended after
-  `Free Tier Usage Exceeded`. A prior "live deploy" is not proof the service
-  is reachable. Do not enable two live controllers against the same DB.
+- Original Render `production-os1` was suspended after
+  `Free Tier Usage Exceeded` on 2026-10-26; its older live deploy is not
+  proof of current reachability. The new designated account is `studycall12`.
+  Do not enable two live controllers against the same DB.
 
-## Optional Blueprint recreation (requires explicit authorization)
+## Complete the already-created new-account cutover
 
-**Do not perform these steps during the current quota wait.** Preserve the
-existing service and its original Render account. The following instructions
-apply only if a future deployment has been approved.
+1. In the **new** Render service's Environment settings, configure the
+   existing `PRODUCTION_OS_WORKER_TOKEN`, `PRODUCTION_OS_OPERATOR_TOKEN`
+   and `GITHUB_TOKEN` securely; never paste secrets into commits or chat.
+   Worker/operator values must match the relevant secrets in
+   `dbrckk/ai-dev-server`. If the existing values cannot be recovered,
+   rotate both sides together instead of inventing placeholders. The
+   existing Neon `DATABASE_URL` is already configured.
+2. With auto-deploy still off, deploy once from `main` and verify the
+   *new* host's `/healthz`, `/readyz` and unauthenticated protected
+   `/v1/workflows` return 200 healthy, 200 ready with database reachable,
+   and 401, respectively. Check that the deployed commit is the intended
+   reviewed `main` revision.
+3. Before switching incoming work, ensure the original
+   `production-os1` service is permanently suspended or otherwise
+   unable to run against the shared Neon database; do not delete data or
+   reset leases. Older duplicate controllers remain disabled.
+4. Change the **ai-dev-server** GitHub Actions repository variable
+   `PRODUCTION_OS_URL` to
+   `https://production-os-control-plane.onrender.com`. Its existing
+   workflow fallback still points to the old host, so this explicit
+   variable is **required** until that fallback is independently updated.
+5. Run one bounded authenticated canary and require a real worker claim,
+   durable completed state, model-produced exact-SHA draft PR and
+   independently passing target CI. A green *scheduled preflight* that
+   skipped the executor is not proof of autonomy.
+6. After successful qualification, enable new-service automatic deploys
+   on reviewed `main` revisions if free-tier usage permits it; monitor
+   monthly pooled Render usage (the second workspace also hosts other
+   Free services). Never enable paid upgrades automatically.
+
+## Future Blueprint recreation (requires separate authorization)
+
+**Do not run this Blueprint to complete the current migration.** The
+new-account service already exists, and re-running the Blueprint could
+create another controller. The steps below apply only to a separately
+approved future service replacement.
 
 1. Open https://dashboard.render.com/blueprints in the approved Render
    account, choose **New Blueprint** and connect the existing GitHub repo
@@ -103,12 +158,11 @@ Avoid switching the GitHub worker secret to a new value before Render is
 ready to accept it. A missing/wrong token must result in authentication
 failure, never an anonymous API.
 
-If the Render ChatGPT connector reports `link_id must identify an eligible
-linked account`, it cannot manage the user's workspace. The GitHub-to-Render
-link is independent of the ChatGPT-to-Render link. Do not claim a new deploy
-succeeded merely because CI passed or a Blueprint is present in GitHub;
-verify an actual accessible Render service first. During the current
-quota wait, do not reconnect or migrate accounts unnecessarily.
+The Render connector for `studycall12` is connected and the service was
+created successfully. GitHub-to-Render authorization and GitHub Actions
+secret values are **separate**: connecting GitHub to Render does not copy
+worker/operator tokens or the GitHub dispatch PAT. Do not claim readiness
+from a successful image build alone; verify actual service behavior first.
 
 ## Free-tier limits and operational expectations
 
