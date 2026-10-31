@@ -242,27 +242,24 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-31T16:56:54Z
+Generated: 2026-10-31T17:02:57Z
 
 ### Git
 - Branch: `main`
-- Head: `e78834199e63`
-- Commit date: 2026-10-31T12:56:44-04:00
-- Commit: fix(render): fail closed on malformed Neon URLs (#327)
+- Head: `5d19cdc8a6ae`
+- Commit date: 2026-10-31T13:02:37-04:00
+- Commit: fix(render): block retired original-account controllers (#330)
 - Tracked files: 585
 
 ### Recently changed files
-- `docs/render-free-deployment.md`
 - `scripts/render-start.py`
 - `tests/test_render_start.py`
+- `docs/render-free-deployment.md`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_dashboard_store_postgres.py`
 - `tests/test_worker_wake.py`
-- `.github/workflows/ci.yml`
-- `render.yaml`
-- `tests/test_controller_daemon_deployment.py`
 
 ### Project signals
 - `pyproject.toml`

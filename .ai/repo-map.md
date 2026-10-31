@@ -2759,6 +2759,16 @@ value = str(os.environ.get(name) or "").strip()
 ⋮----
 def digest(value: str) -> str
 ⋮----
+# The owner permanently relocated Production-OS to the studycall12 Render account.
+# These three manually created controllers share the same Neon database and must
+# never restart as concurrent writers after the original account's quota reset.
+# Render supplies RENDER_SERVICE_ID at runtime for both Docker and Python.
+_RETIRED_RENDER_SERVICE_IDS = frozenset({
+⋮----
+"srv-dancka740ujc73bgdddg",  # production-os1
+"srv-dancjugae00c73earbe0",  # Production-OS
+"srv-dancfm3tqb8s73bek920",  # production-os
+⋮----
 def main() -> None
 ⋮----
 database_url = _required("DATABASE_URL")
