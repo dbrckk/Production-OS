@@ -242,29 +242,27 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-29T14:54:50Z
+Generated: 2026-10-31T16:44:38Z
 
 ### Git
 - Branch: `main`
-- Head: `588bce655eff`
-- Commit date: 2026-10-29T10:54:36-04:00
-- Commit: fix(worker): atomic durable reservation before GitHub Actions wake (#326)
+- Head: `3f3e654c844e`
+- Commit date: 2026-10-31T12:44:28-04:00
+- Commit: docs(render): record studycall12 as Production-OS primary host (#328)
 - Tracked files: 585
 
 ### Recently changed files
+- `docs/render-free-deployment.md`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_dashboard_store_postgres.py`
 - `tests/test_worker_wake.py`
 - `.github/workflows/ci.yml`
-- `docs/render-free-deployment.md`
 - `render.yaml`
 - `scripts/render-start.py`
 - `tests/test_controller_daemon_deployment.py`
 - `tests/test_render_start.py`
-- `src/production_os/cli.py`
-- `tests/test_cli.py`
 
 ### Project signals
 - `pyproject.toml`

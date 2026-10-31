@@ -1,22 +1,16 @@
 # Change impact
 
-Base: d90360bb425a19e213e40ec6984da14f4ba9ef2f
-Head: 588bce655effc282d463ff859fb66cbca9df7db0
+Base: ee2347cbe06883db0b00043349b0663576b03de1
+Head: 3f3e654c844e911b9c0607f5cd994c423c9a0b33
 
 ## Changed files
-- M src/production_os/dashboard_store.py
-- M src/production_os/worker_wake.py
-- M tests/test_dashboard_launch_ux.py
-- M tests/test_dashboard_store_postgres.py
-- M tests/test_worker_wake.py
+- M docs/render-free-deployment.md
 
 ## Affected areas
-- src
-- tests
+- docs
 
 ## Related test candidates
-- tests/test_dashboard_store.py
-- tests/test_worker_wake.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
