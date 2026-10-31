@@ -87,11 +87,16 @@ execution tier. Prior free-host alternatives are archived as a fallback in
    `production-os1` service is permanently suspended or otherwise
    unable to run against the shared Neon database; do not delete data or
    reset leases. Older duplicate controllers remain disabled.
-4. Change the **ai-dev-server** GitHub Actions repository variable
-   `PRODUCTION_OS_URL` to
-   `https://production-os-control-plane.onrender.com`. Its existing
-   workflow fallback still points to the old host, so this explicit
-   variable is **required** until that fallback is independently updated.
+4. The four worker/operator workflow URLs have been corrected in
+   [ai-dev-server PR #412](https://github.com/dbrckk/ai-dev-server/pull/412)
+   to use **the new HTTPS origin directly**, rather than a fallback controlled
+   by the potentially stale `PRODUCTION_OS_URL` repository variable.
+   Ensure that PR is **merged after its final CI passes** before treating
+   the new host as the worker destination. Separately update the repository
+   variable `PRODUCTION_OS_URL` to
+   `https://production-os-control-plane.onrender.com` for administrative
+   consistency and any consumers outside these four workflows; the
+   connector cannot administer that setting.
 5. Run one bounded authenticated canary and require a real worker claim,
    durable completed state, model-produced exact-SHA draft PR and
    independently passing target CI. A green *scheduled preflight* that
@@ -100,6 +105,17 @@ execution tier. Prior free-host alternatives are archived as a fallback in
    on reviewed `main` revisions if free-tier usage permits it; monitor
    monthly pooled Render usage (the second workspace also hosts other
    Free services). Never enable paid upgrades automatically.
+
+**2026-10-31 connector limit:** The GitHub connector does not expose Actions
+secret-value reads or secret/variable writes. Render exposes new-service
+environment-variable writes but not existing secret-value reads. Updating
+`DATABASE_URL` on the old `production-os1` was attempted to fail-closed
+that controller permanently, but Render rejected it with
+`cannot deploy suspended service`. The old controller remains billing
+suspended, but this is **not** proof it will stay unavailable after the
+old account's quota reset. Securely transfer the original tokens and keep
+the old controller disabled via its dashboard. Browser automation was
+not used because its linked metered wallet had insufficient credit.
 
 ## Future Blueprint recreation (requires separate authorization)
 
@@ -138,11 +154,13 @@ approved future service replacement.
    with `status: ready` and `database: reachable`, and **GET /v1/workflows**
    without Authorization returns HTTP 401. Health-only 200 on `/healthz`
    is not evidence of operational readiness.
-6. Only after those checks, change **ai-dev-server -> Settings -> Secrets
-   and variables -> Actions -> Variables -> PRODUCTION_OS_URL** to the
-   actual, reachable new HTTPS base URL. The worker and canary workflows
-   otherwise **fall back to the old suspended Render hostname**, so this
-   variable is essential to the cutover.
+6. Only after those checks, review **ai-dev-server -> Settings -> Secrets
+   and variables -> Actions -> Variables -> PRODUCTION_OS_URL** for
+   consistency with the deployed URL. The four workflows covered by
+   ai-dev-server PR #412 pin the new URL and no longer use the old
+   fallback expression; other clients may still use the repository
+   variable. Do not start production work before the new controller is
+   ready and the old one is prevented from accepting writes.
 7. Confirm the old Render service cannot accept writes before allowing new
    launches. Do not clear leases, delete data, or replay jobs to force a
    successful check.
@@ -180,9 +198,10 @@ AI model/GitHub Actions quotas. Keep paid auto-upgrades disabled.
 
 ## Rollback and audit
 
-- Do not change `PRODUCTION_OS_URL` until new readiness + authorization
-  checks pass. Keep the previous value for audit, not as a guaranteed
-  working rollback destination.
+- Do not redirect unrelated consumers of `PRODUCTION_OS_URL` before new
+  readiness and authorization checks pass. The four worker workflows from
+  PR #412 explicitly use the new host. Keep the previous value for audit,
+  not as a guaranteed working rollback destination.
 - If the new host fails, stop new task launches and prevent concurrent
   writers; do not invent successful canary receipts.
 - CI checks blueprint resource count, Free plan, absence of managed database
