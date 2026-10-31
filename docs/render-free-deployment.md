@@ -52,8 +52,12 @@ execution tier. Prior free-host alternatives are archived as a fallback in
   Docs: https://render.com/docs/health-checks and
   https://neon.com/docs/introduction/scale-to-zero
   Protected routes include **GET /v1/workflows**.
-- Render startup **rejects SQLite paths and URI schemes other than
-  `postgresql://` and `postgres://`**; the free container's disk is ephemeral.
+- Render startup **rejects SQLite paths, hostless PostgreSQL URLs, missing
+  database names, malformed ports, and URI schemes other than
+  `postgresql://` and `postgres://`** before creating authentication
+  files. A hostless connection may otherwise fall back to a local socket or
+  environment defaults instead of the existing Neon database; the free
+  container's disk is ephemeral.
   The worker and operator bearer tokens must also be different: reusing one
   secret undermines role separation and stops boot immediately.
 - The Render startup reads `DATABASE_URL` from the environment using
