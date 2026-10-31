@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+from urllib.parse import urlsplit
 
 
 def _required(name: str) -> str:
@@ -53,10 +54,27 @@ def main() -> None:
     # to start rather than choosing an arbitrary role for the same digest.
     if worker_token == operator_token:
         raise SystemExit("worker and operator tokens must be distinct")
-    # Render has no durable local disk. A SQLite pathname or an accidental
-    # empty host would silently fork the persistent production state.
-    if not database_url.startswith(("postgresql://", "postgres://")):
-        raise SystemExit("DATABASE_URL must be a PostgreSQL connection URL")
+    # Render has no durable local disk. A hostless PostgreSQL URI may fall
+    # back to a Unix socket or PGHOST; an omitted database may select a
+    # default database. Neither is the existing persistent Neon store.
+    database_url_error = (
+        "DATABASE_URL must be a PostgreSQL connection URL "
+        "with an explicit host and database"
+    )
+    try:
+        parsed_database_url = urlsplit(database_url)
+        database_host = parsed_database_url.hostname
+        database_port = parsed_database_url.port
+    except ValueError:
+        raise SystemExit(database_url_error) from None
+    if (
+        parsed_database_url.scheme not in ("postgresql", "postgres")
+        or not database_host
+        or not parsed_database_url.path.lstrip("/")
+        or parsed_database_url.fragment
+        or database_port == 0
+    ):
+        raise SystemExit(database_url_error)
     port = str(os.environ.get("PORT") or "8787").strip()
     if not port.isdigit() or not (1 <= int(port) <= 65535):
         raise SystemExit("PORT must be an integer between 1 and 65535")
