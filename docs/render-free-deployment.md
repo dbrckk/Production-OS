@@ -69,6 +69,21 @@ execution tier. Prior free-host alternatives are archived as a fallback in
   proof of current reachability. The new designated account is `studycall12`.
   Do not enable two live controllers against the same DB.
 
+## 2026-11-03 startup hardening (pending review)
+
+The Render-specific launcher now rejects a missing `GITHUB_TOKEN` at boot:
+without a dispatch-capable token, the API could otherwise report healthy
+while being unable to wake its GitHub Actions executor. It also reports **all**
+missing required variable names together (never secret values) so the next
+deployment does not need iterative failed startups. A manually created service
+does not inherit Blueprint `envVars`: the launcher supplies the audited
+default `PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server`,
+`PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml`, and
+`PRODUCTION_OS_ACTIONS_REF=main` when unset. Explicit nonempty overrides
+are preserved. These safeguards **do not provision credentials** or establish
+dispatch permissions. Keep auto-deploy off until the secrets have been
+coordinated, then qualify readiness and a real worker claim.
+
 ## Complete the already-created new-account cutover
 
 1. In the **new** Render service's Environment settings, configure the
@@ -87,13 +102,14 @@ execution tier. Prior free-host alternatives are archived as a fallback in
    `production-os1` service is permanently suspended or otherwise
    unable to run against the shared Neon database; do not delete data or
    reset leases. Older duplicate controllers remain disabled.
-4. The four worker/operator workflow URLs have been corrected in
+4. The four worker/operator workflow URLs were corrected and merged on
+   2026-10-31 in
    [ai-dev-server PR #412](https://github.com/dbrckk/ai-dev-server/pull/412)
    to use **the new HTTPS origin directly**, rather than a fallback controlled
    by the potentially stale `PRODUCTION_OS_URL` repository variable.
-   Ensure that PR is **merged after its final CI passes** before treating
-   the new host as the worker destination. Separately update the repository
-   variable `PRODUCTION_OS_URL` to
+   The origin pinning is complete, but a successful worker run with its
+   executor skipped is not proof of controller readiness. Separately update
+   the repository variable `PRODUCTION_OS_URL` to
    `https://production-os-control-plane.onrender.com` for administrative
    consistency and any consumers outside these four workflows; the
    connector cannot administer that setting.
