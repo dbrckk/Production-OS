@@ -42,6 +42,7 @@ class RenderStartTests(unittest.TestCase):
                 "DATABASE_URL": "postgresql://example/db",
                 "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
                 "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "GITHUB_TOKEN": "github-dispatch-secret",
                 "PRODUCTION_OS_WORKER_ID": "custom-actions-worker",
                 "PORT": "9999",
                 "RENDER_SERVICE_ID": "srv-dbj1hiuc6qcc73b7afvg",
@@ -83,6 +84,42 @@ class RenderStartTests(unittest.TestCase):
             )
             entries = {entry["role"]: entry for entry in payload["tokens"]}
             self.assertEqual(entries["worker"]["name"], "custom-actions-worker")
+            self.assertEqual(
+                os.environ["PRODUCTION_OS_ACTIONS_REPOSITORY"], "dbrckk/ai-dev-server"
+            )
+            self.assertEqual(
+                os.environ["PRODUCTION_OS_ACTIONS_WORKFLOW"], "production-os-actions-worker.yml"
+            )
+            self.assertEqual(os.environ["PRODUCTION_OS_ACTIONS_REF"], "main")
+
+    def test_missing_secrets_reported_together_without_auth_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            required = {
+                "DATABASE_URL": "postgresql://example/db",
+                "PRODUCTION_OS_RUNTIME_DIR": td,
+            }
+            cases = (
+                (required, {"PRODUCTION_OS_WORKER_TOKEN",
+                            "PRODUCTION_OS_OPERATOR_TOKEN", "GITHUB_TOKEN"}),
+                ({**required,
+                  "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
+                  "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret"}, {"GITHUB_TOKEN"}),
+            )
+            for environment, missing in cases:
+                with self.subTest(missing=missing), patch.dict(
+                    os.environ, environment, clear=True
+                ), patch.object(MODULE.os, "execvp") as execvp:
+                    with self.assertRaisesRegex(
+                        SystemExit, "missing required environment variables"
+                    ) as error:
+                        MODULE.main()
+                    message = str(error.exception)
+                    for name in missing:
+                        self.assertIn(name, message)
+                    self.assertNotIn("postgresql://example/db", message)
+                    self.assertNotIn("worker-secret", message)
+                    self.assertFalse((Path(td) / "auth.json").exists())
+                    execvp.assert_not_called()
 
     def test_invalid_port_fails_closed(self):
         with tempfile.TemporaryDirectory() as td, patch.dict(
@@ -91,6 +128,7 @@ class RenderStartTests(unittest.TestCase):
                 "DATABASE_URL": "postgresql://example/db",
                 "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
                 "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "GITHUB_TOKEN": "github-dispatch-secret",
                 "PRODUCTION_OS_RUNTIME_DIR": str(Path(td) / "redirect"),
                 "PORT": "8787",
             },
@@ -109,6 +147,7 @@ class RenderStartTests(unittest.TestCase):
                 "DATABASE_URL": "postgresql://example/db",
                 "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
                 "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "GITHUB_TOKEN": "github-dispatch-secret",
                 "PORT": "not-a-port",
             },
             clear=True,
@@ -124,6 +163,7 @@ class RenderStartTests(unittest.TestCase):
                 "DATABASE_URL": "postgresql://example/db",
                 "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
                 "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "GITHUB_TOKEN": "github-dispatch-secret",
                 "PRODUCTION_OS_RUNTIME_DIR": td,
             }
             for change, expected in (
