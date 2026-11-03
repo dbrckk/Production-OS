@@ -60,12 +60,20 @@ def main() -> None:
     if str(os.environ.get("RENDER_SERVICE_ID") or "").strip() in _RETIRED_RENDER_SERVICE_IDS:
         raise SystemExit("retired Render Production-OS service: use studycall12")
 
-    database_url, worker_token, operator_token, _github_token = _required(
+    database_url, worker_token, operator_token = _required(
         "DATABASE_URL",
         "PRODUCTION_OS_WORKER_TOKEN",
         "PRODUCTION_OS_OPERATOR_TOKEN",
-        "GITHUB_TOKEN",
     )
+    # The existing Actions schedule can poll without a GitHub dispatch PAT.
+    # Do not reject a valid database + worker/operator configuration merely
+    # because the faster, optional immediate wake is unavailable.
+    if not str(os.environ.get("GITHUB_TOKEN") or "").strip():
+        print(
+            "GITHUB_TOKEN is unset: using scheduled Actions worker fallback "
+            "(immediate wake disabled)",
+            file=sys.stderr,
+        )
     worker_name = str(
         os.environ.get("PRODUCTION_OS_WORKER_ID") or "github-actions-worker"
     ).strip()
