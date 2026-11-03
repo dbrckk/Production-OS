@@ -151,6 +151,7 @@ jobs:
             -e DATABASE_URL="$PRODUCTION_OS_TEST_POSTGRES" \
             -e PRODUCTION_OS_WORKER_TOKEN=ci-ephemeral-worker-not-a-secret \
             -e PRODUCTION_OS_OPERATOR_TOKEN=ci-ephemeral-operator-not-a-secret \
+            -e GITHUB_TOKEN=ci-ephemeral-dispatch-not-a-secret \
             -e PRODUCTION_OS_WORKER_ID=github-actions-worker \
             production-os-free-hosting:ci
           trap 'docker logs --tail 30 production-os-free-hosting-ci || true; docker stop production-os-free-hosting-ci >/dev/null 2>&1 || true' EXIT
