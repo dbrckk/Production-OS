@@ -92,6 +92,36 @@ class RenderStartTests(unittest.TestCase):
             )
             self.assertEqual(os.environ["PRODUCTION_OS_ACTIONS_REF"], "main")
 
+    def test_missing_dispatch_token_keeps_scheduled_fallback_operational(self):
+        with tempfile.TemporaryDirectory() as td, patch.dict(
+            os.environ,
+            {
+                "DATABASE_URL": "postgresql://example/db",
+                "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
+                "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "PRODUCTION_OS_RUNTIME_DIR": td,
+            },
+            clear=True,
+        ), patch.object(MODULE.os, "execvp") as execvp, patch(
+            "sys.stderr", new_callable=__import__("io").StringIO
+        ) as stderr:
+            MODULE.main()
+            execvp.assert_called_once()
+            self.assertEqual(
+                os.environ["PRODUCTION_OS_ACTIONS_WORKFLOW"],
+                "production-os-actions-worker.yml",
+            )
+            self.assertEqual(
+                os.environ["PRODUCTION_OS_ACTIONS_REPOSITORY"],
+                "dbrckk/ai-dev-server",
+            )
+            self.assertNotIn("GITHUB_TOKEN", os.environ)
+            self.assertIn("scheduled Actions worker fallback", stderr.getvalue())
+            self.assertNotIn("worker-secret", stderr.getvalue())
+            self.assertNotIn("operator-secret", stderr.getvalue())
+            auth = json.loads((Path(td) / "auth.json").read_text())
+            self.assertEqual({token["role"] for token in auth["tokens"]}, {"worker", "operator"})
+
     def test_missing_secrets_reported_together_without_auth_file(self):
         with tempfile.TemporaryDirectory() as td:
             required = {
@@ -100,10 +130,9 @@ class RenderStartTests(unittest.TestCase):
             }
             cases = (
                 (required, {"PRODUCTION_OS_WORKER_TOKEN",
-                            "PRODUCTION_OS_OPERATOR_TOKEN", "GITHUB_TOKEN"}),
+                            "PRODUCTION_OS_OPERATOR_TOKEN"}),
                 ({**required,
-                  "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
-                  "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret"}, {"GITHUB_TOKEN"}),
+                  "PRODUCTION_OS_WORKER_TOKEN": "worker-secret"}, {"PRODUCTION_OS_OPERATOR_TOKEN"}),
             )
             for environment, missing in cases:
                 with self.subTest(missing=missing), patch.dict(
