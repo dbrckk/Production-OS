@@ -101,13 +101,45 @@ The last recorded `github-actions-worker` heartbeat was
 2026-10-26 15:59 UTC. These are preserved database records, **not proof of
 currently executing workers**. Do not blindly clear or replay their leases.
 
-Fresh unauthenticated GET probes of both `/healthz` and `/readyz` returned
-HTTP 503 for **both** the old `production-os1` and the new
-`production-os-control-plane` host. This does not establish that either
-instance is able to accept work. Nevertheless Render reports the old service
-`not_suspended`, `autoDeploy=yes`, and an older deployment as `live`;
-isolate it before starting the new controller. No new Render deployment or
-database writes were performed during this diagnostic.
+Initial unauthenticated GET probes of both `/healthz` and `/readyz`
+returned HTTP 503 for **both** hosts. Crucially, **repeated probes after the
+Free-instance wake-up returned HTTP 200** on legacy `production-os1`, with
+`status=healthy`, `status=ready`, and `database=reachable`; unauthenticated
+`/v1/workflows` returned the expected HTTP 401. The designated new
+`production-os-control-plane` still returned HTTP 503. The legacy controller
+is therefore demonstrably able to resume and connect to Neon, even though it
+may sleep between requests. Render reports it `not_suspended` with
+`autoDeploy=yes`. **Isolate the legacy service in Render before the new
+controller starts; an initial HTTP 503 is not isolation proof.** No Render
+deployment or database writes occurred during this diagnostic.
+
+## Read-only, credential-safe cutover verifier
+
+A standalone verifier now exists at `scripts/verify-render-cutover.py`.
+Run it from a trusted terminal with worker/operator secrets **already
+present as environment variables**; never pass credentials in CLI arguments,
+issue comments or URL strings:
+
+```bash
+python scripts/verify-render-cutover.py
+```
+
+It uses bounded HTTPS requests (no redirects, no credential forwarding) to
+verify the new `/healthz`, `/readyz` with database access, anonymous
+`/v1/workflows` rejection (401), authenticated worker
+`POST /v1/jobs/availability` (read-only queue inspection), and authenticated
+operator `GET /v1/stats`. It checks the legacy `/readyz` repeatedly to
+catch Render Free cold-starts. It never registers a worker, claims work,
+dispatches an Action or writes to Neon; log output contains no secret values.
+
+`python scripts/verify-render-cutover.py --public-only` supports
+unauthenticated diagnostics, but deliberately returns exit status **2** even
+when HTTP probes pass, because auth is unverified. The full verifier returns
+status **0** only when its HTTP and role probes pass, and status **1** when any
+check blocks. **Neither result proves durable suspension of the old Render
+service or successful execution of a real worker task**: independently
+confirm the old service is suspended and require a real Actions canary
+before considering cutover completed.
 
 ## Complete the already-created new-account cutover
 
