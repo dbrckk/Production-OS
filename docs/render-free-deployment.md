@@ -71,11 +71,15 @@ execution tier. Prior free-host alternatives are archived as a fallback in
 
 ## 2026-11-03 startup hardening (pending review)
 
-The Render-specific launcher now rejects a missing `GITHUB_TOKEN` at boot:
-without a dispatch-capable token, the API could otherwise report healthy
-while being unable to wake its GitHub Actions executor. It also reports **all**
-missing required variable names together (never secret values) so the next
-deployment does not need iterative failed startups. A manually created service
+The Render-specific launcher now reports **all** missing required variable
+names together (never secret values) so the next deployment does not need
+iterative failed startups. The PostgreSQL URL and the distinct worker and
+operator tokens remain mandatory. `GITHUB_TOKEN` is optional for an initially
+usable control plane: without it, the pre-existing GitHub Actions worker
+continues to poll on its five-minute schedule, but **immediate dispatch is
+disabled**. A process returning healthy is not evidence of dispatch
+authorization or a completed worker job. Add a dispatch-capable token to
+enable immediate wake after the scheduled fallback is qualified. A manually created service
 does not inherit Blueprint `envVars`: the launcher supplies the audited
 default `PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server`,
 `PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml`, and
@@ -87,8 +91,11 @@ coordinated, then qualify readiness and a real worker claim.
 ## Complete the already-created new-account cutover
 
 1. In the **new** Render service's Environment settings, configure the
-   existing `PRODUCTION_OS_WORKER_TOKEN`, `PRODUCTION_OS_OPERATOR_TOKEN`
-   and `GITHUB_TOKEN` securely; never paste secrets into commits or chat.
+   existing `PRODUCTION_OS_WORKER_TOKEN` and `PRODUCTION_OS_OPERATOR_TOKEN`
+   securely; never paste secrets into commits or chat. Configure `GITHUB_TOKEN`
+   if available to enable immediate worker wake; otherwise, retain the
+   existing scheduled GitHub Actions worker fallback and verify it really
+   claims work before certifying autonomy.
    Worker/operator values must match the relevant secrets in
    `dbrckk/ai-dev-server`. If the existing values cannot be recovered,
    rotate both sides together instead of inventing placeholders. The
