@@ -13,8 +13,10 @@ was recreated.
 **Cutover is NOT complete or operationally qualified.** The initial Docker
 image built successfully on 2026-10-31, but the first deployment failed
 closed at startup because `PRODUCTION_OS_WORKER_TOKEN` was not yet present.
-`PRODUCTION_OS_OPERATOR_TOKEN` and `GITHUB_TOKEN` must also be provisioned
-on the new service before it can be activated. New-service auto-deploy is
+`PRODUCTION_OS_OPERATOR_TOKEN` must also be provisioned for authenticated
+operation. `GITHUB_TOKEN` is optional: without it the existing scheduled
+Actions worker provides a five-minute polling fallback rather than
+immediate dispatch. New-service auto-deploy is
 temporarily **off** to avoid wasting Free quota on repeated GitHub pushes
 before authentication and readiness are verified. This document records
 the target destination, not a successful switchover.
@@ -22,9 +24,10 @@ the target destination, not a successful switchover.
 The version-controlled `render.yaml` is a *future Blueprint template* and
 does not automatically update or configure the new manually created Render
 service. Never create a duplicate controller with the Blueprint. The old
-`production-os1` on the original account is billing-suspended; it is not
-the future destination and must not be allowed to run concurrently with the
-new controller on the same persistent database.
+`production-os1` on the original account was resumed by Render on
+2026-11-01 after an earlier Free-quota suspension; it is not the future
+destination and must not be allowed to run concurrently with the new
+controller on the same persistent database.
 
 If explicitly deployed, `render.yaml` creates exactly
 **one Render Free web service**. It does not create a database, a paid service,
@@ -87,6 +90,24 @@ default `PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server`,
 are preserved. These safeguards **do not provision credentials** or establish
 dispatch permissions. Keep auto-deploy off until the secrets have been
 coordinated, then qualify readiness and a real worker claim.
+
+## 2026-11-04 read-only infrastructure checkpoint
+
+The connected Neon project `production-os` (primary branch `production`,
+database `production_os`, PostgreSQL 16.15) answered a direct SQL query.
+At observation time it contained 81 jobs (29 completed, 51 failed, 1 queued),
+57 workflows (29 succeeded, 27 failed, 1 running) and two worker records.
+The last recorded `github-actions-worker` heartbeat was
+2026-10-26 15:59 UTC. These are preserved database records, **not proof of
+currently executing workers**. Do not blindly clear or replay their leases.
+
+Fresh unauthenticated GET probes of both `/healthz` and `/readyz` returned
+HTTP 503 for **both** the old `production-os1` and the new
+`production-os-control-plane` host. This does not establish that either
+instance is able to accept work. Nevertheless Render reports the old service
+`not_suspended`, `autoDeploy=yes`, and an older deployment as `live`;
+isolate it before starting the new controller. No new Render deployment or
+database writes were performed during this diagnostic.
 
 ## Complete the already-created new-account cutover
 
@@ -155,7 +176,8 @@ approved future service replacement.
    with the name `production-os-control-plane`; **no Render database**.
    Never approve an automatically selected paid tier.
 3. In the Blueprint's **secret environment variable** prompts, supply the
-   four mandatory values. Render's `sync: false` keeps values out of Git:
+   three mandatory values plus optional `GITHUB_TOKEN` for immediate dispatch.
+   Render's `sync: false` keeps values out of Git:
    - `DATABASE_URL`: the **existing** Neon PostgreSQL connection string
      for `production_os`, SSL enabled. Obtain via Neon Console, or safely
      from an authorized secret manager. **Never copy into Git or chat.**
@@ -165,9 +187,10 @@ approved future service replacement.
    - `PRODUCTION_OS_OPERATOR_TOKEN`: must equal the operator/canary
      Actions secret in **ai-dev-server**. Must be distinct from the worker
      token.
-   - `GITHUB_TOKEN`: a separate, least-privilege GitHub token permitted to
-     dispatch the `production-os-actions-worker.yml` workflow in
-     `dbrckk/ai-dev-server`. Do not use the Neon password as a token.
+   - `GITHUB_TOKEN` (optional for scheduled fallback): a separate,
+     least-privilege GitHub token permitted to dispatch the
+     `production-os-actions-worker.yml` workflow in `dbrckk/ai-dev-server`.
+     Do not use the Neon password as a token.
 4. The Blueprint sets the worker ID, repository, workflow, branch and port
    to existing audited defaults. Allow the first deployment to finish.
    Retrieve its **actual Render-assigned HTTPS URL**; do not assume a
