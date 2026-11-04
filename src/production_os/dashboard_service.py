@@ -10,7 +10,7 @@ from pathlib import Path
 
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
-from .dashboard_health import derive_control_health
+from .dashboard_health import derive_control_health, is_worker_fresh
 from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
@@ -121,6 +121,12 @@ class DashboardService:
                               quota_rows=self.store.latest_provider_quota_snapshots())
         previous_cost=self._previous_window_cost(usage_rows, window)
         workers=self._worker_rows()
+        worker_now=datetime.now(timezone.utc)
+        fresh_online=sum(is_worker_fresh(row, now=worker_now) for row in workers)
+        stale_online=sum(
+            row.get("status")=="online" and not is_worker_fresh(row, now=worker_now)
+            for row in workers
+        )
         executions=[]
         with self.control.backend.connect() as db:
             rows=db.execute("SELECT * FROM job_executions").fetchall()
@@ -143,14 +149,15 @@ class DashboardService:
                 break
             recent_failures += 1
         snapshot = {
-          "schema_version":"production-os/dashboard-overview/v1","generated_at":_now(),
-          "workers":{"total":len(workers),"online":sum(x.get("status")=="online" for x in workers),
+          "schema_version":"production-os/dashboard-overview/v1","generated_at":worker_now.isoformat(),
+          "workers":{"total":len(workers),"online":fresh_online,
+                     "stale_online":stale_online,
                      "busy":sum(int(x.get("active_tasks") or 0)>0 for x in workers),
                      "paused":sum(
                          self.control.dashboard_control.worker_state(x["worker_id"])["desired_state"]=="paused"
                          for x in workers
                      ),
-                     "offline":sum(x.get("status")!="online" for x in workers)},
+                     "offline":len(workers)-fresh_online},
           "productions":{"running":states.get("running",0),"queued":states.get("queued",0),
                          "succeeded":states.get("succeeded",0),"failed":states.get("failed",0)},
           "usage":{"api_calls":usage["totals"].get("api_calls"),
@@ -213,6 +220,7 @@ class DashboardService:
         )
         workers = self._worker_rows()
         ephemeral_ids = _ephemeral_worker_ids()
+        worker_now = datetime.now(timezone.utc)
 
         worker_views = []
         for worker in workers:
@@ -224,9 +232,10 @@ class DashboardService:
                 "capabilities":self._worker_capabilities(worker),
                 "desired_state":desired["desired_state"],
             }
+            item["heartbeat_fresh"] = is_worker_fresh(item, now=worker_now)
             item["available"] = (
                 worker_id not in ephemeral_ids
-                and item.get("status") == "online"
+                and item["heartbeat_fresh"]
                 and item["desired_state"] == "active"
                 and int(item.get("active_tasks") or 0)
                     < int(item.get("max_concurrency") or 0)
@@ -273,13 +282,13 @@ class DashboardService:
                 elif required and not capable:
                     wait_reason = "missing_capability"
                 elif any(
-                    worker.get("status") == "online"
+                    worker["heartbeat_fresh"]
                     and worker.get("desired_state") in {"paused", "draining"}
                     for worker in capable
                 ):
                     wait_reason = "worker_controlled"
                 elif any(
-                    worker.get("status") == "online"
+                    worker["heartbeat_fresh"]
                     and int(worker.get("active_tasks") or 0)
                         >= int(worker.get("max_concurrency") or 0)
                     for worker in capable
@@ -332,7 +341,7 @@ class DashboardService:
             )
             for worker in worker_views
             if worker["worker_id"] not in ephemeral_ids
-            and worker.get("status") == "online"
+            and worker["heartbeat_fresh"]
             and worker.get("desired_state") == "active"
         )
         summary = {
@@ -586,6 +595,7 @@ class DashboardService:
 
     def health(self) -> dict:
         workers = self._worker_rows()
+        worker_now = datetime.now(timezone.utc)
         with self.control.backend.connect() as db:
             job_rows = db.execute(
                 "SELECT status, COUNT(*) AS count FROM jobs GROUP BY status"
@@ -600,12 +610,9 @@ class DashboardService:
             for row in job_rows
         }
         snapshot = {
-            "generated_at":_now(),
+            "generated_at":worker_now.isoformat(),
             "workers":{
-                "online":sum(
-                    row.get("status") == "online"
-                    for row in workers
-                ),
+                "online":sum(is_worker_fresh(row, now=worker_now) for row in workers),
             },
             "productions":{
                 "queued":states.get("queued", 0),
@@ -775,7 +782,10 @@ class DashboardService:
             item["desired_state"]=desired["desired_state"]
             item["control_requested_at"]=desired.get("requested_at")
             item["control_reason"]=desired.get("reason")
-            if desired["desired_state"] == "draining" and int(item.get("active_tasks") or 0) == 0:
+            item["heartbeat_fresh"]=is_worker_fresh(item)
+            if item.get("status") == "online" and not item["heartbeat_fresh"]:
+                item["display_state"]="stale"
+            elif desired["desired_state"] == "draining" and int(item.get("active_tasks") or 0) == 0:
                 item["display_state"]="drained"
             rows.append(item)
         return {"workers":rows,"generated_at":_now()}
@@ -789,7 +799,10 @@ class DashboardService:
         worker["control_requested_at"]=desired.get("requested_at")
         worker["control_reason"]=desired.get("reason")
         worker["control_acknowledged_at"]=desired.get("acknowledged_at")
-        if desired["desired_state"] == "draining" and int(worker.get("active_tasks") or 0) == 0:
+        worker["heartbeat_fresh"]=is_worker_fresh(worker)
+        if worker.get("status") == "online" and not worker["heartbeat_fresh"]:
+            worker["display_state"]="stale"
+        elif desired["desired_state"] == "draining" and int(worker.get("active_tasks") or 0) == 0:
             worker["display_state"]="drained"
         with self.control.backend.connect() as db:
             recoverable_rows = _execute(
@@ -869,10 +882,11 @@ class DashboardService:
             for item in catalog.get("repositories", [])
         )
         workers = self.workers().get("workers", [])
+        worker_now = datetime.now(timezone.utc)
         online = [
             worker
             for worker in workers
-            if worker.get("status") == "online"
+            if is_worker_fresh(worker, now=worker_now)
         ]
         # An Actions runner exits after its one-shot job, but its last
         # heartbeat can remain "online" in the registry. It must not make
