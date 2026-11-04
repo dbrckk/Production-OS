@@ -162,33 +162,35 @@ before considering cutover completed.
 
 ## Complete the already-created new-account cutover
 
-1. In the **new** Render service's Environment settings, configure the
-   existing `PRODUCTION_OS_WORKER_TOKEN` and `PRODUCTION_OS_OPERATOR_TOKEN`
-   securely; never paste secrets into commits or chat. Configure `GITHUB_TOKEN`
-   if available to enable immediate worker wake; otherwise, retain the
-   best-effort scheduled GitHub Actions worker fallback and verify it really
-   claims work before certifying autonomy.
-   Worker/operator values must match the relevant secrets in
-   `dbrckk/ai-dev-server`. If the existing values cannot be recovered,
-   rotate both sides together instead of inventing placeholders. The
-   existing Neon `DATABASE_URL` is already configured.
-2. **Before enabling the new controller**, suspend the original
-   `production-os1` Render service using the original Render account.
-   Disable any mechanism that would restart it against the same Neon
-   database, including its `autoDeploy=yes` setting. Verify Render reports
-   `suspended` (not merely an HTTP 503 or a sleeping Free instance); keep
-   historical jobs/leases unchanged. Older duplicate controllers stay off.
-   The current Render connector does not expose a suspend or auto-deploy
-   toggle, so this one account-level operation must be performed by an
-   authorized Render administrator.
-3. Only **after step 2**, set
-   `PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true` in the **new** service's
-   environment. Keep auto-deploy off, merge the reviewed, green PR to
-   `main`, then trigger one deployment of the qualified `main` SHA. Verify
-   the new `/healthz`, `/readyz` and unauthenticated protected
-   `/v1/workflows` return HTTP 200 healthy, HTTP 200 ready with the
-   database reachable, and HTTP 401. Check the deployed SHA and require
-   role-authenticated worker/operator checks before accepting cutover.
+1. **Prepare**, but do not yet add to Render, matching
+   `PRODUCTION_OS_WORKER_TOKEN` and a distinct
+   `PRODUCTION_OS_OPERATOR_TOKEN`. GitHub Actions Secrets in
+   `dbrckk/ai-dev-server` cannot be read back by the connector, so recover
+   the existing worker token from a trusted vault or rotate it securely.
+   Never paste values into commits, issue comments or chat. Prepare an
+   optional dispatch-capable `GITHUB_TOKEN`; without it scheduled
+   GitHub Actions polling is best-effort. Neon `DATABASE_URL` already exists.
+   **Do not set either Render token yet.** The currently installed image
+   predates the new activation latch, and an environment update might
+   activate it while the legacy controller still owns the database.
+2. On the **old** Render account, disable `production-os1` auto-deploy
+   and suspend its service. Independently verify Render reports
+   `suspended` (not merely an HTTP 503 or an idle Free instance); keep
+   historical jobs and leases unchanged. Older duplicates remain disabled.
+   The current Render connector cannot suspend services or toggle
+   auto-deploy, so an authorized Render administrator must perform this
+   specific dashboard operation.
+3. Only after the legacy suspension, merge the reviewed, green PR to
+   `main` (the new service has `autoDeploy=no`). On the **new** Render
+   service, coordinate `PRODUCTION_OS_WORKER_TOKEN` with GitHub Actions
+   and add the distinct `PRODUCTION_OS_OPERATOR_TOKEN` and optional
+   `GITHUB_TOKEN`. Keep `PRODUCTION_OS_PRIMARY_WRITER_ENABLED` unset or
+   `false` during configuration. Reverify legacy suspension, set the latch
+   to `true`, and trigger **one** deployment of the qualified `main`
+   revision. Require `/healthz` HTTP 200, `/readyz` HTTP 200 with DB
+   reachable, and unauthenticated `/v1/workflows` HTTP 401. Verify the
+   deployed SHA and authenticated worker/operator responses before cutover
+   acceptance.
 4. The four worker/operator workflow URLs were corrected and merged on
    2026-10-31 in
    [ai-dev-server PR #412](https://github.com/dbrckk/ai-dev-server/pull/412)
