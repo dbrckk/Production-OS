@@ -125,6 +125,7 @@ src/
     fanout_learning.py
     feedback.py
     filesystem_lock.py
+    github_actions_oidc.py
     github_change_review.py
     github_client.py
     github_webhook.py
@@ -300,6 +301,8 @@ tests/
   test_fairness.py
   test_fanout_learning.py
   test_filesystem_lock.py
+  test_github_actions_oidc_http.py
+  test_github_actions_oidc.py
   test_github_automerge.py
   test_github_change_review.py
   test_github_client_pr_files.py
@@ -6082,6 +6085,8 @@ def _principal(self) -> Principal | None
 token = self._bearer_token()
 principal = control.authorizer.authenticate(token)
 ⋮----
+principal = control.github_actions_oidc.authenticate(token)
+⋮----
 def _require(self, role: str) -> Principal | None
 ⋮----
 principal = self._principal()
@@ -6212,6 +6217,14 @@ project = control.managed_projects.get(parts[2])
 def do_POST(self) -> None
 ⋮----
 body = self._read_json()
+⋮----
+assertion = body.get("id_token")
+requested_role = body.get("role")
+⋮----
+credential = control.github_actions_oidc.exchange(
+⋮----
+# Never expose claim validation details, token values or JWKS.
+⋮----
 unknown = sorted(
 ⋮----
 pairing = control.device_pairing.exchange(
@@ -8911,6 +8924,105 @@ target = Path(path).expanduser().resolve()
 local = _thread_lock(target)
 ⋮----
 handle = target.open("a+", encoding="utf-8")
+````
+
+## File: src/production_os/github_actions_oidc.py
+````python
+"""Bounded GitHub Actions OIDC exchange for one trusted production repository.
+
+GitHub's RS256 JWT proves workflow identity; it is never used as the regular
+API bearer. Exchange returns a random, in-memory, role-scoped session token.
+No long-lived GitHub Actions repository secret is required.
+"""
+⋮----
+ISSUER = "https://token.actions.githubusercontent.com"
+AUDIENCE = "production-os-control-plane"
+JWKS_URL = ISSUER + "/.well-known/jwks"
+REPOSITORY = "dbrckk/ai-dev-server"
+REPOSITORY_ID = "1359122023"
+OWNER_ID = "131650085"
+REF = "refs/heads/main"
+WORKFLOWS = {
+SESSION_TTL_SECONDS = 6300   # Covers a single bounded 90-minute Actions worker job.
+JWKS_TTL_SECONDS = 900
+MAX_JWT_BYTES = 12000
+MAX_SESSIONS = 512
+⋮----
+class OIDCRejected(ValueError)
+⋮----
+"""Fail-closed OIDC denial. Never include token claims or credentials."""
+⋮----
+class _NoRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+⋮----
+def _b64decode(value)
+⋮----
+def _read_json_part(value)
+⋮----
+result = json.loads(_b64decode(value))
+⋮----
+def _load_jwks()
+⋮----
+request = urllib.request.Request(
+opener = urllib.request.build_opener(_NoRedirect())
+⋮----
+raw = response.read(65537)
+⋮----
+value = json.loads(raw)
+⋮----
+class GitHubActionsOIDC
+⋮----
+def __init__(self, *, enabled=False, fetch_jwks=None, clock=None)
+⋮----
+def _key(self, kid)
+⋮----
+now = self._clock()
+⋮----
+current = self._jwks if now < self._jwks_until else None
+⋮----
+# Fetch outside the lock; deny issuance on failed refresh.
+⋮----
+fresh = self._fetch_jwks()
+⋮----
+def _verify(self, assertion)
+⋮----
+parts = assertion.split(".")
+⋮----
+header = _read_json_part(parts[0])
+claims = _read_json_part(parts[1])
+⋮----
+kid = header.get("kid")
+⋮----
+jwk = self._key(kid)
+⋮----
+n = int.from_bytes(_b64decode(jwk["n"]), "big")
+e = int.from_bytes(_b64decode(jwk["e"]), "big")
+⋮----
+key = rsa.RSAPublicNumbers(e, n).public_key()
+⋮----
+allowed_subs = {
+⋮----
+workflow_ref = claims.get("workflow_ref")
+⋮----
+rule = WORKFLOWS.get(workflow_ref)
+⋮----
+def exchange(self, assertion, *, requested_role=None)
+⋮----
+granted_role = self._verify(assertion)
+role = requested_role or granted_role
+# An operator may explicitly request a less-privileged worker session.
+⋮----
+raw = "pos-gha-" + secrets.token_urlsafe(32)
+digest = hashlib.sha256(raw.encode("ascii")).digest()
+⋮----
+# Fail closed if suspiciously many concurrent token exchanges.
+⋮----
+def authenticate(self, bearer)
+⋮----
+digest = hashlib.sha256(bearer.encode("ascii")).digest()
+⋮----
+item = self._sessions.get(digest)
 ````
 
 ## File: src/production_os/github_change_review.py
@@ -18474,6 +18586,91 @@ process = subprocess.Popen([sys.executable, "-c", script])
 def test_filesystem_lock_creates_parent_directories(tmp_path)
 ⋮----
 lock = tmp_path / "nested" / "locks" / "repo.lock"
+````
+
+## File: tests/test_github_actions_oidc_http.py
+````python
+"""Real HTTP transport checks for the opt-in GitHub Actions exchange route."""
+⋮----
+def call(url, *, bearer=None, payload=None)
+⋮----
+headers = {"Content-Type": "application/json"}
+⋮----
+request = urllib.request.Request(
+⋮----
+def test_oidc_http_exchange_is_opt_in_and_authorizes_only_scoped_roles(tmp_path, monkeypatch)
+⋮----
+disabled = ControlPlane(str(tmp_path / "disabled.sqlite"), authorizer=TokenAuthorizer([]))
+⋮----
+# Opt in affects only newly started services; no implicit role grant.
+⋮----
+control = ControlPlane(str(tmp_path / "enabled.sqlite"), authorizer=TokenAuthorizer([]))
+⋮----
+exchanged = []
+def issue(assertion, *, requested_role=None)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+````
+
+## File: tests/test_github_actions_oidc.py
+````python
+"""Security regression suite for GitHub Actions OIDC credential exchange."""
+⋮----
+NOW = 1_800_000_000
+WORKER = "dbrckk/ai-dev-server/.github/workflows/production-os-actions-worker.yml@refs/heads/main"
+CANARY = "dbrckk/ai-dev-server/.github/workflows/production-os-worker-canary.yml@refs/heads/main"
+⋮----
+def b64(value)
+⋮----
+@pytest.fixture
+def signing()
+⋮----
+private = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+public = private.public_key().public_numbers()
+jwks = {"keys": [{
+def sign(override=None, *, kind="worker", private_key=None)
+⋮----
+claims = {
+⋮----
+header = {"alg": "RS256", "typ": "JWT", "kid": "test-key-1"}
+first = b64(json.dumps(header).encode())
+second = b64(json.dumps(claims).encode())
+signing_input = (first + "." + second).encode()
+sig = (private_key or private).sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
+⋮----
+def test_worker_oidc_exchange_is_role_scoped_and_ephemeral(signing)
+⋮----
+auth = GitHubActionsOIDC(enabled=True, fetch_jwks=lambda: jwks, clock=lambda: NOW)
+response = auth.exchange(sign())
+⋮----
+def test_canary_operator_can_request_narrow_worker_session(signing)
+⋮----
+operator = auth.exchange(sign(kind="canary"))
+⋮----
+worker = auth.exchange(sign(kind="canary"), requested_role="worker")
+⋮----
+def test_signed_claims_and_trust_rules_are_mandatory(signing)
+⋮----
+invalid = [
+⋮----
+def test_signature_and_key_substitution_rejected(signing)
+⋮----
+another = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+⋮----
+failed = GitHubActionsOIDC(enabled=True, fetch_jwks=lambda: {"keys": []}, clock=lambda: NOW)
+⋮----
+offline = GitHubActionsOIDC(
+⋮----
+def test_disabled_expired_and_restart_sessions_are_rejected(signing)
+⋮----
+now = [NOW]
+disabled = GitHubActionsOIDC(fetch_jwks=lambda: jwks, clock=lambda: now[0])
+⋮----
+auth = GitHubActionsOIDC(enabled=True, fetch_jwks=lambda: jwks, clock=lambda: now[0])
+session = auth.exchange(sign())["access_token"]
 ````
 
 ## File: tests/test_github_automerge.py

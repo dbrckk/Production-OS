@@ -242,22 +242,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-11-04T10:51:45Z
+Generated: 2026-11-04T23:23:32Z
 
 ### Git
 - Branch: `main`
-- Head: `739cd5bb0a47`
-- Commit date: 2026-11-04T05:51:35-05:00
-- Commit: fix(render): safe single-writer cutover and truthful worker liveness (#331)
-- Tracked files: 587
+- Head: `46c753cb061d`
+- Commit date: 2026-11-04T18:23:16-05:00
+- Commit: feat(auth): role-scoped GitHub Actions OIDC exchange (#333)
+- Tracked files: 590
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
+- `src/production_os/github_actions_oidc.py`
+- `tests/test_github_actions_oidc.py`
+- `tests/test_github_actions_oidc_http.py`
 - `.github/workflows/ci.yml`
 - `docs/render-free-deployment.md`
 - `render.yaml`
 - `scripts/render-start.py`
 - `scripts/verify-render-cutover.py`
-- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_health.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`

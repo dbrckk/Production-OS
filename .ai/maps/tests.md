@@ -137,6 +137,8 @@ test_executor_worktree.py
 test_fairness.py
 test_fanout_learning.py
 test_filesystem_lock.py
+test_github_actions_oidc_http.py
+test_github_actions_oidc.py
 test_github_automerge.py
 test_github_change_review.py
 test_github_client_pr_files.py
@@ -4539,6 +4541,91 @@ process = subprocess.Popen([sys.executable, "-c", script])
 def test_filesystem_lock_creates_parent_directories(tmp_path)
 ⋮----
 lock = tmp_path / "nested" / "locks" / "repo.lock"
+```
+
+## File: test_github_actions_oidc_http.py
+```python
+"""Real HTTP transport checks for the opt-in GitHub Actions exchange route."""
+⋮----
+def call(url, *, bearer=None, payload=None)
+⋮----
+headers = {"Content-Type": "application/json"}
+⋮----
+request = urllib.request.Request(
+⋮----
+def test_oidc_http_exchange_is_opt_in_and_authorizes_only_scoped_roles(tmp_path, monkeypatch)
+⋮----
+disabled = ControlPlane(str(tmp_path / "disabled.sqlite"), authorizer=TokenAuthorizer([]))
+⋮----
+# Opt in affects only newly started services; no implicit role grant.
+⋮----
+control = ControlPlane(str(tmp_path / "enabled.sqlite"), authorizer=TokenAuthorizer([]))
+⋮----
+exchanged = []
+def issue(assertion, *, requested_role=None)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+```
+
+## File: test_github_actions_oidc.py
+```python
+"""Security regression suite for GitHub Actions OIDC credential exchange."""
+⋮----
+NOW = 1_800_000_000
+WORKER = "dbrckk/ai-dev-server/.github/workflows/production-os-actions-worker.yml@refs/heads/main"
+CANARY = "dbrckk/ai-dev-server/.github/workflows/production-os-worker-canary.yml@refs/heads/main"
+⋮----
+def b64(value)
+⋮----
+@pytest.fixture
+def signing()
+⋮----
+private = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+public = private.public_key().public_numbers()
+jwks = {"keys": [{
+def sign(override=None, *, kind="worker", private_key=None)
+⋮----
+claims = {
+⋮----
+header = {"alg": "RS256", "typ": "JWT", "kid": "test-key-1"}
+first = b64(json.dumps(header).encode())
+second = b64(json.dumps(claims).encode())
+signing_input = (first + "." + second).encode()
+sig = (private_key or private).sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
+⋮----
+def test_worker_oidc_exchange_is_role_scoped_and_ephemeral(signing)
+⋮----
+auth = GitHubActionsOIDC(enabled=True, fetch_jwks=lambda: jwks, clock=lambda: NOW)
+response = auth.exchange(sign())
+⋮----
+def test_canary_operator_can_request_narrow_worker_session(signing)
+⋮----
+operator = auth.exchange(sign(kind="canary"))
+⋮----
+worker = auth.exchange(sign(kind="canary"), requested_role="worker")
+⋮----
+def test_signed_claims_and_trust_rules_are_mandatory(signing)
+⋮----
+invalid = [
+⋮----
+def test_signature_and_key_substitution_rejected(signing)
+⋮----
+another = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+⋮----
+failed = GitHubActionsOIDC(enabled=True, fetch_jwks=lambda: {"keys": []}, clock=lambda: NOW)
+⋮----
+offline = GitHubActionsOIDC(
+⋮----
+def test_disabled_expired_and_restart_sessions_are_rejected(signing)
+⋮----
+now = [NOW]
+disabled = GitHubActionsOIDC(fetch_jwks=lambda: jwks, clock=lambda: now[0])
+⋮----
+auth = GitHubActionsOIDC(enabled=True, fetch_jwks=lambda: jwks, clock=lambda: now[0])
+session = auth.exchange(sign())["access_token"]
 ```
 
 ## File: test_github_automerge.py

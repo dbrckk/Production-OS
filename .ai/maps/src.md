@@ -101,6 +101,7 @@ production_os/
   fanout_learning.py
   feedback.py
   filesystem_lock.py
+  github_actions_oidc.py
   github_change_review.py
   github_client.py
   github_webhook.py
@@ -3338,6 +3339,8 @@ def _principal(self) -> Principal | None
 token = self._bearer_token()
 principal = control.authorizer.authenticate(token)
 ⋮----
+principal = control.github_actions_oidc.authenticate(token)
+⋮----
 def _require(self, role: str) -> Principal | None
 ⋮----
 principal = self._principal()
@@ -3468,6 +3471,14 @@ project = control.managed_projects.get(parts[2])
 def do_POST(self) -> None
 ⋮----
 body = self._read_json()
+⋮----
+assertion = body.get("id_token")
+requested_role = body.get("role")
+⋮----
+credential = control.github_actions_oidc.exchange(
+⋮----
+# Never expose claim validation details, token values or JWKS.
+⋮----
 unknown = sorted(
 ⋮----
 pairing = control.device_pairing.exchange(
@@ -6167,6 +6178,105 @@ target = Path(path).expanduser().resolve()
 local = _thread_lock(target)
 ⋮----
 handle = target.open("a+", encoding="utf-8")
+```
+
+## File: production_os/github_actions_oidc.py
+```python
+"""Bounded GitHub Actions OIDC exchange for one trusted production repository.
+
+GitHub's RS256 JWT proves workflow identity; it is never used as the regular
+API bearer. Exchange returns a random, in-memory, role-scoped session token.
+No long-lived GitHub Actions repository secret is required.
+"""
+⋮----
+ISSUER = "https://token.actions.githubusercontent.com"
+AUDIENCE = "production-os-control-plane"
+JWKS_URL = ISSUER + "/.well-known/jwks"
+REPOSITORY = "dbrckk/ai-dev-server"
+REPOSITORY_ID = "1359122023"
+OWNER_ID = "131650085"
+REF = "refs/heads/main"
+WORKFLOWS = {
+SESSION_TTL_SECONDS = 6300   # Covers a single bounded 90-minute Actions worker job.
+JWKS_TTL_SECONDS = 900
+MAX_JWT_BYTES = 12000
+MAX_SESSIONS = 512
+⋮----
+class OIDCRejected(ValueError)
+⋮----
+"""Fail-closed OIDC denial. Never include token claims or credentials."""
+⋮----
+class _NoRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+⋮----
+def _b64decode(value)
+⋮----
+def _read_json_part(value)
+⋮----
+result = json.loads(_b64decode(value))
+⋮----
+def _load_jwks()
+⋮----
+request = urllib.request.Request(
+opener = urllib.request.build_opener(_NoRedirect())
+⋮----
+raw = response.read(65537)
+⋮----
+value = json.loads(raw)
+⋮----
+class GitHubActionsOIDC
+⋮----
+def __init__(self, *, enabled=False, fetch_jwks=None, clock=None)
+⋮----
+def _key(self, kid)
+⋮----
+now = self._clock()
+⋮----
+current = self._jwks if now < self._jwks_until else None
+⋮----
+# Fetch outside the lock; deny issuance on failed refresh.
+⋮----
+fresh = self._fetch_jwks()
+⋮----
+def _verify(self, assertion)
+⋮----
+parts = assertion.split(".")
+⋮----
+header = _read_json_part(parts[0])
+claims = _read_json_part(parts[1])
+⋮----
+kid = header.get("kid")
+⋮----
+jwk = self._key(kid)
+⋮----
+n = int.from_bytes(_b64decode(jwk["n"]), "big")
+e = int.from_bytes(_b64decode(jwk["e"]), "big")
+⋮----
+key = rsa.RSAPublicNumbers(e, n).public_key()
+⋮----
+allowed_subs = {
+⋮----
+workflow_ref = claims.get("workflow_ref")
+⋮----
+rule = WORKFLOWS.get(workflow_ref)
+⋮----
+def exchange(self, assertion, *, requested_role=None)
+⋮----
+granted_role = self._verify(assertion)
+role = requested_role or granted_role
+# An operator may explicitly request a less-privileged worker session.
+⋮----
+raw = "pos-gha-" + secrets.token_urlsafe(32)
+digest = hashlib.sha256(raw.encode("ascii")).digest()
+⋮----
+# Fail closed if suspiciously many concurrent token exchanges.
+⋮----
+def authenticate(self, bearer)
+⋮----
+digest = hashlib.sha256(bearer.encode("ascii")).digest()
+⋮----
+item = self._sessions.get(digest)
 ```
 
 ## File: production_os/github_change_review.py
