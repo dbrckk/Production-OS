@@ -54,11 +54,25 @@ _RETIRED_RENDER_SERVICE_IDS = frozenset({
     "srv-dancjugae00c73earbe0",  # Production-OS
     "srv-dancfm3tqb8s73bek920",  # production-os
 })
+_PRIMARY_RENDER_SERVICE_ID = "srv-dbj1hiuc6qcc73b7afvg"
 
 
 def main() -> None:
-    if str(os.environ.get("RENDER_SERVICE_ID") or "").strip() in _RETIRED_RENDER_SERVICE_IDS:
+    service_id = str(os.environ.get("RENDER_SERVICE_ID") or "").strip()
+    if service_id in _RETIRED_RENDER_SERVICE_IDS:
         raise SystemExit("retired Render Production-OS service: use studycall12")
+    if service_id and service_id != _PRIMARY_RENDER_SERVICE_ID:
+        raise SystemExit("unapproved Render service: only studycall12 is authorized")
+    if service_id == _PRIMARY_RENDER_SERVICE_ID and (
+        str(os.environ.get("PRODUCTION_OS_PRIMARY_WRITER_ENABLED") or "").strip().lower()
+        != "true"
+    ):
+        # Prevent a second controller from activating when secrets are set.
+        # Enable only after independently suspending the legacy writer.
+        raise SystemExit(
+            "primary writer activation blocked: "
+            "PRODUCTION_OS_PRIMARY_WRITER_ENABLED must be true after legacy suspension"
+        )
 
     database_url, worker_token, operator_token = _required(
         "DATABASE_URL",
