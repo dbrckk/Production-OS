@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from production_os.control_plane import ControlPlane
 
 
@@ -39,6 +41,7 @@ def test_launch_readiness_distinguishes_immediate_execution_from_safe_queue(tmp_
         "workers":[{
             "worker_id":"worker-a",
             "status":"online",
+            "last_heartbeat":datetime.now(timezone.utc).isoformat(),
             "desired_state":"active",
             "active_tasks":0,
             "max_concurrency":2,
@@ -67,6 +70,7 @@ def test_launch_readiness_does_not_count_paused_or_saturated_workers(tmp_path):
             {
                 "worker_id":"paused",
                 "status":"online",
+                "last_heartbeat":datetime.now(timezone.utc).isoformat(),
                 "desired_state":"paused",
                 "active_tasks":0,
                 "max_concurrency":1,
@@ -74,6 +78,7 @@ def test_launch_readiness_does_not_count_paused_or_saturated_workers(tmp_path):
             {
                 "worker_id":"full",
                 "status":"online",
+                "last_heartbeat":datetime.now(timezone.utc).isoformat(),
                 "desired_state":"active",
                 "active_tasks":1,
                 "max_concurrency":1,
@@ -142,3 +147,27 @@ def test_launch_readiness_identifies_missing_dispatch_credential_by_name(tmp_pat
         "poll_interval_seconds": 300,
         "missing_configuration": ["GITHUB_TOKEN"],
     }
+
+
+def test_launch_readiness_queues_when_registered_worker_heartbeat_is_stale(tmp_path):
+    control = ControlPlane(str(tmp_path / "readiness-stale.sqlite"))
+    service = control.dashboard
+    service.repositories = lambda: {
+        "owner":"dbrckk",
+        "source":"test",
+        "repositories":[{"full_name":"dbrckk/example"}],
+    }
+    control.workers.register("worker-stale", ["python"], 1)
+    stale = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
+    with control.backend.connect() as db:
+        db.execute(
+            "UPDATE workers SET last_heartbeat=? WHERE worker_id=?",
+            (stale, "worker-stale"),
+        )
+        db.commit()
+
+    status = service.launch_readiness("dbrckk/example")
+    assert status["execution"] == "queued"
+    assert status["online_workers"] == 0
+    assert status["available_workers"] == 0
+    assert status["can_launch"] is True
