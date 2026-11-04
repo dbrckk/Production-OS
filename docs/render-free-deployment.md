@@ -114,6 +114,24 @@ may sleep between requests. Render reports it `not_suspended` with
 controller starts; an initial HTTP 503 is not isolation proof.** No Render
 deployment or database writes occurred during this diagnostic.
 
+## Explicit single-writer activation gate (pending PR)
+
+The Render-specific startup now rejects all Render service IDs other than the
+designated `srv-dbj1hiuc6qcc73b7afvg` (while preserving local, non-Render
+test runs). On that designated service it also **refuses to start** until
+`PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true` is explicitly configured.
+This value is **not a proof of isolation**: it must be set only after the old
+`production-os1` Render service has been independently confirmed suspended,
+with no possibility of an automatic redeploy. Merely returning HTTP 503
+(including cold start) is never sufficient. The versioned Blueprint defaults
+the activation latch to `false`; the existing manually created service
+requires its own environment setting.
+
+Do not use the latch as a switch between two live writers. There is no
+automatic distributed fencing with the currently deployed legacy controller.
+All historical Neon rows, job leases and GitHub Actions secrets remain
+untouched during preparation.
+
 ## Read-only, credential-safe cutover verifier
 
 A standalone verifier now exists at `scripts/verify-render-cutover.py`.
@@ -154,15 +172,23 @@ before considering cutover completed.
    `dbrckk/ai-dev-server`. If the existing values cannot be recovered,
    rotate both sides together instead of inventing placeholders. The
    existing Neon `DATABASE_URL` is already configured.
-2. With auto-deploy still off, deploy once from `main` and verify the
-   *new* host's `/healthz`, `/readyz` and unauthenticated protected
-   `/v1/workflows` return 200 healthy, 200 ready with database reachable,
-   and 401, respectively. Check that the deployed commit is the intended
-   reviewed `main` revision.
-3. Before switching incoming work, ensure the original
-   `production-os1` service is permanently suspended or otherwise
-   unable to run against the shared Neon database; do not delete data or
-   reset leases. Older duplicate controllers remain disabled.
+2. **Before enabling the new controller**, suspend the original
+   `production-os1` Render service using the original Render account.
+   Disable any mechanism that would restart it against the same Neon
+   database, including its `autoDeploy=yes` setting. Verify Render reports
+   `suspended` (not merely an HTTP 503 or a sleeping Free instance); keep
+   historical jobs/leases unchanged. Older duplicate controllers stay off.
+   The current Render connector does not expose a suspend or auto-deploy
+   toggle, so this one account-level operation must be performed by an
+   authorized Render administrator.
+3. Only **after step 2**, set
+   `PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true` in the **new** service's
+   environment. Keep auto-deploy off, merge the reviewed, green PR to
+   `main`, then trigger one deployment of the qualified `main` SHA. Verify
+   the new `/healthz`, `/readyz` and unauthenticated protected
+   `/v1/workflows` return HTTP 200 healthy, HTTP 200 ready with the
+   database reachable, and HTTP 401. Check the deployed SHA and require
+   role-authenticated worker/operator checks before accepting cutover.
 4. The four worker/operator workflow URLs were corrected and merged on
    2026-10-31 in
    [ai-dev-server PR #412](https://github.com/dbrckk/ai-dev-server/pull/412)
