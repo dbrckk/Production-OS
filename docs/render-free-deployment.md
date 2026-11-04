@@ -118,7 +118,9 @@ deployment or database writes occurred during this diagnostic.
 
 The Render-specific startup now rejects all Render service IDs other than the
 designated `srv-dbj1hiuc6qcc73b7afvg` (while preserving local, non-Render
-test runs). On that designated service it also **refuses to start** until
+test runs). If Render's standard `RENDER=true` marker is present but
+`RENDER_SERVICE_ID` is absent, startup also **fails closed** rather than
+bypassing the identity check. On the designated service it **refuses to start** until
 `PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true` is explicitly configured.
 This value is **not a proof of isolation**: it must be set only after the old
 `production-os1` Render service has been independently confirmed suspended,
