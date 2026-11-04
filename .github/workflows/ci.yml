@@ -151,7 +151,6 @@ jobs:
             -e DATABASE_URL="$PRODUCTION_OS_TEST_POSTGRES" \
             -e PRODUCTION_OS_WORKER_TOKEN=ci-ephemeral-worker-not-a-secret \
             -e PRODUCTION_OS_OPERATOR_TOKEN=ci-ephemeral-operator-not-a-secret \
-            -e GITHUB_TOKEN=ci-ephemeral-dispatch-not-a-secret \
             -e PRODUCTION_OS_WORKER_ID=github-actions-worker \
             production-os-free-hosting:ci
           trap 'docker logs --tail 30 production-os-free-hosting-ci || true; docker stop production-os-free-hosting-ci >/dev/null 2>&1 || true' EXIT
@@ -169,6 +168,9 @@ jobs:
           status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
             --max-time 5 http://127.0.0.1:8787/v1/workflows)
           test "$status" = 401
+          # Exercise the real Free-hosting scheduled fallback, not a fake
+          # dispatch PAT that masks missing production credentials.
+          docker logs production-os-free-hosting-ci 2>&1             | grep -F 'scheduled Actions worker fallback'
 
       - name: Browser worker image smoke test
         run: |
