@@ -46,6 +46,7 @@ class RenderStartTests(unittest.TestCase):
                 "PRODUCTION_OS_WORKER_ID": "custom-actions-worker",
                 "PORT": "9999",
                 "RENDER_SERVICE_ID": "srv-dbj1hiuc6qcc73b7afvg",
+                "PRODUCTION_OS_PRIMARY_WRITER_ENABLED": "true",
                 "PRODUCTION_OS_RUNTIME_DIR": td,
             },
             clear=True,
@@ -210,6 +211,13 @@ class RenderStartTests(unittest.TestCase):
                 ({"RENDER_SERVICE_ID": "srv-dancka740ujc73bgdddg"}, "retired Render"),
                 ({"RENDER_SERVICE_ID": "srv-dancjugae00c73earbe0"}, "retired Render"),
                 ({"RENDER_SERVICE_ID": "srv-dancfm3tqb8s73bek920"}, "retired Render"),
+                ({"RENDER_SERVICE_ID": "srv-future-unauthorized"},
+                 "unapproved Render service"),
+                ({"RENDER_SERVICE_ID": "srv-dbj1hiuc6qcc73b7afvg"},
+                 "primary writer activation blocked"),
+                ({"RENDER_SERVICE_ID": "srv-dbj1hiuc6qcc73b7afvg",
+                  "PRODUCTION_OS_PRIMARY_WRITER_ENABLED": "false"},
+                 "primary writer activation blocked"),
             ):
                 with self.subTest(change=change), patch.dict(
                     os.environ, {**base, **change}, clear=True
