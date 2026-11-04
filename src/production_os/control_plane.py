@@ -9,6 +9,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from .api_auth import Principal, TokenAuthorizer
+from .github_actions_oidc import GitHubActionsOIDC, OIDCRejected
 from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
@@ -116,6 +117,9 @@ class ControlPlane:
             require_trusted_builder=require_trusted_builder,
         )
         self.authorizer = authorizer or TokenAuthorizer([])
+        self.github_actions_oidc = GitHubActionsOIDC(
+            enabled=os.getenv("PRODUCTION_OS_GITHUB_OIDC_ENABLED", "").strip().lower() == "true",
+        )
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
@@ -686,6 +690,9 @@ def make_handler(control: ControlPlane):
             principal = control.authorizer.authenticate(token)
             if principal is not None:
                 return principal
+            principal = control.github_actions_oidc.authenticate(token)
+            if principal is not None:
+                return principal
             return control.device_pairing.authenticate(token)
 
         def _require(self, role: str) -> Principal | None:
@@ -1251,6 +1258,33 @@ def make_handler(control: ControlPlane):
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
+
+            if parsed.path == "/v1/auth/github-actions":
+                if not control.github_actions_oidc.enabled:
+                    self._send(HTTPStatus.NOT_FOUND, {"error": "not found"})
+                    return
+                try:
+                    body = self._read_json()
+                    if set(body) - {"id_token", "role"}:
+                        raise ValueError("unexpected exchange parameters")
+                    assertion = body.get("id_token")
+                    requested_role = body.get("role")
+                    if (not isinstance(assertion, str) or
+                            (requested_role is not None and requested_role not in {"worker", "operator"})):
+                        raise ValueError("invalid exchange parameters")
+                except ValueError:
+                    self._send(HTTPStatus.BAD_REQUEST, {"error": "invalid request"})
+                    return
+                try:
+                    credential = control.github_actions_oidc.exchange(
+                        assertion, requested_role=requested_role,
+                    )
+                except OIDCRejected:
+                    # Never expose claim validation details, token values or JWKS.
+                    self._send(HTTPStatus.UNAUTHORIZED, {"error": "unauthorized"})
+                    return
+                self._send(HTTPStatus.OK, credential)
+                return
 
             if parsed.path == "/v1/dashboard/pair":
                 try:
