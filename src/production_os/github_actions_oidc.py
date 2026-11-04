@@ -161,7 +161,8 @@ class GitHubActionsOIDC:
             f"repo:{REPOSITORY}:ref:{REF}",
             f"repo:dbrckk@{OWNER_ID}/ai-dev-server@{REPOSITORY_ID}:ref:{REF}",
         }
-        if (claims.get("iss") != ISSUER or claims.get("aud") != AUDIENCE
+        if (not isinstance(claims.get("sub"), str)
+                or claims.get("iss") != ISSUER or claims.get("aud") != AUDIENCE
                 or claims.get("repository") != REPOSITORY
                 or str(claims.get("repository_id") or "") != REPOSITORY_ID
                 or str(claims.get("repository_owner_id") or "") != OWNER_ID
@@ -173,7 +174,8 @@ class GitHubActionsOIDC:
         if not isinstance(workflow_ref, str):
             raise OIDCRejected("untrusted workflow")
         rule = WORKFLOWS.get(workflow_ref)
-        if rule is None or claims.get("event_name") not in rule[1]:
+        if (rule is None or not isinstance(claims.get("event_name"), str)
+                or claims.get("event_name") not in rule[1]):
             raise OIDCRejected("untrusted workflow")
         return rule[0]
 
