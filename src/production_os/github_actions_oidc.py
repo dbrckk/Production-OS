@@ -103,7 +103,7 @@ class GitHubActionsOIDC:
             current = self._jwks if now < self._jwks_until else None
         if current is not None:
             for key in current.get("keys", []):
-                if key.get("kid") == kid:
+                if isinstance(key, dict) and key.get("kid") == kid:
                     return key
         # Fetch outside the lock; deny issuance on failed refresh.
         try:
@@ -169,7 +169,10 @@ class GitHubActionsOIDC:
                 or not re.fullmatch(r"[a-f0-9]{40}", str(claims.get("sha") or ""))
                 or not re.fullmatch(r"[1-9][0-9]*", str(claims.get("run_id") or ""))):
             raise OIDCRejected("untrusted workflow identity")
-        rule = WORKFLOWS.get(claims.get("workflow_ref"))
+        workflow_ref = claims.get("workflow_ref")
+        if not isinstance(workflow_ref, str):
+            raise OIDCRejected("untrusted workflow")
+        rule = WORKFLOWS.get(workflow_ref)
         if rule is None or claims.get("event_name") not in rule[1]:
             raise OIDCRejected("untrusted workflow")
         return rule[0]
@@ -202,9 +205,9 @@ class GitHubActionsOIDC:
 
     def authenticate(self, bearer):
         if (not self.enabled or not isinstance(bearer, str)
-                or not bearer.startswith("pos-gha-") or len(bearer) > 100):
+                or not re.fullmatch(r"pos-gha-[A-Za-z0-9_-]{43}", bearer)):
             return None
-        digest = hashlib.sha256(bearer.encode("ascii", "ignore")).digest()
+        digest = hashlib.sha256(bearer.encode("ascii")).digest()
         with self._lock:
             item = self._sessions.get(digest)
         if item is None or item[1] <= self._clock():
