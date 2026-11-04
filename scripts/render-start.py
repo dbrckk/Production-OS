@@ -59,6 +59,10 @@ _PRIMARY_RENDER_SERVICE_ID = "srv-dbj1hiuc6qcc73b7afvg"
 
 def main() -> None:
     service_id = str(os.environ.get("RENDER_SERVICE_ID") or "").strip()
+    # Render guarantees RENDER=true and RENDER_SERVICE_ID at runtime. Missing
+    # identity on that platform must never silently bypass the writer gate.
+    if str(os.environ.get("RENDER") or "").strip().lower() == "true" and not service_id:
+        raise SystemExit("Render service ID missing: primary writer startup blocked")
     if service_id in _RETIRED_RENDER_SERVICE_IDS:
         raise SystemExit("retired Render Production-OS service: use studycall12")
     if service_id and service_id != _PRIMARY_RENDER_SERVICE_ID:
