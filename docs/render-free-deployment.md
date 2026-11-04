@@ -80,8 +80,8 @@ names together (never secret values) so the next deployment does not need
 iterative failed startups. The PostgreSQL URL and the distinct worker and
 operator tokens remain mandatory. `GITHUB_TOKEN` is optional for an initially
 usable control plane: without it, the pre-existing GitHub Actions worker
-continues to poll on its five-minute schedule, but **immediate dispatch is
-disabled**. A process returning healthy is not evidence of dispatch
+can poll on its nominal five-minute cron, but GitHub Actions does not
+guarantee a five-minute cadence and **immediate dispatch is disabled**. A process returning healthy is not evidence of dispatch
 authorization or a completed worker job. Add a dispatch-capable token to
 enable immediate wake after the scheduled fallback is qualified. A manually created service
 does not inherit Blueprint `envVars`: the launcher supplies the audited
