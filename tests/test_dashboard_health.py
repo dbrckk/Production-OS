@@ -1,4 +1,5 @@
-from production_os.dashboard_health import derive_control_health
+from datetime import datetime, timezone
+from production_os.dashboard_health import derive_control_health, is_worker_fresh
 
 
 def test_health_is_healthy_without_operational_problems():
@@ -82,3 +83,19 @@ def test_backup_filesystem_pressure_degrades_health_with_severity():
     assert critical["status"] == "degraded"
     assert critical["reasons"][0]["severity"] == "high"
 
+
+
+def test_worker_freshness_requires_recent_valid_heartbeat_and_online_status():
+    now = datetime(2026, 11, 4, 10, 0, tzinfo=timezone.utc)
+    fresh = {"status":"online", "last_heartbeat":"2026-11-04T09:59:00+00:00"}
+    assert is_worker_fresh(fresh, now=now)
+    assert not is_worker_fresh(
+        {"status":"online", "last_heartbeat":"2026-10-26T15:59:42Z"},
+        now=now,
+    )
+    assert not is_worker_fresh(
+        {"status":"online", "last_heartbeat":"2026-11-04T10:05:00+00:00"},
+        now=now,
+    )
+    assert not is_worker_fresh({"status":"online"}, now=now)
+    assert not is_worker_fresh({**fresh, "status":"dead"}, now=now)

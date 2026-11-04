@@ -24,6 +24,7 @@ from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_health import (
     STALE_BUSY_WORKER_SECONDS,
     STALE_RUNNING_EXECUTION_SECONDS,
+    is_worker_fresh,
 )
 from .dashboard_maintenance import RetentionCandidateConflict
 from .dashboard_backups import BackupError, BackupRetentionCandidateConflict, BackupTempCandidateConflict
@@ -313,13 +314,10 @@ class ControlPlane:
             worker_id = str(getattr(worker, "worker_id", "") or "").strip()
             if not worker_id or worker_id in ephemeral_ids:
                 continue
-            status = str(getattr(worker, "status", "") or "").lower()
-            if status != "online":
-                continue
-            heartbeat = self._parse_timestamp(
-                getattr(worker, "last_heartbeat", None)
-            )
-            if heartbeat is None or (now - heartbeat).total_seconds() > STALE_BUSY_WORKER_SECONDS:
+            if not is_worker_fresh({
+                "status":getattr(worker, "status", None),
+                "last_heartbeat":getattr(worker, "last_heartbeat", None),
+            }, now=now):
                 continue
             try:
                 desired = self.dashboard_control.worker_state(worker_id)
@@ -903,9 +901,17 @@ def make_handler(control: ControlPlane):
                     rows = db.execute(
                         "SELECT status, COUNT(*) AS count FROM jobs GROUP BY status"
                     ).fetchall()
-                    workers = db.execute(
-                        "SELECT COUNT(*) AS count FROM workers WHERE status='online'"
-                    ).fetchone()["count"]
+                    # A persisted "online" label is not a live worker:
+                    # ephemeral Actions processes may disappear without
+                    # deregistering. Count only recent heartbeats.
+                    online_rows = db.execute(
+                        "SELECT status, last_heartbeat FROM workers WHERE status='online'"
+                    ).fetchall()
+                    now = datetime.now(timezone.utc)
+                    workers = sum(
+                        is_worker_fresh(dict(row), now=now) for row in online_rows
+                    )
+                    stale_workers = len(online_rows) - workers
                     workflow_rows = db.execute(
                         "SELECT status, COUNT(*) AS count FROM workflows GROUP BY status"
                     ).fetchall()
@@ -918,6 +924,7 @@ def make_handler(control: ControlPlane):
                             for row in workflow_rows
                         },
                         "online_workers":workers,
+                        "stale_online_workers":stale_workers,
                     },
                 )
                 return

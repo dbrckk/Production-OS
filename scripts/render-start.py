@@ -10,11 +10,15 @@ import tempfile
 from urllib.parse import urlsplit
 
 
-def _required(name: str) -> str:
-    value = str(os.environ.get(name) or "").strip()
-    if not value:
-        raise SystemExit(f"missing required environment variable: {name}")
-    return value
+def _required(*names: str) -> tuple[str, ...]:
+    values = tuple(str(os.environ.get(name) or "").strip() for name in names)
+    missing = [name for name, value in zip(names, values) if not value]
+    if missing:
+        # Report every absent setting in one failed deployment, never values.
+        raise SystemExit(
+            "missing required environment variables: " + ", ".join(missing)
+        )
+    return values
 
 
 def _auth_payload(
@@ -50,24 +54,64 @@ _RETIRED_RENDER_SERVICE_IDS = frozenset({
     "srv-dancjugae00c73earbe0",  # Production-OS
     "srv-dancfm3tqb8s73bek920",  # production-os
 })
+_PRIMARY_RENDER_SERVICE_ID = "srv-dbj1hiuc6qcc73b7afvg"
 
 
 def main() -> None:
-    if str(os.environ.get("RENDER_SERVICE_ID") or "").strip() in _RETIRED_RENDER_SERVICE_IDS:
+    service_id = str(os.environ.get("RENDER_SERVICE_ID") or "").strip()
+    # Render guarantees RENDER=true and RENDER_SERVICE_ID at runtime. Missing
+    # identity on that platform must never silently bypass the writer gate.
+    if str(os.environ.get("RENDER") or "").strip().lower() == "true" and not service_id:
+        raise SystemExit("Render service ID missing: primary writer startup blocked")
+    if service_id in _RETIRED_RENDER_SERVICE_IDS:
         raise SystemExit("retired Render Production-OS service: use studycall12")
+    if service_id and service_id != _PRIMARY_RENDER_SERVICE_ID:
+        raise SystemExit("unapproved Render service: only studycall12 is authorized")
+    if service_id == _PRIMARY_RENDER_SERVICE_ID and (
+        str(os.environ.get("PRODUCTION_OS_PRIMARY_WRITER_ENABLED") or "").strip().lower()
+        != "true"
+    ):
+        # Prevent a second controller from activating when secrets are set.
+        # Enable only after independently suspending the legacy writer.
+        raise SystemExit(
+            "primary writer activation blocked: "
+            "PRODUCTION_OS_PRIMARY_WRITER_ENABLED must be true after legacy suspension"
+        )
 
-    database_url = _required("DATABASE_URL")
-    worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+    database_url, worker_token, operator_token = _required(
+        "DATABASE_URL",
+        "PRODUCTION_OS_WORKER_TOKEN",
+        "PRODUCTION_OS_OPERATOR_TOKEN",
+    )
+    # The existing Actions schedule can poll without a GitHub dispatch PAT.
+    # Do not reject a valid database + worker/operator configuration merely
+    # because the faster, optional immediate wake is unavailable.
+    if not str(os.environ.get("GITHUB_TOKEN") or "").strip():
+        print(
+            "GITHUB_TOKEN is unset: using scheduled Actions worker fallback "
+            "(immediate wake disabled)",
+            file=sys.stderr,
+        )
     worker_name = str(
         os.environ.get("PRODUCTION_OS_WORKER_ID") or "github-actions-worker"
     ).strip()
     if not worker_name:
         raise SystemExit("PRODUCTION_OS_WORKER_ID must not be empty")
-    operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
     # Duplicate secrets collapse the operator/worker role boundary. Refuse
     # to start rather than choosing an arbitrary role for the same digest.
     if worker_token == operator_token:
         raise SystemExit("worker and operator tokens must be distinct")
+
+    # render.yaml does not configure an already manually created Render service.
+    # Missing dispatch routing otherwise yields a healthy API with no worker wake.
+    for name, value in (
+        ("PRODUCTION_OS_ACTIONS_REPOSITORY", "dbrckk/ai-dev-server"),
+        ("PRODUCTION_OS_ACTIONS_WORKFLOW", "production-os-actions-worker.yml"),
+        ("PRODUCTION_OS_ACTIONS_REF", "main"),
+    ):
+        if not str(os.environ.get(name) or "").strip():
+            os.environ[name] = value
+
     # Render has no durable local disk. A hostless PostgreSQL URI may fall
     # back to a Unix socket or PGHOST; an omitted database may select a
     # default database. Neither is the existing persistent Neon store.

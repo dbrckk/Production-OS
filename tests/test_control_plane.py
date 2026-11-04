@@ -1,5 +1,6 @@
 import json
 import threading
+from datetime import datetime, timedelta, timezone
 import urllib.error
 import urllib.request
 from http.server import ThreadingHTTPServer
@@ -73,6 +74,51 @@ def test_control_plane_worker_and_queue(tmp_path):
         server.shutdown()
         server.server_close()
 
+
+
+def test_stats_counts_only_fresh_worker_heartbeats(tmp_path):
+    """An old persistent online row must not imply an operating worker."""
+    auth = TokenAuthorizer([
+        {"name":"op","role":"operator","sha256":token_digest("op")},
+    ])
+    control = ControlPlane(str(tmp_path/"stats-liveness.sqlite"), authorizer=auth)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        status, _ = request(base+"/v1/workers/register", "op", {
+            "worker_id":"github-actions-worker",
+            "capabilities":["python"],
+            "max_concurrency":1,
+        })
+        assert status == 200
+        status, stats = request(base+"/v1/stats", "op")
+        assert status == 200
+        assert stats["online_workers"] == 1
+        assert stats["stale_online_workers"] == 0
+
+        # Simulate an ephemeral GitHub runner stopping without deregistering.
+        stale = (datetime.now(timezone.utc)-timedelta(days=9)).isoformat()
+        with control.backend.connect() as db:
+            db.execute(
+                "UPDATE workers SET last_heartbeat=? WHERE worker_id=?",
+                (stale, "github-actions-worker"),
+            )
+            db.commit()
+        status, stats = request(base+"/v1/stats", "op")
+        assert status == 200
+        assert stats["online_workers"] == 0
+        assert stats["stale_online_workers"] == 1
+        with control.backend.connect() as db:
+            row = db.execute(
+                "SELECT status FROM workers WHERE worker_id=?",
+                ("github-actions-worker",),
+            ).fetchone()
+            assert row["status"] == "online", "stats must not mutate worker leases"
+    finally:
+        server.shutdown()
+        server.server_close()
 
 def test_direct_enqueue_requests_worker_wake_when_no_worker_is_online(tmp_path):
     auth=TokenAuthorizer([

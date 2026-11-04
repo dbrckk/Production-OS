@@ -13,8 +13,10 @@ was recreated.
 **Cutover is NOT complete or operationally qualified.** The initial Docker
 image built successfully on 2026-10-31, but the first deployment failed
 closed at startup because `PRODUCTION_OS_WORKER_TOKEN` was not yet present.
-`PRODUCTION_OS_OPERATOR_TOKEN` and `GITHUB_TOKEN` must also be provisioned
-on the new service before it can be activated. New-service auto-deploy is
+`PRODUCTION_OS_OPERATOR_TOKEN` must also be provisioned for authenticated
+operation. `GITHUB_TOKEN` is optional: without it the existing scheduled
+Actions worker provides a best-effort scheduled polling fallback rather
+than immediate dispatch; GitHub does not guarantee a five-minute cadence. New-service auto-deploy is
 temporarily **off** to avoid wasting Free quota on repeated GitHub pushes
 before authentication and readiness are verified. This document records
 the target destination, not a successful switchover.
@@ -22,9 +24,10 @@ the target destination, not a successful switchover.
 The version-controlled `render.yaml` is a *future Blueprint template* and
 does not automatically update or configure the new manually created Render
 service. Never create a duplicate controller with the Blueprint. The old
-`production-os1` on the original account is billing-suspended; it is not
-the future destination and must not be allowed to run concurrently with the
-new controller on the same persistent database.
+`production-os1` on the original account was resumed by Render on
+2026-11-01 after an earlier Free-quota suspension; it is not the future
+destination and must not be allowed to run concurrently with the new
+controller on the same persistent database.
 
 If explicitly deployed, `render.yaml` creates exactly
 **one Render Free web service**. It does not create a database, a paid service,
@@ -37,7 +40,8 @@ execution tier. Prior free-host alternatives are archived as a fallback in
 - Source: `dbrckk/Production-OS`, `main` (Render builds
   `Dockerfile.free-hosting`, running `scripts/render-start.py`).
 - Worker: `dbrckk/ai-dev-server`, GitHub Actions
-  `production-os-actions-worker.yml` (schedule every 5 minutes).
+  `production-os-actions-worker.yml` (cron `*/5 * * * *`; GitHub-hosted
+  scheduled runs can be delayed or skipped, so this is not a five-minute SLA).
 - Persistent database: existing Neon project **production-os**, database
   **production_os**, branch **production**, region **Frankfurt**.
   Preserve the original database; it has application tables and historical
@@ -69,31 +73,140 @@ execution tier. Prior free-host alternatives are archived as a fallback in
   proof of current reachability. The new designated account is `studycall12`.
   Do not enable two live controllers against the same DB.
 
+## 2026-11-03 startup hardening (pending review)
+
+The Render-specific launcher now reports **all** missing required variable
+names together (never secret values) so the next deployment does not need
+iterative failed startups. The PostgreSQL URL and the distinct worker and
+operator tokens remain mandatory. `GITHUB_TOKEN` is optional for an initially
+usable control plane: without it, the pre-existing GitHub Actions worker
+can poll on its nominal five-minute cron, but GitHub Actions does not
+guarantee a five-minute cadence and **immediate dispatch is disabled**. A process returning healthy is not evidence of dispatch
+authorization or a completed worker job. Add a dispatch-capable token to
+enable immediate wake after the scheduled fallback is qualified. A manually created service
+does not inherit Blueprint `envVars`: the launcher supplies the audited
+default `PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server`,
+`PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml`, and
+`PRODUCTION_OS_ACTIONS_REF=main` when unset. Explicit nonempty overrides
+are preserved. These safeguards **do not provision credentials** or establish
+dispatch permissions. Keep auto-deploy off until the secrets have been
+coordinated, then qualify readiness and a real worker claim.
+
+## 2026-11-04 read-only infrastructure checkpoint
+
+The connected Neon project `production-os` (primary branch `production`,
+database `production_os`, PostgreSQL 16.15) answered a direct SQL query.
+At observation time it contained 81 jobs (29 completed, 51 failed, 1 queued),
+57 workflows (29 succeeded, 27 failed, 1 running) and two worker records.
+The last recorded `github-actions-worker` heartbeat was
+2026-10-26 15:59 UTC. A later read-only Neon query confirmed **zero**
+recently seen workers (180-second heartbeat window), with **one** stale
+record still marked `status=online`. That persisted flag is **not proof
+of a running worker**. The pending API/dashboard correction now distinguishes
+fresh `online_workers` from `stale_online_workers`, and refuses to offer
+immediate queue capacity based on stale registrations. It does **not**
+create a persistent worker or repair the stopped GitHub Actions executor.
+Do not blindly clear or replay historical job leases.
+
+Initial unauthenticated GET probes of both `/healthz` and `/readyz`
+returned HTTP 503 for **both** hosts. Crucially, **repeated probes after the
+Free-instance wake-up returned HTTP 200** on legacy `production-os1`, with
+`status=healthy`, `status=ready`, and `database=reachable`; unauthenticated
+`/v1/workflows` returned the expected HTTP 401. The designated new
+`production-os-control-plane` still returned HTTP 503. The legacy controller
+is therefore demonstrably able to resume and connect to Neon, even though it
+may sleep between requests. Render reports it `not_suspended` with
+`autoDeploy=yes`. **Isolate the legacy service in Render before the new
+controller starts; an initial HTTP 503 is not isolation proof.** No Render
+deployment or database writes occurred during this diagnostic.
+
+## Explicit single-writer activation gate (pending PR)
+
+The Render-specific startup now rejects all Render service IDs other than the
+designated `srv-dbj1hiuc6qcc73b7afvg` (while preserving local, non-Render
+test runs). If Render's standard `RENDER=true` marker is present but
+`RENDER_SERVICE_ID` is absent, startup also **fails closed** rather than
+bypassing the identity check. On the designated service it **refuses to start** until
+`PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true` is explicitly configured.
+This value is **not a proof of isolation**: it must be set only after the old
+`production-os1` Render service has been independently confirmed suspended,
+with no possibility of an automatic redeploy. Merely returning HTTP 503
+(including cold start) is never sufficient. The versioned Blueprint defaults
+the activation latch to `false`; the existing manually created service
+requires its own environment setting.
+
+Do not use the latch as a switch between two live writers. There is no
+automatic distributed fencing with the currently deployed legacy controller.
+All historical Neon rows, job leases and GitHub Actions secrets remain
+untouched during preparation.
+
+## Read-only, credential-safe cutover verifier
+
+A standalone verifier now exists at `scripts/verify-render-cutover.py`.
+Run it from a trusted terminal with worker/operator secrets **already
+present as environment variables**; never pass credentials in CLI arguments,
+issue comments or URL strings:
+
+```bash
+python scripts/verify-render-cutover.py
+```
+
+It uses bounded HTTPS requests (no redirects, no credential forwarding) to
+verify the new `/healthz`, `/readyz` with database access, anonymous
+`/v1/workflows` rejection (401), authenticated worker
+`POST /v1/jobs/availability` (read-only queue inspection), and authenticated
+operator `GET /v1/stats`. It checks the legacy `/readyz` repeatedly to
+catch Render Free cold-starts. It never registers a worker, claims work,
+dispatches an Action or writes to Neon; log output contains no secret values.
+
+`python scripts/verify-render-cutover.py --public-only` supports
+unauthenticated diagnostics, but deliberately returns exit status **2** even
+when HTTP probes pass, because auth is unverified. The full verifier returns
+status **0** only when its HTTP and role probes pass, and status **1** when any
+check blocks. **Neither result proves durable suspension of the old Render
+service or successful execution of a real worker task**: independently
+confirm the old service is suspended and require a real Actions canary
+before considering cutover completed.
+
 ## Complete the already-created new-account cutover
 
-1. In the **new** Render service's Environment settings, configure the
-   existing `PRODUCTION_OS_WORKER_TOKEN`, `PRODUCTION_OS_OPERATOR_TOKEN`
-   and `GITHUB_TOKEN` securely; never paste secrets into commits or chat.
-   Worker/operator values must match the relevant secrets in
-   `dbrckk/ai-dev-server`. If the existing values cannot be recovered,
-   rotate both sides together instead of inventing placeholders. The
-   existing Neon `DATABASE_URL` is already configured.
-2. With auto-deploy still off, deploy once from `main` and verify the
-   *new* host's `/healthz`, `/readyz` and unauthenticated protected
-   `/v1/workflows` return 200 healthy, 200 ready with database reachable,
-   and 401, respectively. Check that the deployed commit is the intended
-   reviewed `main` revision.
-3. Before switching incoming work, ensure the original
-   `production-os1` service is permanently suspended or otherwise
-   unable to run against the shared Neon database; do not delete data or
-   reset leases. Older duplicate controllers remain disabled.
-4. The four worker/operator workflow URLs have been corrected in
+1. **Prepare**, but do not yet add to Render, matching
+   `PRODUCTION_OS_WORKER_TOKEN` and a distinct
+   `PRODUCTION_OS_OPERATOR_TOKEN`. GitHub Actions Secrets in
+   `dbrckk/ai-dev-server` cannot be read back by the connector, so recover
+   the existing worker token from a trusted vault or rotate it securely.
+   Never paste values into commits, issue comments or chat. Prepare an
+   optional dispatch-capable `GITHUB_TOKEN`; without it scheduled
+   GitHub Actions polling is best-effort. Neon `DATABASE_URL` already exists.
+   **Do not set either Render token yet.** The currently installed image
+   predates the new activation latch, and an environment update might
+   activate it while the legacy controller still owns the database.
+2. On the **old** Render account, disable `production-os1` auto-deploy
+   and suspend its service. Independently verify Render reports
+   `suspended` (not merely an HTTP 503 or an idle Free instance); keep
+   historical jobs and leases unchanged. Older duplicates remain disabled.
+   The current Render connector cannot suspend services or toggle
+   auto-deploy, so an authorized Render administrator must perform this
+   specific dashboard operation.
+3. Only after the legacy suspension, merge the reviewed, green PR to
+   `main` (the new service has `autoDeploy=no`). On the **new** Render
+   service, coordinate `PRODUCTION_OS_WORKER_TOKEN` with GitHub Actions
+   and add the distinct `PRODUCTION_OS_OPERATOR_TOKEN` and optional
+   `GITHUB_TOKEN`. Keep `PRODUCTION_OS_PRIMARY_WRITER_ENABLED` unset or
+   `false` during configuration. Reverify legacy suspension, set the latch
+   to `true`, and trigger **one** deployment of the qualified `main`
+   revision. Require `/healthz` HTTP 200, `/readyz` HTTP 200 with DB
+   reachable, and unauthenticated `/v1/workflows` HTTP 401. Verify the
+   deployed SHA and authenticated worker/operator responses before cutover
+   acceptance.
+4. The four worker/operator workflow URLs were corrected and merged on
+   2026-10-31 in
    [ai-dev-server PR #412](https://github.com/dbrckk/ai-dev-server/pull/412)
    to use **the new HTTPS origin directly**, rather than a fallback controlled
    by the potentially stale `PRODUCTION_OS_URL` repository variable.
-   Ensure that PR is **merged after its final CI passes** before treating
-   the new host as the worker destination. Separately update the repository
-   variable `PRODUCTION_OS_URL` to
+   The origin pinning is complete, but a successful worker run with its
+   executor skipped is not proof of controller readiness. Separately update
+   the repository variable `PRODUCTION_OS_URL` to
    `https://production-os-control-plane.onrender.com` for administrative
    consistency and any consumers outside these four workflows; the
    connector cannot administer that setting.
@@ -132,7 +245,8 @@ approved future service replacement.
    with the name `production-os-control-plane`; **no Render database**.
    Never approve an automatically selected paid tier.
 3. In the Blueprint's **secret environment variable** prompts, supply the
-   four mandatory values. Render's `sync: false` keeps values out of Git:
+   three mandatory values plus optional `GITHUB_TOKEN` for immediate dispatch.
+   Render's `sync: false` keeps values out of Git:
    - `DATABASE_URL`: the **existing** Neon PostgreSQL connection string
      for `production_os`, SSL enabled. Obtain via Neon Console, or safely
      from an authorized secret manager. **Never copy into Git or chat.**
@@ -142,9 +256,10 @@ approved future service replacement.
    - `PRODUCTION_OS_OPERATOR_TOKEN`: must equal the operator/canary
      Actions secret in **ai-dev-server**. Must be distinct from the worker
      token.
-   - `GITHUB_TOKEN`: a separate, least-privilege GitHub token permitted to
-     dispatch the `production-os-actions-worker.yml` workflow in
-     `dbrckk/ai-dev-server`. Do not use the Neon password as a token.
+   - `GITHUB_TOKEN` (optional for scheduled fallback): a separate,
+     least-privilege GitHub token permitted to dispatch the
+     `production-os-actions-worker.yml` workflow in `dbrckk/ai-dev-server`.
+     Do not use the Neon password as a token.
 4. The Blueprint sets the worker ID, repository, workflow, branch and port
    to existing audited defaults. Allow the first deployment to finish.
    Retrieve its **actual Render-assigned HTTPS URL**; do not assume a

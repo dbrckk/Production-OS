@@ -16,6 +16,21 @@ def _dt(value):
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
+def is_worker_fresh(worker: dict, *, now: datetime | None = None) -> bool:
+    """Report recent heartbeats, not persisted online labels.
+
+    Ephemeral GitHub Actions workers can exit without deregistering.
+    This is a bounded freshness heuristic, not a live process check.
+    """
+    if str(worker.get("status") or "").lower() != "online":
+        return False
+    last = _dt(worker.get("last_heartbeat"))
+    if last is None:
+        return False
+    age = ((now or datetime.now(timezone.utc)) - last).total_seconds()
+    return 0 <= age <= STALE_BUSY_WORKER_SECONDS
+
+
 def derive_control_health(snapshot: dict) -> dict:
     now = _dt(snapshot.get("generated_at")) or datetime.now(timezone.utc)
     reasons = []

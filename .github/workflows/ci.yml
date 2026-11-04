@@ -146,8 +146,35 @@ jobs:
         run: |
           set -euo pipefail
           docker build -f Dockerfile.free-hosting -t production-os-free-hosting:ci .
+          # Exercise the *shipped* container's startup guard, not just unit
+          # tests. Neither blocked container may attempt a DB connection.
+          blocked_output=$(docker run --rm --network none \
+            -e RENDER_SERVICE_ID=srv-dbj1hiuc6qcc73b7afvg \
+            production-os-free-hosting:ci 2>&1) && {
+              echo "Target Render container started without writer activation" >&2
+              exit 1
+            }
+          echo "$blocked_output" | grep -F 'primary writer activation blocked'
+          blocked_output=$(docker run --rm --network none \
+            -e RENDER=true \
+            production-os-free-hosting:ci 2>&1) && {
+              echo "Render container started without a service ID" >&2
+              exit 1
+            }
+          echo "$blocked_output" | grep -F 'Render service ID missing'
+          blocked_output=$(docker run --rm --network none \
+            -e RENDER_SERVICE_ID=srv-unauthorized-ci \
+            production-os-free-hosting:ci 2>&1) && {
+              echo "Unapproved Render container unexpectedly started" >&2
+              exit 1
+            }
+          echo "$blocked_output" | grep -F 'unapproved Render service'
+          # Only the explicit approved target can start against the actual
+          # disposable CI PostgreSQL instance.
           docker run --rm -d --network host \
             --name production-os-free-hosting-ci \
+            -e RENDER_SERVICE_ID=srv-dbj1hiuc6qcc73b7afvg \
+            -e PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true \
             -e DATABASE_URL="$PRODUCTION_OS_TEST_POSTGRES" \
             -e PRODUCTION_OS_WORKER_TOKEN=ci-ephemeral-worker-not-a-secret \
             -e PRODUCTION_OS_OPERATOR_TOKEN=ci-ephemeral-operator-not-a-secret \
@@ -168,6 +195,10 @@ jobs:
           status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
             --max-time 5 http://127.0.0.1:8787/v1/workflows)
           test "$status" = 401
+          # Exercise the real Free-hosting scheduled fallback, not a fake
+          # dispatch PAT that masks missing production credentials.
+          docker logs production-os-free-hosting-ci 2>&1 \
+            | grep -F 'scheduled Actions worker fallback'
 
       - name: Browser worker image smoke test
         run: |
