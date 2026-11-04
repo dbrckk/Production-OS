@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
+from datetime import datetime, timedelta, timezone
 from http.server import ThreadingHTTPServer
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
@@ -796,3 +797,56 @@ def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane):
     assert status == 400
     assert payload["error"] == "invalid dashboard query"
 
+
+
+
+def test_stale_online_worker_does_not_expose_false_health_or_autopilot_capacity(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+    job = control.queue.enqueue({
+        "idempotency_key":"stale-online-capacity",
+        "handoff":{"repository":"dbrckk/example","task":"Queued despite stale worker"},
+        "required_capabilities":["python"],
+    })
+    old = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
+    with control.backend.connect() as db:
+        db.execute(
+            "UPDATE workers SET last_heartbeat=? WHERE worker_id=?",
+            (old, "worker-a"),
+        )
+        db.commit()
+
+    status, stats = get_api(base, "/v1/stats", "operator-token")
+    assert status == 200
+    assert stats["online_workers"] == 0
+    assert stats["stale_online_workers"] == 1
+
+    status, overview = get_api(base, "/v1/dashboard/overview?window=7d", "viewer-token")
+    assert status == 200
+    assert overview["workers"]["online"] == 0
+    assert overview["workers"]["stale_online"] == 1
+    assert overview["workers"]["offline"] == 1
+    assert any(alert["code"] == "queue_without_worker" for alert in overview["alerts"])
+
+    status, health = get_api(base, "/v1/dashboard/health", "viewer-token")
+    assert status == 200
+    assert health["status"] == "degraded"
+    assert any(reason["code"] == "queue_without_worker" for reason in health["reasons"])
+
+    status, autopilot = get_api(base, "/v1/dashboard/autopilot", "viewer-token")
+    assert status == 200
+    assert autopilot["workers_available"] == 0
+    assert autopilot["summary"]["free_slots"] == 0
+    matching = [row for row in autopilot["jobs"] if row["job_key"] == job["key"]]
+    assert len(matching) == 1
+    assert matching[0]["preferred_worker"] is None
+    assert matching[0]["wait_reason"] == "no_online_worker"
+
+    status, worker_list = get_api(base, "/v1/dashboard/workers", "viewer-token")
+    assert status == 200
+    worker = next(row for row in worker_list["workers"] if row["worker_id"] == "worker-a")
+    assert worker["status"] == "online"  # Persistent record is not rewritten.
+    assert worker["heartbeat_fresh"] is False
+    assert worker["display_state"] == "stale"
