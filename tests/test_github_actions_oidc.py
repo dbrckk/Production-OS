@@ -61,6 +61,7 @@ def test_worker_oidc_exchange_is_role_scoped_and_ephemeral(signing):
     assert auth.authenticate(response["access_token"]).allows("worker")
     assert not auth.authenticate(response["access_token"]).allows("operator")
     assert auth.authenticate(response["access_token"] + "bad") is None
+    assert auth.authenticate(response["access_token"] + "☃") is None
     assert auth.authenticate("other-secret") is None
     with pytest.raises(OIDCRejected):
         auth.exchange(sign(), requested_role="operator")
@@ -89,6 +90,9 @@ def test_signed_claims_and_trust_rules_are_mandatory(signing):
         {"repository_owner_id": "2"},
         {"ref": "refs/heads/feature"},
         {"sub": "repo:someone/else:ref:refs/heads/main"},
+        {"sub": ["repo:dbrckk/ai-dev-server:ref:refs/heads/main"]},
+        {"workflow_ref": ["bad"]},
+        {"event_name": ["schedule"]},
         {"workflow_ref": "dbrckk/ai-dev-server/.github/workflows/untrusted.yml@refs/heads/main"},
         {"event_name": "pull_request"},
         {"sha": "not-a-sha"},
