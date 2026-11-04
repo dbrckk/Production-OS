@@ -314,13 +314,10 @@ class ControlPlane:
             worker_id = str(getattr(worker, "worker_id", "") or "").strip()
             if not worker_id or worker_id in ephemeral_ids:
                 continue
-            status = str(getattr(worker, "status", "") or "").lower()
-            if status != "online":
-                continue
-            heartbeat = self._parse_timestamp(
-                getattr(worker, "last_heartbeat", None)
-            )
-            if heartbeat is None or (now - heartbeat).total_seconds() > STALE_BUSY_WORKER_SECONDS:
+            if not is_worker_fresh({
+                "status":getattr(worker, "status", None),
+                "last_heartbeat":getattr(worker, "last_heartbeat", None),
+            }, now=now):
                 continue
             try:
                 desired = self.dashboard_control.worker_state(worker_id)
