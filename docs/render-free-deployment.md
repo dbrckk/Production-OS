@@ -15,8 +15,8 @@ image built successfully on 2026-10-31, but the first deployment failed
 closed at startup because `PRODUCTION_OS_WORKER_TOKEN` was not yet present.
 `PRODUCTION_OS_OPERATOR_TOKEN` must also be provisioned for authenticated
 operation. `GITHUB_TOKEN` is optional: without it the existing scheduled
-Actions worker provides a five-minute polling fallback rather than
-immediate dispatch. New-service auto-deploy is
+Actions worker provides a best-effort scheduled polling fallback rather
+than immediate dispatch; GitHub does not guarantee a five-minute cadence. New-service auto-deploy is
 temporarily **off** to avoid wasting Free quota on repeated GitHub pushes
 before authentication and readiness are verified. This document records
 the target destination, not a successful switchover.
@@ -40,7 +40,8 @@ execution tier. Prior free-host alternatives are archived as a fallback in
 - Source: `dbrckk/Production-OS`, `main` (Render builds
   `Dockerfile.free-hosting`, running `scripts/render-start.py`).
 - Worker: `dbrckk/ai-dev-server`, GitHub Actions
-  `production-os-actions-worker.yml` (schedule every 5 minutes).
+  `production-os-actions-worker.yml` (cron `*/5 * * * *`; GitHub-hosted
+  scheduled runs can be delayed or skipped, so this is not a five-minute SLA).
 - Persistent database: existing Neon project **production-os**, database
   **production_os**, branch **production**, region **Frankfurt**.
   Preserve the original database; it has application tables and historical
@@ -147,7 +148,7 @@ before considering cutover completed.
    existing `PRODUCTION_OS_WORKER_TOKEN` and `PRODUCTION_OS_OPERATOR_TOKEN`
    securely; never paste secrets into commits or chat. Configure `GITHUB_TOKEN`
    if available to enable immediate worker wake; otherwise, retain the
-   existing scheduled GitHub Actions worker fallback and verify it really
+   best-effort scheduled GitHub Actions worker fallback and verify it really
    claims work before certifying autonomy.
    Worker/operator values must match the relevant secrets in
    `dbrckk/ai-dev-server`. If the existing values cannot be recovered,
