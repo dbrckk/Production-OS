@@ -903,9 +903,23 @@ def make_handler(control: ControlPlane):
                     rows = db.execute(
                         "SELECT status, COUNT(*) AS count FROM jobs GROUP BY status"
                     ).fetchall()
-                    workers = db.execute(
-                        "SELECT COUNT(*) AS count FROM workers WHERE status='online'"
-                    ).fetchone()["count"]
+                    # A persisted "online" label is not a live worker:
+                    # ephemeral Actions processes may disappear without
+                    # deregistering. Count only recent heartbeats.
+                    online_rows = db.execute(
+                        "SELECT last_heartbeat FROM workers WHERE status='online'"
+                    ).fetchall()
+                    now = datetime.now(timezone.utc)
+                    workers = sum(
+                        1 for row in online_rows
+                        if (
+                            (last := control._parse_timestamp(row["last_heartbeat"]))
+                            is not None
+                            and 0 <= (now - last).total_seconds()
+                            <= STALE_BUSY_WORKER_SECONDS
+                        )
+                    )
+                    stale_workers = len(online_rows) - workers
                     workflow_rows = db.execute(
                         "SELECT status, COUNT(*) AS count FROM workflows GROUP BY status"
                     ).fetchall()
@@ -918,6 +932,7 @@ def make_handler(control: ControlPlane):
                             for row in workflow_rows
                         },
                         "online_workers":workers,
+                        "stale_online_workers":stale_workers,
                     },
                 )
                 return
