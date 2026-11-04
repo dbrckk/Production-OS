@@ -242,24 +242,32 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-31T17:02:57Z
+Generated: 2026-11-04T10:51:45Z
 
 ### Git
 - Branch: `main`
-- Head: `5d19cdc8a6ae`
-- Commit date: 2026-10-31T13:02:37-04:00
-- Commit: fix(render): block retired original-account controllers (#330)
-- Tracked files: 585
+- Head: `739cd5bb0a47`
+- Commit date: 2026-11-04T05:51:35-05:00
+- Commit: fix(render): safe single-writer cutover and truthful worker liveness (#331)
+- Tracked files: 587
 
 ### Recently changed files
-- `scripts/render-start.py`
-- `tests/test_render_start.py`
+- `.github/workflows/ci.yml`
 - `docs/render-free-deployment.md`
-- `src/production_os/dashboard_store.py`
-- `src/production_os/worker_wake.py`
-- `tests/test_dashboard_launch_ux.py`
-- `tests/test_dashboard_store_postgres.py`
-- `tests/test_worker_wake.py`
+- `render.yaml`
+- `scripts/render-start.py`
+- `scripts/verify-render-cutover.py`
+- `src/production_os/control_plane.py`
+- `src/production_os/dashboard_health.py`
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_control_plane.py`
+- `tests/test_dashboard_api.py`
+- `tests/test_dashboard_health.py`
+- `tests/test_dashboard_launch_readiness.py`
+- `tests/test_dashboard_worker_detail_freshness.py`
+- `tests/test_render_start.py`
+- `tests/test_verify_render_cutover.py`
 
 ### Project signals
 - `pyproject.toml`

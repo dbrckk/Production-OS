@@ -236,6 +236,7 @@ test_trust_policy.py
 test_trust_status_summary.py
 test_vault_auth.py
 test_vault_signer.py
+test_verify_render_cutover.py
 test_witness.py
 test_worker_availability_api.py
 test_worker_compose_deployment.py
@@ -1327,6 +1328,21 @@ base=f"http://127.0.0.1:{server.server_port}"
 ⋮----
 key=claimed["job"]["key"]
 ⋮----
+def test_stats_counts_only_fresh_worker_heartbeats(tmp_path)
+⋮----
+"""An old persistent online row must not imply an operating worker."""
+auth = TokenAuthorizer([
+control = ControlPlane(str(tmp_path/"stats-liveness.sqlite"), authorizer=auth)
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+# Simulate an ephemeral GitHub runner stopping without deregistering.
+stale = (datetime.now(timezone.utc)-timedelta(days=9)).isoformat()
+⋮----
+row = db.execute(
+⋮----
 def test_direct_enqueue_requests_worker_wake_when_no_worker_is_online(tmp_path)
 ⋮----
 control=ControlPlane(str(tmp_path/"wake-enqueue.sqlite"),authorizer=auth)
@@ -1949,6 +1965,13 @@ project_id = project["project_id"]
 audit = control.dashboard_store.control_audit_events(limit=10)
 ⋮----
 def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane)
+⋮----
+old = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
+⋮----
+matching = [row for row in autopilot["jobs"] if row["job_key"] == job["key"]]
+⋮----
+worker = next(row for row in worker_list["workers"] if row["worker_id"] == "worker-a")
+assert worker["status"] == "online"  # Persistent record is not rewritten.
 ```
 
 ## File: test_dashboard_async_freshness.py
@@ -2678,6 +2701,11 @@ def test_backup_filesystem_pressure_degrades_health_with_severity()
 warning = derive_control_health({
 ⋮----
 critical = derive_control_health({
+⋮----
+def test_worker_freshness_requires_recent_valid_heartbeat_and_online_status()
+⋮----
+now = datetime(2026, 11, 4, 10, 0, tzinfo=timezone.utc)
+fresh = {"status":"online", "last_heartbeat":"2026-11-04T09:59:00+00:00"}
 ```
 
 ## File: test_dashboard_incident_signals.py
@@ -2802,6 +2830,12 @@ def test_launch_readiness_identifies_missing_dispatch_credential_by_name(tmp_pat
 control = ControlPlane(str(tmp_path / "readiness-dispatch.sqlite"))
 ⋮----
 status = service.launch_readiness("dbrckk/example")
+⋮----
+def test_launch_readiness_queues_when_registered_worker_heartbeat_is_stale(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-stale.sqlite"))
+⋮----
+stale = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
 ```
 
 ## File: test_dashboard_launch.py
@@ -4011,6 +4045,11 @@ body = DASHBOARD_HTML.split(
 await_index = body.index("const results=await Promise.all([")
 guard_index = body.index("requestSequence!==workerDetailLoadSequence")
 render_index = body.index("const detail=results[0]")
+⋮----
+def test_dashboard_renders_stale_worker_state_in_list_and_detail()
+⋮----
+worker_section = DASHBOARD_HTML.split("let workersViewLoadSequence=0;", 1)[1]
+worker_section = worker_section.split("async function createManagedProject", 1)[0]
 ```
 
 ## File: test_dashboard_workflow_snapshot_invalidation.py
@@ -7569,6 +7608,17 @@ argv = execvp.call_args.args[1]
 ⋮----
 payload = json.loads(auth_path.read_text(encoding="utf-8"))
 ⋮----
+def test_missing_dispatch_token_keeps_scheduled_fallback_operational(self)
+⋮----
+auth = json.loads((Path(td) / "auth.json").read_text())
+⋮----
+def test_missing_secrets_reported_together_without_auth_file(self)
+⋮----
+required = {
+cases = (
+⋮----
+message = str(error.exception)
+⋮----
 def test_invalid_port_fails_closed(self)
 ⋮----
 redirect = Path(td) / "redirect"
@@ -8362,6 +8412,69 @@ def test_factory_creates_vault_transit_signer()
 signer=create_signer(
 ⋮----
 def test_factory_rejects_vault_uri_without_key()
+```
+
+## File: test_verify_render_cutover.py
+```python
+"""Tests exercise real loopback HTTP traffic, not a stubbed HTTP client."""
+⋮----
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "verify-render-cutover.py"
+SPEC = importlib.util.spec_from_file_location("verify_render_cutover", SCRIPT)
+MODULE = importlib.util.module_from_spec(SPEC)
+⋮----
+@contextmanager
+def serve(*, ready=True, legacy=False, coldstart=False, redirect=False)
+⋮----
+requests = []
+⋮----
+class Handler(BaseHTTPRequestHandler)
+⋮----
+def log_message(self, *_args)
+⋮----
+def send(self, code, data)
+⋮----
+def do_GET(self)
+⋮----
+def do_POST(self)
+⋮----
+length = int(self.headers.get("Content-Length", 0))
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def run(new, old, *, public=False, worker="worker-value", operator="operator-value")
+⋮----
+args = ["--new-url", new, "--legacy-url", old,
+⋮----
+out = io.StringIO()
+⋮----
+result = MODULE.main(args)
+output = out.getvalue()
+⋮----
+def test_good_credentialed_check_and_legacy_unavailable()
+⋮----
+def test_cold_start_legacy_is_detected_after_initial_503()
+⋮----
+def test_new_unavailable_fails_without_sending_tokens()
+⋮----
+def test_missing_worker_or_operator_is_named_without_secret_values()
+⋮----
+def test_distinct_token_roles_enforced()
+⋮----
+def test_wrong_worker_token_is_rejected()
+⋮----
+def test_redirect_is_rejected_without_forwarding_tokens()
+⋮----
+def test_public_only_diagnostic_does_not_claim_authentication()
+⋮----
+def test_remote_origin_validation(origin)
+⋮----
+def test_legacy_unknown_network_error_blocks()
+⋮----
+def test_verified_auth_contract_against_real_production_os_handler(tmp_path)
+⋮----
+controller = ControlPlane(
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(controller))
 ```
 
 ## File: test_witness.py

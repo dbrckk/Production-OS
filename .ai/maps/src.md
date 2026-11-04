@@ -3236,10 +3236,6 @@ now = datetime.now(timezone.utc)
 ⋮----
 worker_id = str(getattr(worker, "worker_id", "") or "").strip()
 ⋮----
-status = str(getattr(worker, "status", "") or "").lower()
-⋮----
-heartbeat = self._parse_timestamp(
-⋮----
 desired = self.dashboard_control.worker_state(worker_id)
 ⋮----
 capabilities = {
@@ -3420,7 +3416,13 @@ payload = service.incidents(
 ⋮----
 payload = service.activity(
 ⋮----
-workers = db.execute(
+# A persisted "online" label is not a live worker:
+# ephemeral Actions processes may disappear without
+# deregistering. Count only recent heartbeats.
+online_rows = db.execute(
+⋮----
+workers = sum(
+stale_workers = len(online_rows) - workers
 workflow_rows = db.execute(
 ⋮----
 after = int(query.get("after", ["0"])[0])
@@ -4495,6 +4497,18 @@ def _dt(value)
 ⋮----
 parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 ⋮----
+def is_worker_fresh(worker: dict, *, now: datetime | None = None) -> bool
+⋮----
+"""Report recent heartbeats, not persisted online labels.
+
+    Ephemeral GitHub Actions workers can exit without deregistering.
+    This is a bounded freshness heuristic, not a live process check.
+    """
+⋮----
+last = _dt(worker.get("last_heartbeat"))
+⋮----
+age = ((now or datetime.now(timezone.utc)) - last).total_seconds()
+⋮----
 def derive_control_health(snapshot: dict) -> dict
 ⋮----
 now = _dt(snapshot.get("generated_at")) or datetime.now(timezone.utc)
@@ -4504,8 +4518,6 @@ queued = int((snapshot.get("productions") or {}).get("queued") or 0)
 online = int((snapshot.get("workers") or {}).get("online") or 0)
 ⋮----
 stale_workers = []
-⋮----
-last = _dt(worker.get("last_heartbeat"))
 ⋮----
 age = max(0.0, (now - last).total_seconds())
 ⋮----
@@ -4820,6 +4832,9 @@ usage_rows=self.store.usage_events()
 usage=aggregate_usage(usage_rows,window=window,
 previous_cost=self._previous_window_cost(usage_rows, window)
 workers=self._worker_rows()
+worker_now=datetime.now(timezone.utc)
+fresh_online=sum(is_worker_fresh(row, now=worker_now) for row in workers)
+stale_online=sum(
 executions=[]
 ⋮----
 rows=db.execute("SELECT * FROM job_executions").fetchall()
@@ -4856,6 +4871,7 @@ ranked_item = {
 ⋮----
 workers = self._worker_rows()
 ephemeral_ids = _ephemeral_worker_ids()
+worker_now = datetime.now(timezone.utc)
 ⋮----
 worker_views = []
 ⋮----
@@ -5015,6 +5031,7 @@ parts = repository.split("/")
 catalog = self.repositories()
 known = any(
 workers = self.workers().get("workers", [])
+⋮----
 online = [
 # An Actions runner exits after its one-shot job, but its last
 # heartbeat can remain "online" in the registry. It must not make

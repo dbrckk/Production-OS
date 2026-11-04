@@ -60,6 +60,7 @@ integration/
   real_producer_bundle_smoke.py
 scripts/
   render-start.py
+  verify-render-cutover.py
 src/
   production_os/
     __init__.py
@@ -398,6 +399,7 @@ tests/
   test_trust_status_summary.py
   test_vault_auth.py
   test_vault_signer.py
+  test_verify_render_cutover.py
   test_witness.py
   test_worker_availability_api.py
   test_worker_compose_deployment.py
@@ -617,8 +619,35 @@ jobs:
         run: |
           set -euo pipefail
           docker build -f Dockerfile.free-hosting -t production-os-free-hosting:ci .
+          # Exercise the *shipped* container's startup guard, not just unit
+          # tests. Neither blocked container may attempt a DB connection.
+          blocked_output=$(docker run --rm --network none \
+            -e RENDER_SERVICE_ID=srv-dbj1hiuc6qcc73b7afvg \
+            production-os-free-hosting:ci 2>&1) && {
+              echo "Target Render container started without writer activation" >&2
+              exit 1
+            }
+          echo "$blocked_output" | grep -F 'primary writer activation blocked'
+          blocked_output=$(docker run --rm --network none \
+            -e RENDER=true \
+            production-os-free-hosting:ci 2>&1) && {
+              echo "Render container started without a service ID" >&2
+              exit 1
+            }
+          echo "$blocked_output" | grep -F 'Render service ID missing'
+          blocked_output=$(docker run --rm --network none \
+            -e RENDER_SERVICE_ID=srv-unauthorized-ci \
+            production-os-free-hosting:ci 2>&1) && {
+              echo "Unapproved Render container unexpectedly started" >&2
+              exit 1
+            }
+          echo "$blocked_output" | grep -F 'unapproved Render service'
+          # Only the explicit approved target can start against the actual
+          # disposable CI PostgreSQL instance.
           docker run --rm -d --network host \
             --name production-os-free-hosting-ci \
+            -e RENDER_SERVICE_ID=srv-dbj1hiuc6qcc73b7afvg \
+            -e PRODUCTION_OS_PRIMARY_WRITER_ENABLED=true \
             -e DATABASE_URL="$PRODUCTION_OS_TEST_POSTGRES" \
             -e PRODUCTION_OS_WORKER_TOKEN=ci-ephemeral-worker-not-a-secret \
             -e PRODUCTION_OS_OPERATOR_TOKEN=ci-ephemeral-operator-not-a-secret \
@@ -639,6 +668,10 @@ jobs:
           status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
             --max-time 5 http://127.0.0.1:8787/v1/workflows)
           test "$status" = 401
+          # Exercise the real Free-hosting scheduled fallback, not a fake
+          # dispatch PAT that masks missing production credentials.
+          docker logs production-os-free-hosting-ci 2>&1 \
+            | grep -F 'scheduled Actions worker fallback'
 
       - name: Browser worker image smoke test
         run: |
@@ -2753,9 +2786,12 @@ rejected_root = root / "rejected-consumer"
 ````python
 #!/usr/bin/env python3
 ⋮----
-def _required(name: str) -> str
+def _required(*names: str) -> tuple[str, ...]
 ⋮----
-value = str(os.environ.get(name) or "").strip()
+values = tuple(str(os.environ.get(name) or "").strip() for name in names)
+missing = [name for name, value in zip(names, values) if not value]
+⋮----
+# Report every absent setting in one failed deployment, never values.
 ⋮----
 def digest(value: str) -> str
 ⋮----
@@ -2769,15 +2805,28 @@ _RETIRED_RENDER_SERVICE_IDS = frozenset({
 "srv-dancjugae00c73earbe0",  # Production-OS
 "srv-dancfm3tqb8s73bek920",  # production-os
 ⋮----
+_PRIMARY_RENDER_SERVICE_ID = "srv-dbj1hiuc6qcc73b7afvg"
+⋮----
 def main() -> None
 ⋮----
-database_url = _required("DATABASE_URL")
-worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+service_id = str(os.environ.get("RENDER_SERVICE_ID") or "").strip()
+# Render guarantees RENDER=true and RENDER_SERVICE_ID at runtime. Missing
+# identity on that platform must never silently bypass the writer gate.
+⋮----
+# Prevent a second controller from activating when secrets are set.
+# Enable only after independently suspending the legacy writer.
+⋮----
+# The existing Actions schedule can poll without a GitHub dispatch PAT.
+# Do not reject a valid database + worker/operator configuration merely
+# because the faster, optional immediate wake is unavailable.
+⋮----
 worker_name = str(
 ⋮----
-operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
 # Duplicate secrets collapse the operator/worker role boundary. Refuse
 # to start rather than choosing an arbitrary role for the same digest.
+⋮----
+# render.yaml does not configure an already manually created Render service.
+# Missing dispatch routing otherwise yields a healthy API with no worker wake.
 ⋮----
 # Render has no durable local disk. A hostless PostgreSQL URI may fall
 # back to a Unix socket or PGHOST; an omitted database may select a
@@ -2804,6 +2853,75 @@ pending_path = None
 pending_path = Path(pending.name)
 ⋮----
 argv = [
+````
+
+## File: scripts/verify-render-cutover.py
+````python
+#!/usr/bin/env python3
+"""Read-only HTTP gate for the Production-OS Render migration.
+
+This gate cannot prove that the old Render service is durably suspended:
+that requires checking Render's service state independently before cutover.
+No credential is ever sent to the legacy URL or printed to stdout/stderr.
+"""
+⋮----
+NEW_URL = "https://production-os-control-plane.onrender.com"
+LEGACY_URL = "https://production-os1.onrender.com"
+READ_LIMIT = 8192
+⋮----
+class NoRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+⋮----
+def validated_origin(raw: str) -> str
+⋮----
+value = str(raw).strip().rstrip("/")
+parsed = urlsplit(value)
+loopback = parsed.hostname in {"localhost", "127.0.0.1", "::1"}
+⋮----
+_ = parsed.port
+⋮----
+"""Return sanitized (HTTP status, bounded JSON) without raising network errors."""
+headers = {"Accept": "application/json", "User-Agent": "production-os-cutover-check"}
+⋮----
+request = urllib.request.Request(
+opener = urllib.request.build_opener(NoRedirect())
+⋮----
+raw = response.read(READ_LIMIT + 1)
+⋮----
+data = json.loads(raw)
+⋮----
+data = None
+⋮----
+# Do not expose HTTP error bodies, Location headers or auth credentials.
+⋮----
+def check_new(origin: str, *, attempts: int, interval: float, timeout: float) -> bool
+⋮----
+def check_legacy(origin: str, *, attempts: int, interval: float, timeout: float) -> bool
+⋮----
+# A Render Free instance may initially return 503 and then wake into a
+# healthy, DB-connected controller. One 503 is not evidence of isolation.
+⋮----
+missing = [key for key, value in (
+⋮----
+def main(argv: list[str] | None = None) -> int
+⋮----
+parser = argparse.ArgumentParser(description=__doc__)
+⋮----
+args = parser.parse_args(argv)
+⋮----
+new = validated_origin(args.new_url)
+legacy = validated_origin(args.legacy_url)
+⋮----
+# Check both endpoints regardless of readiness result: the old controller
+# can still be live when the intended new service is failing.
+new_ok = check_new(new, attempts=args.attempts, interval=args.interval,
+legacy_ok = check_legacy(legacy, attempts=args.attempts, interval=args.interval,
+auth_ok = True
+⋮----
+auth_ok = check_auth(
+⋮----
+auth_ok = False
 ````
 
 ## File: src/production_os/__init__.py
@@ -5862,10 +5980,6 @@ now = datetime.now(timezone.utc)
 ⋮----
 worker_id = str(getattr(worker, "worker_id", "") or "").strip()
 ⋮----
-status = str(getattr(worker, "status", "") or "").lower()
-⋮----
-heartbeat = self._parse_timestamp(
-⋮----
 desired = self.dashboard_control.worker_state(worker_id)
 ⋮----
 capabilities = {
@@ -6046,7 +6160,13 @@ payload = service.incidents(
 ⋮----
 payload = service.activity(
 ⋮----
-workers = db.execute(
+# A persisted "online" label is not a live worker:
+# ephemeral Actions processes may disappear without
+# deregistering. Count only recent heartbeats.
+online_rows = db.execute(
+⋮----
+workers = sum(
+stale_workers = len(online_rows) - workers
 workflow_rows = db.execute(
 ⋮----
 after = int(query.get("after", ["0"])[0])
@@ -7121,6 +7241,18 @@ def _dt(value)
 ⋮----
 parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 ⋮----
+def is_worker_fresh(worker: dict, *, now: datetime | None = None) -> bool
+⋮----
+"""Report recent heartbeats, not persisted online labels.
+
+    Ephemeral GitHub Actions workers can exit without deregistering.
+    This is a bounded freshness heuristic, not a live process check.
+    """
+⋮----
+last = _dt(worker.get("last_heartbeat"))
+⋮----
+age = ((now or datetime.now(timezone.utc)) - last).total_seconds()
+⋮----
 def derive_control_health(snapshot: dict) -> dict
 ⋮----
 now = _dt(snapshot.get("generated_at")) or datetime.now(timezone.utc)
@@ -7130,8 +7262,6 @@ queued = int((snapshot.get("productions") or {}).get("queued") or 0)
 online = int((snapshot.get("workers") or {}).get("online") or 0)
 ⋮----
 stale_workers = []
-⋮----
-last = _dt(worker.get("last_heartbeat"))
 ⋮----
 age = max(0.0, (now - last).total_seconds())
 ⋮----
@@ -7446,6 +7576,9 @@ usage_rows=self.store.usage_events()
 usage=aggregate_usage(usage_rows,window=window,
 previous_cost=self._previous_window_cost(usage_rows, window)
 workers=self._worker_rows()
+worker_now=datetime.now(timezone.utc)
+fresh_online=sum(is_worker_fresh(row, now=worker_now) for row in workers)
+stale_online=sum(
 executions=[]
 ⋮----
 rows=db.execute("SELECT * FROM job_executions").fetchall()
@@ -7482,6 +7615,7 @@ ranked_item = {
 ⋮----
 workers = self._worker_rows()
 ephemeral_ids = _ephemeral_worker_ids()
+worker_now = datetime.now(timezone.utc)
 ⋮----
 worker_views = []
 ⋮----
@@ -7641,6 +7775,7 @@ parts = repository.split("/")
 catalog = self.repositories()
 known = any(
 workers = self.workers().get("workers", [])
+⋮----
 online = [
 # An Actions runner exits after its one-shot job, but its last
 # heartbeat can remain "online" in the registry. It must not make
@@ -15128,6 +15263,21 @@ base=f"http://127.0.0.1:{server.server_port}"
 ⋮----
 key=claimed["job"]["key"]
 ⋮----
+def test_stats_counts_only_fresh_worker_heartbeats(tmp_path)
+⋮----
+"""An old persistent online row must not imply an operating worker."""
+auth = TokenAuthorizer([
+control = ControlPlane(str(tmp_path/"stats-liveness.sqlite"), authorizer=auth)
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+# Simulate an ephemeral GitHub runner stopping without deregistering.
+stale = (datetime.now(timezone.utc)-timedelta(days=9)).isoformat()
+⋮----
+row = db.execute(
+⋮----
 def test_direct_enqueue_requests_worker_wake_when_no_worker_is_online(tmp_path)
 ⋮----
 control=ControlPlane(str(tmp_path/"wake-enqueue.sqlite"),authorizer=auth)
@@ -15750,6 +15900,13 @@ project_id = project["project_id"]
 audit = control.dashboard_store.control_audit_events(limit=10)
 ⋮----
 def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane)
+⋮----
+old = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
+⋮----
+matching = [row for row in autopilot["jobs"] if row["job_key"] == job["key"]]
+⋮----
+worker = next(row for row in worker_list["workers"] if row["worker_id"] == "worker-a")
+assert worker["status"] == "online"  # Persistent record is not rewritten.
 ````
 
 ## File: tests/test_dashboard_async_freshness.py
@@ -16479,6 +16636,11 @@ def test_backup_filesystem_pressure_degrades_health_with_severity()
 warning = derive_control_health({
 ⋮----
 critical = derive_control_health({
+⋮----
+def test_worker_freshness_requires_recent_valid_heartbeat_and_online_status()
+⋮----
+now = datetime(2026, 11, 4, 10, 0, tzinfo=timezone.utc)
+fresh = {"status":"online", "last_heartbeat":"2026-11-04T09:59:00+00:00"}
 ````
 
 ## File: tests/test_dashboard_incident_signals.py
@@ -16603,6 +16765,12 @@ def test_launch_readiness_identifies_missing_dispatch_credential_by_name(tmp_pat
 control = ControlPlane(str(tmp_path / "readiness-dispatch.sqlite"))
 ⋮----
 status = service.launch_readiness("dbrckk/example")
+⋮----
+def test_launch_readiness_queues_when_registered_worker_heartbeat_is_stale(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-stale.sqlite"))
+⋮----
+stale = (datetime.now(timezone.utc) - timedelta(days=9)).isoformat()
 ````
 
 ## File: tests/test_dashboard_launch.py
@@ -17812,6 +17980,11 @@ body = DASHBOARD_HTML.split(
 await_index = body.index("const results=await Promise.all([")
 guard_index = body.index("requestSequence!==workerDetailLoadSequence")
 render_index = body.index("const detail=results[0]")
+⋮----
+def test_dashboard_renders_stale_worker_state_in_list_and_detail()
+⋮----
+worker_section = DASHBOARD_HTML.split("let workersViewLoadSequence=0;", 1)[1]
+worker_section = worker_section.split("async function createManagedProject", 1)[0]
 ````
 
 ## File: tests/test_dashboard_workflow_snapshot_invalidation.py
@@ -21370,6 +21543,17 @@ argv = execvp.call_args.args[1]
 ⋮----
 payload = json.loads(auth_path.read_text(encoding="utf-8"))
 ⋮----
+def test_missing_dispatch_token_keeps_scheduled_fallback_operational(self)
+⋮----
+auth = json.loads((Path(td) / "auth.json").read_text())
+⋮----
+def test_missing_secrets_reported_together_without_auth_file(self)
+⋮----
+required = {
+cases = (
+⋮----
+message = str(error.exception)
+⋮----
 def test_invalid_port_fails_closed(self)
 ⋮----
 redirect = Path(td) / "redirect"
@@ -22163,6 +22347,69 @@ def test_factory_creates_vault_transit_signer()
 signer=create_signer(
 ⋮----
 def test_factory_rejects_vault_uri_without_key()
+````
+
+## File: tests/test_verify_render_cutover.py
+````python
+"""Tests exercise real loopback HTTP traffic, not a stubbed HTTP client."""
+⋮----
+SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "verify-render-cutover.py"
+SPEC = importlib.util.spec_from_file_location("verify_render_cutover", SCRIPT)
+MODULE = importlib.util.module_from_spec(SPEC)
+⋮----
+@contextmanager
+def serve(*, ready=True, legacy=False, coldstart=False, redirect=False)
+⋮----
+requests = []
+⋮----
+class Handler(BaseHTTPRequestHandler)
+⋮----
+def log_message(self, *_args)
+⋮----
+def send(self, code, data)
+⋮----
+def do_GET(self)
+⋮----
+def do_POST(self)
+⋮----
+length = int(self.headers.get("Content-Length", 0))
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def run(new, old, *, public=False, worker="worker-value", operator="operator-value")
+⋮----
+args = ["--new-url", new, "--legacy-url", old,
+⋮----
+out = io.StringIO()
+⋮----
+result = MODULE.main(args)
+output = out.getvalue()
+⋮----
+def test_good_credentialed_check_and_legacy_unavailable()
+⋮----
+def test_cold_start_legacy_is_detected_after_initial_503()
+⋮----
+def test_new_unavailable_fails_without_sending_tokens()
+⋮----
+def test_missing_worker_or_operator_is_named_without_secret_values()
+⋮----
+def test_distinct_token_roles_enforced()
+⋮----
+def test_wrong_worker_token_is_rejected()
+⋮----
+def test_redirect_is_rejected_without_forwarding_tokens()
+⋮----
+def test_public_only_diagnostic_does_not_claim_authentication()
+⋮----
+def test_remote_origin_validation(origin)
+⋮----
+def test_legacy_unknown_network_error_blocks()
+⋮----
+def test_verified_auth_contract_against_real_production_os_handler(tmp_path)
+⋮----
+controller = ControlPlane(
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(controller))
 ````
 
 ## File: tests/test_witness.py
@@ -28285,6 +28532,10 @@ services:
         sync: false
       - key: GITHUB_TOKEN
         sync: false
+      # Explicit latch: never auto-activate a second Neon writer at creation.
+      # After independent legacy suspension, set this to "true" in Render.
+      - key: PRODUCTION_OS_PRIMARY_WRITER_ENABLED
+        value: "false"
       - key: PRODUCTION_OS_WORKER_ID
         value: github-actions-worker
       - key: PRODUCTION_OS_ACTIONS_REPOSITORY

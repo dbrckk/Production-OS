@@ -39,6 +39,7 @@ The content is organized as follows:
 # Directory Structure
 ```
 render-start.py
+verify-render-cutover.py
 ```
 
 # Files
@@ -47,9 +48,12 @@ render-start.py
 ```python
 #!/usr/bin/env python3
 ⋮----
-def _required(name: str) -> str
+def _required(*names: str) -> tuple[str, ...]
 ⋮----
-value = str(os.environ.get(name) or "").strip()
+values = tuple(str(os.environ.get(name) or "").strip() for name in names)
+missing = [name for name, value in zip(names, values) if not value]
+⋮----
+# Report every absent setting in one failed deployment, never values.
 ⋮----
 def digest(value: str) -> str
 ⋮----
@@ -63,15 +67,28 @@ _RETIRED_RENDER_SERVICE_IDS = frozenset({
 "srv-dancjugae00c73earbe0",  # Production-OS
 "srv-dancfm3tqb8s73bek920",  # production-os
 ⋮----
+_PRIMARY_RENDER_SERVICE_ID = "srv-dbj1hiuc6qcc73b7afvg"
+⋮----
 def main() -> None
 ⋮----
-database_url = _required("DATABASE_URL")
-worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+service_id = str(os.environ.get("RENDER_SERVICE_ID") or "").strip()
+# Render guarantees RENDER=true and RENDER_SERVICE_ID at runtime. Missing
+# identity on that platform must never silently bypass the writer gate.
+⋮----
+# Prevent a second controller from activating when secrets are set.
+# Enable only after independently suspending the legacy writer.
+⋮----
+# The existing Actions schedule can poll without a GitHub dispatch PAT.
+# Do not reject a valid database + worker/operator configuration merely
+# because the faster, optional immediate wake is unavailable.
+⋮----
 worker_name = str(
 ⋮----
-operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
 # Duplicate secrets collapse the operator/worker role boundary. Refuse
 # to start rather than choosing an arbitrary role for the same digest.
+⋮----
+# render.yaml does not configure an already manually created Render service.
+# Missing dispatch routing otherwise yields a healthy API with no worker wake.
 ⋮----
 # Render has no durable local disk. A hostless PostgreSQL URI may fall
 # back to a Unix socket or PGHOST; an omitted database may select a
@@ -98,4 +115,73 @@ pending_path = None
 pending_path = Path(pending.name)
 ⋮----
 argv = [
+```
+
+## File: verify-render-cutover.py
+```python
+#!/usr/bin/env python3
+"""Read-only HTTP gate for the Production-OS Render migration.
+
+This gate cannot prove that the old Render service is durably suspended:
+that requires checking Render's service state independently before cutover.
+No credential is ever sent to the legacy URL or printed to stdout/stderr.
+"""
+⋮----
+NEW_URL = "https://production-os-control-plane.onrender.com"
+LEGACY_URL = "https://production-os1.onrender.com"
+READ_LIMIT = 8192
+⋮----
+class NoRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+⋮----
+def validated_origin(raw: str) -> str
+⋮----
+value = str(raw).strip().rstrip("/")
+parsed = urlsplit(value)
+loopback = parsed.hostname in {"localhost", "127.0.0.1", "::1"}
+⋮----
+_ = parsed.port
+⋮----
+"""Return sanitized (HTTP status, bounded JSON) without raising network errors."""
+headers = {"Accept": "application/json", "User-Agent": "production-os-cutover-check"}
+⋮----
+request = urllib.request.Request(
+opener = urllib.request.build_opener(NoRedirect())
+⋮----
+raw = response.read(READ_LIMIT + 1)
+⋮----
+data = json.loads(raw)
+⋮----
+data = None
+⋮----
+# Do not expose HTTP error bodies, Location headers or auth credentials.
+⋮----
+def check_new(origin: str, *, attempts: int, interval: float, timeout: float) -> bool
+⋮----
+def check_legacy(origin: str, *, attempts: int, interval: float, timeout: float) -> bool
+⋮----
+# A Render Free instance may initially return 503 and then wake into a
+# healthy, DB-connected controller. One 503 is not evidence of isolation.
+⋮----
+missing = [key for key, value in (
+⋮----
+def main(argv: list[str] | None = None) -> int
+⋮----
+parser = argparse.ArgumentParser(description=__doc__)
+⋮----
+args = parser.parse_args(argv)
+⋮----
+new = validated_origin(args.new_url)
+legacy = validated_origin(args.legacy_url)
+⋮----
+# Check both endpoints regardless of readiness result: the old controller
+# can still be live when the intended new service is failing.
+new_ok = check_new(new, attempts=args.attempts, interval=args.interval,
+legacy_ok = check_legacy(legacy, attempts=args.attempts, interval=args.interval,
+auth_ok = True
+⋮----
+auth_ok = check_auth(
+⋮----
+auth_ok = False
 ```
