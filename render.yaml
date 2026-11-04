@@ -31,6 +31,10 @@ services:
         sync: false
       - key: GITHUB_TOKEN
         sync: false
+      # Explicit latch: never auto-activate a second Neon writer at creation.
+      # After independent legacy suspension, set this to "true" in Render.
+      - key: PRODUCTION_OS_PRIMARY_WRITER_ENABLED
+        value: "false"
       - key: PRODUCTION_OS_WORKER_ID
         value: github-actions-worker
       - key: PRODUCTION_OS_ACTIONS_REPOSITORY
