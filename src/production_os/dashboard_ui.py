@@ -1892,6 +1892,10 @@ function openWorker(encoded){
  navigate({view:"workers",workerId:decodeURIComponent(encoded),repository:null,tab:"overview"});
 }
 let workersViewLoadSequence=0;
+function workerStatusLabel(worker){
+ const state=String(worker.display_state||worker.status||"inconnu");
+ return state==="stale"?"Inactif (heartbeat ancien)":state;
+}
 async function loadWorkersView(){
  const list=document.getElementById("workers-list");
  const requestSequence=++workersViewLoadSequence;
@@ -1901,7 +1905,7 @@ async function loadWorkersView(){
   const rows=data.workers||[];
   list.innerHTML=rows.length?rows.map(function(worker){
    const id=String(worker.worker_id||"");
-   return '<button class="secondary-btn" type="button" data-worker="'+esc(encodeURIComponent(id))+'" onclick="openWorker(this.dataset.worker)">'+esc(id)+' · '+esc(String(worker.status||"inconnu"))+'</button>';
+   return '<button class="secondary-btn" type="button" data-worker="'+esc(encodeURIComponent(id))+'" onclick="openWorker(this.dataset.worker)">'+esc(id)+' · '+esc(workerStatusLabel(worker))+'</button>';
   }).join(" "):'<div class="empty">Aucun worker enregistré.</div>';
   if(appState.workerId)await loadWorkerDetail(appState.workerId);
   else document.getElementById("worker-detail").innerHTML='<div class="empty">Sélectionne un worker.</div>';
@@ -1977,11 +1981,11 @@ async function loadWorkerDetail(workerId){
   const retryJobKey=retryExecution&&retryExecution.job_key?String(retryExecution.job_key):"";
   const recent=(logs.logs||[]).slice(0,8);
   el.innerHTML=
-   '<div class="card"><div class="section-head"><h2>'+esc(workerId)+'</h2><span class="badge">'+esc(String(worker.status||"inconnu"))+'</span></div>'+
+   '<div class="card"><div class="section-head"><h2>'+esc(workerId)+'</h2><span class="badge">'+esc(workerStatusLabel(worker))+'</span></div>'+
    '<p class="small"><strong>Tâche actuelle :</strong> '+esc(String(currentTask))+'</p>'+
    '<p class="small"><strong>Progression :</strong> '+formatNumber(currentProgress)+' %</p>'+
    '<p class="small"><strong>Dernier heartbeat :</strong> '+esc(String(worker.last_heartbeat||"Indisponible"))+'</p>'+
-   '<p class="small"><strong>Santé du worker :</strong> '+esc(String(worker.status||"inconnu"))+'</p>'+
+   '<p class="small"><strong>Santé du worker :</strong> '+esc(workerStatusLabel(worker))+'</p>'+
    '<p class="small"><strong>Concurrence :</strong> '+formatNumber(worker.active_tasks)+' / '+formatNumber(worker.max_concurrency)+'</p>'+
    '<p class="small"><strong>Capacités :</strong> '+esc(Array.isArray(worker.capabilities)?worker.capabilities.join(", "):String(worker.capabilities||"Indisponible"))+'</p>'+
    '<p class="small">Exécutions : '+formatNumber(executions.length)+'</p>'+
