@@ -99,8 +99,14 @@ database `production_os`, PostgreSQL 16.15) answered a direct SQL query.
 At observation time it contained 81 jobs (29 completed, 51 failed, 1 queued),
 57 workflows (29 succeeded, 27 failed, 1 running) and two worker records.
 The last recorded `github-actions-worker` heartbeat was
-2026-10-26 15:59 UTC. These are preserved database records, **not proof of
-currently executing workers**. Do not blindly clear or replay their leases.
+2026-10-26 15:59 UTC. A later read-only Neon query confirmed **zero**
+recently seen workers (180-second heartbeat window), with **one** stale
+record still marked `status=online`. That persisted flag is **not proof
+of a running worker**. The pending API/dashboard correction now distinguishes
+fresh `online_workers` from `stale_online_workers`, and refuses to offer
+immediate queue capacity based on stale registrations. It does **not**
+create a persistent worker or repair the stopped GitHub Actions executor.
+Do not blindly clear or replay historical job leases.
 
 Initial unauthenticated GET probes of both `/healthz` and `/readyz`
 returned HTTP 503 for **both** hosts. Crucially, **repeated probes after the
