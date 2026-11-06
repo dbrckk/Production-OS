@@ -10,24 +10,77 @@ https://production-os-control-plane.onrender.com. Its repository is
 existing `production-os` project, database `production_os`; no database
 was recreated.
 
-**Cutover is NOT complete or operationally qualified.** The initial Docker
-image built successfully on 2026-10-31, but the first deployment failed
-closed at startup because `PRODUCTION_OS_WORKER_TOKEN` was not yet present.
-`PRODUCTION_OS_OPERATOR_TOKEN` must also be provisioned for authenticated
-operation. `GITHUB_TOKEN` is optional: without it the existing scheduled
-Actions worker provides a best-effort scheduled polling fallback rather
-than immediate dispatch; GitHub does not guarantee a five-minute cadence. New-service auto-deploy is
-temporarily **off** to avoid wasting Free quota on repeated GitHub pushes
-before authentication and readiness are verified. This document records
-the target destination, not a successful switchover.
+**Status at 2026-11-06: control-plane cutover active; full autonomous
+delivery not yet qualified.** This section supersedes the historical
+pre-activation instructions below. The manually configured service in the
+`studycall12` workspace is **live** and the previous three controllers
+in the original Render workspace are **user-suspended**. Do not resume,
+recreate or run those older controllers, and do not deploy a duplicate
+controller from `render.yaml`.
+
+### Verified live checkpoint (2026-11-06)
+
+- **Render:** `production-os-control-plane` (`srv-dbj1hiuc6qcc73b7afvg`)
+  last deployed successfully on 2026-11-04 at 23:24 UTC:
+  [deploy `dep-dblrt1942hec73e6pq40`](https://dashboard.render.com/web/srv-dbj1hiuc6qcc73b7afvg).
+  Its deployed application revision is `46c753cb061d353c6e919a2899216a11bb2d9564`.
+  Repository `main` has since advanced to
+  `2dfe40416eb74f0cbcbe37e2569068055662713e` through an AI-context refresh;
+  **automatic Render deployment remains disabled**.
+- **Database and authentication:** the 2026-11-06 GitHub Actions
+  [worker run 42145892523](https://github.com/dbrckk/ai-dev-server/actions/runs/42145892523)
+  observed `/readyz` as ready, exchanged a GitHub Actions OIDC identity for
+  a scoped worker session, installed the exact CI-qualified Production-OS
+  revision, and successfully queried the persistent Neon-backed queue.
+- **Real execution:** on 2026-11-05,
+  [run 42092643579](https://github.com/dbrckk/ai-dev-server/actions/runs/42092643579)
+  processed a real queued job successfully, with a checkpoint commit and
+  `pull_request_open` delivery. This validates one bounded canary, not
+  general model-authored source delivery, independent target CI, or sustained
+  free inference capacity.
+- **Known review gate:** on 2026-11-05,
+  [run 42112540335](https://github.com/dbrckk/ai-dev-server/actions/runs/42112540335)
+  passed readiness, OIDC and work discovery, but the queued canary 48 ended
+  `human_action_required: review_handoff` with no new commit. Preserve the
+  trusted PR/review boundary: do not automatically replay that failed job
+  or classify the worker's later queue-empty success as completed work.
+- **Worker wake:** Render application logs still report
+  `GITHUB_TOKEN is unset`; immediate GitHub dispatch is disabled.
+  Scheduled GitHub Actions polling remains best-effort, and its cron is not
+  a five-minute execution SLA. Do not configure a privileged token merely
+  to make health checks green; use least privilege if immediate wake is
+  separately required and authorized.
+- **Single writer:** three legacy Render services
+  (`srv-dancka740ujc73bgdddg`, `srv-dancjugae00c73earbe0`,
+  `srv-dancfm3tqb8s73bek920`) were independently listed as
+  `suspended` with `suspenders: ["user"]` on 2026-11-06.
+  Keep them suspended and check them again before any future controller
+  activation, particularly after the old workspace's free-usage reset.
+
+**Remaining acceptance gate:** demonstrate an applicable, non-marker source
+task yielding a model-authored change, exact-head independently passing
+target CI, an inspectable review PR, and a durable completed Production-OS
+job. Protect manual review policy; a GitHub Actions run marked successful
+can still mean zero work was available. Avoid changing the existing
+Neon database, historical leases or approval gates solely to turn a
+status indicator green.
+
+### Historical first-deployment failure (2026-10-31)
+
+The first Docker image built successfully on 2026-10-31, but the initial
+deployment failed closed because the worker and operator token configuration
+was incomplete. The live state above supersedes that initial diagnosis.
+The `render.yaml` Blueprint never configures an already-created service,
+and auto-deploy remains off intentionally to protect the shared Free quota.
 
 The version-controlled `render.yaml` is a *future Blueprint template* and
 does not automatically update or configure the new manually created Render
 service. Never create a duplicate controller with the Blueprint. The old
-`production-os1` on the original account was resumed by Render on
-2026-11-01 after an earlier Free-quota suspension; it is not the future
-destination and must not be allowed to run concurrently with the new
-controller on the same persistent database.
+`production-os1` on the original account resumed on 2026-11-01
+after an earlier Free-quota suspension, but it and both other legacy
+Production-OS services were user-suspended by 2026-11-04. Their historical
+ability to resume makes the single-writer check critical: never run an old
+controller concurrently with the new service on the same persistent database.
 
 If explicitly deployed, `render.yaml` creates exactly
 **one Render Free web service**. It does not create a database, a paid service,
@@ -168,7 +221,15 @@ service or successful execution of a real worker task**: independently
 confirm the old service is suspended and require a real Actions canary
 before considering cutover completed.
 
-## Complete the already-created new-account cutover
+## Historical 2026-10-31 cutover checklist — do not rerun on the live service
+
+**Archived instructions only.** The one-time activation steps below predate
+the successful 2026-11-04 deployment and 2026-11-05/06 OIDC worker checks.
+They must not be executed again on the active controller. In particular,
+do not remove or rotate functioning credentials, disable the primary-writer
+latch, provision a second database, create a Blueprint duplicate, or
+unsuspend a legacy service merely because this historical checklist says so.
+Use the verified live checkpoint above to qualify remaining autonomy gaps.
 
 1. **Prepare**, but do not yet add to Render, matching
    `PRODUCTION_OS_WORKER_TOKEN` and a distinct
