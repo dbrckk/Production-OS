@@ -1,21 +1,16 @@
 # Change impact
 
-Base: 686b27d70821746eea7475114cc29daa5c1782a5
-Head: 46c753cb061d353c6e919a2899216a11bb2d9564
+Base: 2dfe40416eb74f0cbcbe37e2569068055662713e
+Head: b506b3a3a2e44c7d47216664ec8e04bbb3e28e27
 
 ## Changed files
-- M src/production_os/control_plane.py
-- A src/production_os/github_actions_oidc.py
-- A tests/test_github_actions_oidc.py
-- A tests/test_github_actions_oidc_http.py
+- M docs/render-free-deployment.md
 
 ## Affected areas
-- src
-- tests
+- docs
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_github_actions_oidc.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

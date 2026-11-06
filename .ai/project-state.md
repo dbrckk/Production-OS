@@ -242,22 +242,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-11-04T23:23:32Z
+Generated: 2026-11-06T04:36:23Z
 
 ### Git
 - Branch: `main`
-- Head: `46c753cb061d`
-- Commit date: 2026-11-04T18:23:16-05:00
-- Commit: feat(auth): role-scoped GitHub Actions OIDC exchange (#333)
+- Head: `b506b3a3a2e4`
+- Commit date: 2026-11-05T23:36:13-05:00
+- Commit: docs(ops): record verified Render cutover and remaining worker gates (#334)
 - Tracked files: 590
 
 ### Recently changed files
+- `docs/render-free-deployment.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/github_actions_oidc.py`
 - `tests/test_github_actions_oidc.py`
 - `tests/test_github_actions_oidc_http.py`
 - `.github/workflows/ci.yml`
-- `docs/render-free-deployment.md`
 - `render.yaml`
 - `scripts/render-start.py`
 - `scripts/verify-render-cutover.py`
