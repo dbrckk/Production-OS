@@ -242,16 +242,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-11-06T04:36:23Z
+Generated: 2026-11-07T08:09:12Z
 
 ### Git
 - Branch: `main`
-- Head: `b506b3a3a2e4`
-- Commit date: 2026-11-05T23:36:13-05:00
-- Commit: docs(ops): record verified Render cutover and remaining worker gates (#334)
+- Head: `19cbcf9dd5ce`
+- Commit date: 2026-11-07T03:09:03-05:00
+- Commit: fix(github): use current commit status per context, preserve ambiguous failures (#335)
 - Tracked files: 590
 
 ### Recently changed files
+- `src/production_os/github_client.py`
 - `docs/render-free-deployment.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/github_actions_oidc.py`

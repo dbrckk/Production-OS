@@ -1,13 +1,13 @@
 # Change impact
 
-Base: 2dfe40416eb74f0cbcbe37e2569068055662713e
-Head: b506b3a3a2e44c7d47216664ec8e04bbb3e28e27
+Base: c17455535b3e7a542103c7a28aab65f75ca8d1cb
+Head: 19cbcf9dd5ceb9670dd027ae662e68910920366f
 
 ## Changed files
-- M docs/render-free-deployment.md
+- M src/production_os/github_client.py
 
 ## Affected areas
-- docs
+- src
 
 ## Related test candidates
 - No direct filename-based test match detected.

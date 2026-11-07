@@ -9277,6 +9277,22 @@ def get_commit_statuses(self, full_name: str, commit_sha: str) -> list[dict[str,
 ⋮----
 statuses = payload.get("statuses", [])
 ⋮----
+# GitHub's combined-status endpoint includes the complete history,
+# not only the current status of each context. A recovered check must
+# not remain failed merely because its earlier attempt is retained.
+# Resolve by the API's timestamp rather than assuming list order.
+latest: dict[str, tuple[datetime, dict[str, Any]]] = {}
+⋮----
+context = entry.get("context")
+stamp = entry.get("created_at")
+⋮----
+seen_at = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+⋮----
+previous = latest.get(context)
+⋮----
+# Ambiguous same-timestamp updates: keep all outcomes so the
+# downstream promotion gate remains conservative.
+⋮----
 def get_commit_check_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
 ⋮----
 checks = payload.get("check_runs", [])

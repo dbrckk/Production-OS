@@ -518,6 +518,7 @@
         "src/production_os/fanout_learning.py",
         "src/production_os/feedback.py",
         "src/production_os/github_actions_oidc.py",
+        "src/production_os/github_client.py",
         "src/production_os/github_work_state.py",
         "src/production_os/health.py",
         "src/production_os/managed_projects.py",
@@ -557,8 +558,7 @@
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_store.py"
+        "tests/test_dashboard_remediation_history.py"
       ],
       "in_degree": 63,
       "out_degree": 3,
@@ -1125,6 +1125,38 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/source_tree.py",
+        "tests/test_asset_forge.py",
+        "tests/test_remote_worker.py"
+      ],
+      "dependents": [
+        "integration/real_producer_bundle_smoke.py",
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_asset_forge_dispatch_probe.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_dashboard_repositories.py",
+        "tests/test_deep_fingerprint_starlist.py",
+        "tests/test_github_automerge.py",
+        "tests/test_github_client_pr_files.py",
+        "tests/test_github_client_put_file.py"
+      ],
+      "in_degree": 19,
+      "out_degree": 4,
+      "path": "src/production_os/github_client.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/workers.py",
         "tests/test_github_automerge.py"
       ],
@@ -1153,37 +1185,6 @@
       "in_degree": 20,
       "out_degree": 2,
       "path": "src/production_os/remote_worker.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/source_tree.py",
-        "tests/test_remote_worker.py"
-      ],
-      "dependents": [
-        "integration/real_producer_bundle_smoke.py",
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/dashboard_control.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/managed_projects.py",
-        "tests/test_asset_forge_dispatch_probe.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_controller_managed_projects.py",
-        "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_repositories.py",
-        "tests/test_deep_fingerprint_starlist.py",
-        "tests/test_github_automerge.py",
-        "tests/test_github_client_pr_files.py",
-        "tests/test_github_client_put_file.py"
-      ],
-      "in_degree": 19,
-      "out_degree": 3,
-      "path": "src/production_os/github_client.py"
     },
     {
       "dependencies": [

@@ -1439,6 +1439,7 @@
       "dependencies": [
         "src/production_os/models.py",
         "src/production_os/source_tree.py",
+        "tests/test_asset_forge.py",
         "tests/test_remote_worker.py"
       ],
       "dependents": [
@@ -1463,7 +1464,7 @@
         "tests/test_github_client_put_file.py"
       ],
       "in_degree": 19,
-      "out_degree": 3
+      "out_degree": 4
     },
     "src/production_os/github_webhook.py": {
       "dependencies": [
@@ -2861,6 +2862,7 @@
         "src/production_os/fanout_learning.py",
         "src/production_os/feedback.py",
         "src/production_os/github_actions_oidc.py",
+        "src/production_os/github_client.py",
         "src/production_os/github_work_state.py",
         "src/production_os/health.py",
         "src/production_os/managed_projects.py",
@@ -2900,8 +2902,7 @@
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_store.py"
+        "tests/test_dashboard_remediation_history.py"
       ],
       "in_degree": 63,
       "out_degree": 3
@@ -3750,12 +3751,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/dashboard_store.py",
-        "src/production_os/sqlite_backend.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/sqlite_backend.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_dashboard_store_postgres.py": {
       "dependencies": [
