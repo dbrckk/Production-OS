@@ -56,7 +56,7 @@ class GitHubWorkState:
 def _review_state(reviews: list[dict[str, Any]]) -> str | None:
     if not reviews:
         return None
-    states = [str(r.get("state", "")).upper() for r in reviews]
+    states = list({(r.get('user') or {}).get('id') or id(r): str(r.get('state', '')).upper() for r in reviews if str(r.get('state', '')).upper() in {'APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'}}.values())
     if "CHANGES_REQUESTED" in states:
         return "changes-requested"
     if "APPROVED" in states:
