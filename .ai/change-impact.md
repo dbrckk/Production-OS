@@ -1,16 +1,17 @@
 # Change impact
 
-Base: c17455535b3e7a542103c7a28aab65f75ca8d1cb
-Head: 19cbcf9dd5ceb9670dd027ae662e68910920366f
+Base: 410194bd612bd18866136554015b1311383f04dd
+Head: cbff8dc0498940b92621226bbf57d7b4d6f06959
 
 ## Changed files
 - M src/production_os/github_client.py
+- M src/production_os/github_work_state.py
 
 ## Affected areas
 - src
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_github_work_state.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

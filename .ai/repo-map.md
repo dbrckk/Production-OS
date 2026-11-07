@@ -9275,7 +9275,10 @@ runs = payload.get("workflow_runs", [])
 ⋮----
 def get_commit_statuses(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
 ⋮----
-statuses = payload.get("statuses", [])
+# An unavailable status API is not evidence of zero external
+# checks. Keep the promotion gate closed until GitHub recovers.
+⋮----
+statuses = payload.get("statuses")
 ⋮----
 # GitHub's combined-status endpoint includes the complete history,
 # not only the current status of each context. A recovered check must
@@ -9453,7 +9456,10 @@ statuses = [str(r.get("status") or "").lower() for r in runs]
 ⋮----
 def _status_state(statuses: list[dict[str, Any]]) -> str | None
 ⋮----
-states = [str(item.get("state") or "").lower() for item in statuses if isinstance(item, dict)]
+# Malformed entries must not be silently discarded: a surviving success
+# alongside an unreadable failure is not proof that all checks passed.
+⋮----
+states = [str(item.get("state") or "").lower() for item in statuses]
 ⋮----
 observed = set()
 ⋮----

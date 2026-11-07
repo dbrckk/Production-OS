@@ -242,17 +242,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-11-07T08:09:12Z
+Generated: 2026-11-07T10:27:01Z
 
 ### Git
 - Branch: `main`
-- Head: `19cbcf9dd5ce`
-- Commit date: 2026-11-07T03:09:03-05:00
-- Commit: fix(github): use current commit status per context, preserve ambiguous failures (#335)
+- Head: `cbff8dc04989`
+- Commit date: 2026-11-07T05:26:52-05:00
+- Commit: fix(github): prevent promotion when commit-status evidence is unavailable (#336)
 - Tracked files: 590
 
 ### Recently changed files
 - `src/production_os/github_client.py`
+- `src/production_os/github_work_state.py`
 - `docs/render-free-deployment.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/github_actions_oidc.py`
@@ -271,7 +272,6 @@ Generated: 2026-11-07T08:09:12Z
 - `tests/test_dashboard_launch_readiness.py`
 - `tests/test_dashboard_worker_detail_freshness.py`
 - `tests/test_render_start.py`
-- `tests/test_verify_render_cutover.py`
 
 ### Project signals
 - `pyproject.toml`

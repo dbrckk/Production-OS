@@ -1,17 +1,22 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "b506b3a3a2e44c7d47216664ec8e04bbb3e28e27",
-  "head": "19cbcf9dd5ceb9670dd027ae662e68910920366f",
+  "base": "19cbcf9dd5ceb9670dd027ae662e68910920366f",
+  "head": "cbff8dc0498940b92621226bbf57d7b4d6f06959",
   "index_mode": "incremental",
   "changed_files": [
     {
       "path": "src/production_os/github_client.py",
       "status": "M"
+    },
+    {
+      "path": "src/production_os/github_work_state.py",
+      "status": "M"
     }
   ],
   "changed_source_files": [
-    "src/production_os/github_client.py"
+    "src/production_os/github_client.py",
+    "src/production_os/github_work_state.py"
   ],
   "impacted_files": [
     "integration/real_producer_bundle_smoke.py",
@@ -29,7 +34,9 @@
     "tests/test_dashboard_repositories.py",
     "tests/test_github_automerge.py",
     "tests/test_github_client_pr_files.py",
-    "tests/test_github_client_put_file.py"
+    "tests/test_github_client_put_file.py",
+    "tests/test_github_work_state.py",
+    "tests/test_managed_github_reconciliation.py"
   ],
   "impacted_symbols": [
     {
@@ -1788,49 +1795,49 @@
       "name": "get_commit_check_runs",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 660
+      "line": 662
     },
     {
       "name": "list_accessible_repositories",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 672
+      "line": 674
     },
     {
       "name": "list_repositories",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 708
+      "line": 710
     },
     {
       "name": "_contents",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 724
+      "line": 726
     },
     {
       "name": "_read_text",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 735
+      "line": 737
     },
     {
       "name": "read_json_file",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 764
+      "line": 766
     },
     {
       "name": "_latest_workflow_run",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 785
+      "line": 787
     },
     {
       "name": "_recursive_tree_paths",
       "kind": "function",
       "file": "src/production_os/github_client.py",
-      "line": 796
+      "line": 798
     }
   ],
   "selected_tests": [
@@ -1840,6 +1847,8 @@
     "tests/test_dashboard_repositories.py",
     "tests/test_github_automerge.py",
     "tests/test_github_client_pr_files.py",
-    "tests/test_github_client_put_file.py"
+    "tests/test_github_client_put_file.py",
+    "tests/test_github_work_state.py",
+    "tests/test_managed_github_reconciliation.py"
   ]
 }
