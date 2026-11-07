@@ -87,7 +87,11 @@ def _ci_state(runs: list[dict[str, Any]]) -> str | None:
 def _status_state(statuses: list[dict[str, Any]]) -> str | None:
     if not statuses:
         return None
-    states = [str(item.get("state") or "").lower() for item in statuses if isinstance(item, dict)]
+    # Malformed entries must not be silently discarded: a surviving success
+    # alongside an unreadable failure is not proof that all checks passed.
+    if any(not isinstance(item, dict) for item in statuses):
+        return "unknown"
+    states = [str(item.get("state") or "").lower() for item in statuses]
     if any(state in {"failure","error"} for state in states):
         return "failed"
     if any(state in {"pending","expected"} for state in states):
