@@ -623,12 +623,14 @@ class GitHubClient:
                 f"/repos/{full_name}/commits/{urllib.parse.quote(commit_sha)}/status"
             )
         except GitHubAPIError:
-            return []
+            # An unavailable status API is not evidence of zero external
+            # checks. Keep the promotion gate closed until GitHub recovers.
+            return [{"state": "error"}]
         if not isinstance(payload, dict):
-            return []
-        statuses = payload.get("statuses", [])
+            return [{"state": "error"}]
+        statuses = payload.get("statuses")
         if not isinstance(statuses, list):
-            return []
+            return [{"state": "error"}]
 
         # GitHub's combined-status endpoint includes the complete history,
         # not only the current status of each context. A recovered check must
