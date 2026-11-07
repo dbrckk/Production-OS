@@ -8,6 +8,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from base64 import b64decode, b64encode
+from datetime import datetime
 from typing import Any
 
 from .models import RepoEvidence
@@ -626,7 +627,35 @@ class GitHubClient:
         if not isinstance(payload, dict):
             return []
         statuses = payload.get("statuses", [])
-        return statuses if isinstance(statuses, list) else []
+        if not isinstance(statuses, list):
+            return []
+
+        # GitHub's combined-status endpoint includes the complete history,
+        # not only the current status of each context. A recovered check must
+        # not remain failed merely because its earlier attempt is retained.
+        # Resolve by the API's timestamp rather than assuming list order.
+        latest: dict[str, tuple[datetime, dict[str, Any]]] = {}
+        for entry in statuses:
+            if not isinstance(entry, dict):
+                return statuses
+            context = entry.get("context")
+            stamp = entry.get("created_at")
+            if not isinstance(context, str) or not context.strip() or not isinstance(stamp, str):
+                return statuses
+            try:
+                seen_at = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+            except ValueError:
+                return statuses
+            if seen_at.tzinfo is None:
+                return statuses
+            previous = latest.get(context)
+            if previous is None or seen_at > previous[0]:
+                latest[context] = (seen_at, entry)
+            elif seen_at == previous[0] and entry != previous[1]:
+                # Ambiguous same-timestamp updates: keep all outcomes so the
+                # downstream promotion gate remains conservative.
+                return statuses
+        return [entry for _, entry in latest.values()]
 
     def get_commit_check_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
         try:
